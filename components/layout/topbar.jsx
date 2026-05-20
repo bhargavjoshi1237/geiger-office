@@ -22,7 +22,7 @@ export function Topbar({ onMenuClick }) {
           <Image src={`${assetPrefix}/logo1.svg`} alt="" width={20} height={20} className="-mr-0.5 h-5 w-5" />
         </div>
         <div className="hidden cursor-pointer items-center border-l border-[#333333] pl-2 sm:flex">
-          <span className="ml-1 text-sm font-semibold text-white">Form</span>
+          <span className="ml-1 text-sm font-semibold text-white">Office</span>
         </div>
       </div>
 

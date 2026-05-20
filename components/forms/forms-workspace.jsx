@@ -2,6 +2,6 @@
 
 import { AppShell } from "@/components/layout/app-shell";
 
-export function FormsWorkspace() {
+export function OfficeWorkspace() {
   return <AppShell />;
 }

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Forms - Geiger Studio",
-  description: "Geiger Studio - Forms",
+  title: "Office - Geiger Studio",
+  description: "Geiger Studio - Office",
 };
 
 export default function RootLayout({ children }) {

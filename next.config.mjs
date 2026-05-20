@@ -11,11 +11,11 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/forms/_next/:path*",
+        source: "/office/_next/:path*",
         destination: "/_next/:path*",
       },
       {
-        source: "/forms/:file(logo1\\.svg)",
+        source: "/office/:file(logo1\\.svg)",
         destination: "/:file",
       },
     ];
