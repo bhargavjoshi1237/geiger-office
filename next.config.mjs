@@ -1,5 +1,5 @@
 const isProd = process.env.NODE_ENV === "production";
-const assetPrefix = isProd ? "/forms" : "";
+const assetPrefix = isProd ? "/office" : "";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
