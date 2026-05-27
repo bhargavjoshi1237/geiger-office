@@ -93,3 +93,128 @@
   background-color: #474747;
   border-radius: 9999px;
 }
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.zoom-slider {
+  accent-color: #ffffff;
+  appearance: slider-vertical;
+  width: 18px;
+  writing-mode: vertical-lr;
+}
+
+.document-editor-content > * + * {
+  margin-top: 0.75rem;
+}
+
+.document-editor-content p {
+  margin: 0;
+}
+
+.document-editor-content h1,
+.document-editor-content h2,
+.document-editor-content h3,
+.document-editor-content h4,
+.document-editor-content h5,
+.document-editor-content h6 {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.document-editor-content h1 {
+  font-size: 2rem;
+}
+
+.document-editor-content h2 {
+  font-size: 1.625rem;
+}
+
+.document-editor-content h3 {
+  font-size: 1.375rem;
+}
+
+.document-editor-content h4 {
+  font-size: 1.125rem;
+}
+
+.document-editor-content h5 {
+  font-size: 1rem;
+}
+
+.document-editor-content h6 {
+  font-size: 0.875rem;
+}
+
+.document-editor-content a {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
+.document-editor-content ul,
+.document-editor-content ol {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.document-editor-content ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.document-editor-content ul[data-type="taskList"] li {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.document-editor-content ul[data-type="taskList"] label {
+  margin-top: 0.125rem;
+}
+
+.document-editor-content img {
+  display: block;
+  max-width: 100%;
+}
+
+@media print {
+  @page {
+    margin: 0.75in;
+    size: letter;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .document-print-page,
+  .document-print-page * {
+    visibility: visible;
+  }
+
+  .document-print-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: auto;
+    width: 100%;
+    border: 0;
+    background: #ffffff;
+    box-shadow: none;
+    color: #111111;
+    transform: none !important;
+  }
+
+  .document-editor-content {
+    color: #111111;
+  }
+}
