@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@silevis/reactgrid/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -59,6 +60,11 @@
   --sidebar-accent-foreground: #e7e7e7;
   --sidebar-border: #2a2a2a;
   --sidebar-ring: #474747;
+  --sheet-grid-background: #161616;
+  --sheet-grid-header: #202020;
+  --sheet-grid-border: #333333;
+  --sheet-grid-text: #ffffff;
+  --sheet-grid-text-secondary: #a3a3a3;
 }
 
 @layer base {
@@ -107,6 +113,98 @@
   appearance: slider-vertical;
   width: 18px;
   writing-mode: vertical-lr;
+}
+
+.sheet-reactgrid .reactgrid-content {
+  height: 100%;
+  width: 100%;
+  background: var(--sheet-grid-background);
+  color: var(--sheet-grid-text);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+
+.sheet-reactgrid .reactgrid {
+  height: 100%;
+}
+
+.sheet-reactgrid .reactgrid-content,
+.sheet-reactgrid .reactgrid-content .rg-pane,
+.sheet-reactgrid .reactgrid-content .rg-pane.rg-pane-top,
+.sheet-reactgrid .reactgrid-content .rg-pane.rg-pane-bottom,
+.sheet-reactgrid .reactgrid-content .rg-pane.rg-pane-left,
+.sheet-reactgrid .reactgrid-content .rg-pane.rg-pane-right {
+  background-color: var(--sheet-grid-background);
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane-shadow {
+  background: transparent;
+  box-shadow: none;
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-cell {
+  border-color: var(--sheet-grid-border) !important;
+  border-bottom-color: var(--sheet-grid-border) !important;
+  border-left-color: var(--sheet-grid-border) !important;
+  border-right-color: var(--sheet-grid-border) !important;
+  border-top-color: var(--sheet-grid-border) !important;
+  background-color: var(--sheet-grid-background);
+  color: var(--sheet-grid-text);
+  font-size: 13px;
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-cell.sheet-grid-header,
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-cell.sheet-grid-row-header,
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-cell.sheet-grid-corner {
+  justify-content: center;
+  background-color: var(--sheet-grid-header) !important;
+  color: var(--sheet-grid-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-cell .sheet-grid-cell-value {
+  align-items: center;
+  align-self: stretch;
+  background-color: transparent;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-column-resize-handle,
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-row-resize-handle,
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-column-resize-handle .rg-resize-handle,
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-row-resize-handle .rg-resize-handle {
+  background-color: transparent;
+}
+
+.sheet-reactgrid .rg-celleditor,
+.sheet-reactgrid .rg-celleditor-input,
+.sheet-reactgrid .rg-celleditor .rg-input {
+  border-color: var(--sheet-grid-text);
+  background-color: var(--sheet-grid-header);
+  color: var(--sheet-grid-text);
+  font: inherit;
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-partial-area.rg-partial-area-selected-range {
+  border-color: var(--sheet-grid-text);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-cell-focus,
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-cell-highlight {
+  border-color: var(--sheet-grid-text);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-column-resize-handle .rg-resize-handle:hover,
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-row-resize-handle .rg-resize-handle:hover,
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-fill-handle .rg-fill-handle {
+  background-color: var(--sheet-grid-text);
 }
 
 .document-editor-content > * + * {

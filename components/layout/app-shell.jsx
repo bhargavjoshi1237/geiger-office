@@ -1,23 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { PanelLeft, X } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
 import { cn } from "@/lib/utils";
 
 const navItems = [];
-const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
 
 function SidebarContent({ activeView, onViewChange, onNavigate, showHeader = false, collapsed = false, onToggle }) {
   return (
     <>
       {showHeader ? (
         <div className="flex h-14 items-center gap-2 border-b border-[#2a2a2a] bg-[#1a1a1a] px-4">
-          <div className="grid h-8 w-8 place-items-center rounded">
-            <Image src={`${assetPrefix}/logo1.svg`} alt="" width={20} height={20} className="h-5 w-5" />
-          </div>
-          <div className="border-l border-[#333333] pl-3">
+          <div>
             <p className="text-sm font-semibold text-white">Office</p>
           </div>
         </div>

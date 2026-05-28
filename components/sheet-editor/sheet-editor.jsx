@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import Image from "next/image";
+import { memo, startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import FormulaParser from "fast-formula-parser";
+import { ReactGrid } from "@silevis/reactgrid";
 import {
   AlignCenter,
   AlignLeft,
@@ -25,6 +25,8 @@ import {
   Menu,
   Minus,
   Palette,
+  PanelRightClose,
+  PanelRightOpen,
   Percent,
   Plus,
   Printer,
@@ -41,6 +43,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,6 +65,15 @@ const columns = Array.from({ length: COLUMN_COUNT }, (_, index) => String.fromCh
 const rows = Array.from({ length: ROW_COUNT }, (_, index) => index + 1);
 const defaultCellWidth = 112;
 const defaultRowHeight = 28;
+const minCellWidth = 64;
+const minRowHeight = 24;
+const SHEET_GRID_COLORS = {
+  header: "#202020",
+  range: "#242424",
+  active: "#2a2a2a",
+  text: "#ffffff",
+  textSecondary: "#a3a3a3",
+};
 const defaultStyle = {
   align: "left",
   bold: false,
@@ -71,7 +83,7 @@ const defaultStyle = {
   numberFormat: "auto",
   outlined: false,
   strike: false,
-  textColor: "#ffffff",
+  textColor: SHEET_GRID_COLORS.text,
   underline: false,
 };
 const activeCollaborators = [
@@ -109,14 +121,14 @@ const seededCells = {
   "5:4": "=SUM(D2:D4)",
 };
 const seededStyles = {
-  "1:1": { bold: true, fillColor: "#262626" },
-  "1:2": { bold: true, fillColor: "#262626", align: "right" },
-  "1:3": { bold: true, fillColor: "#262626", align: "right" },
-  "1:4": { bold: true, fillColor: "#262626", align: "right" },
+  "1:1": { bold: true, fillColor: SHEET_GRID_COLORS.range },
+  "1:2": { bold: true, fillColor: SHEET_GRID_COLORS.range, align: "right" },
+  "1:3": { bold: true, fillColor: SHEET_GRID_COLORS.range, align: "right" },
+  "1:4": { bold: true, fillColor: SHEET_GRID_COLORS.range, align: "right" },
   "5:1": { bold: true },
   "5:2": { bold: true, align: "right" },
   "5:3": { bold: true, align: "right" },
-  "5:4": { bold: true, align: "right", fillColor: "#14532d" },
+  "5:4": { bold: true, align: "right", fillColor: SHEET_GRID_COLORS.active },
 };
 
 function keyOf(row, col) {
@@ -125,6 +137,54 @@ function keyOf(row, col) {
 
 function labelOf({ row, col }) {
   return `${columns[col - 1]}${row}`;
+}
+
+function rangeLabelOf(range) {
+  const normalized = normalizeRange(range);
+  const startLabel = labelOf(normalized.start);
+  const endLabel = labelOf(normalized.end);
+
+  return startLabel === endLabel ? startLabel : `${startLabel}:${endLabel}`;
+}
+
+function normalizeRange(range) {
+  return {
+    start: {
+      row: Math.min(range.start.row, range.end.row),
+      col: Math.min(range.start.col, range.end.col),
+    },
+    end: {
+      row: Math.max(range.start.row, range.end.row),
+      col: Math.max(range.start.col, range.end.col),
+    },
+  };
+}
+
+function forEachRangeCell(range, callback) {
+  const normalized = normalizeRange(range);
+
+  for (let row = normalized.start.row; row <= normalized.end.row; row += 1) {
+    for (let col = normalized.start.col; col <= normalized.end.col; col += 1) {
+      callback(row, col);
+    }
+  }
+}
+
+function rangeSize(range) {
+  const normalized = normalizeRange(range);
+
+  return {
+    cols: normalized.end.col - normalized.start.col + 1,
+    rows: normalized.end.row - normalized.start.row + 1,
+  };
+}
+
+function sameCell(left, right) {
+  return left.row === right.row && left.col === right.col;
+}
+
+function sameRange(left, right) {
+  return sameCell(left.start, right.start) && sameCell(left.end, right.end);
 }
 
 function parseCellLabel(value) {
@@ -289,9 +349,6 @@ function SheetHeader({ children, menuProps, onExportWorkbook }) {
     <header className="shrink-0 border-b border-[#333333] bg-[#202020] shadow-sm shadow-black/20">
       <div className="mt-2 flex h-14 items-center gap-3 px-4">
         <div className="mr-auto flex min-w-0 items-start gap-3">
-          <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#2a2a2a] p-1.5">
-            <Image src="/logo1.svg" alt="Geiger Office" width={28} height={28} className="h-7 w-7 object-contain" priority />
-          </div>
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
               <h1 className="truncate text-sm font-semibold leading-7 text-white">Untitled spreadsheet</h1>
@@ -543,12 +600,12 @@ function SheetToolbar({
   );
 }
 
-function FormulaBar({ activeCell, formulaValue, onFormulaChange, onFormulaCommit, onJumpToCell }) {
+function FormulaBar({ activeCell, formulaValue, selectedRange, onFormulaChange, onFormulaCommit, onJumpToCell }) {
   const [nameDraft, setNameDraft] = useState(null);
-  const nameValue = nameDraft ?? labelOf(activeCell);
+  const nameValue = nameDraft ?? rangeLabelOf(selectedRange ?? { start: activeCell, end: activeCell });
 
   return (
-    <div className="flex h-9 shrink-0 items-center border-b border-[#333333] bg-[#1a1a1a] text-sm text-[#d4d4d4]">
+    <div className="flex h-9 shrink-0 items-center border-b border-[#333333] bg-[#1a1a1a] text-sm text-[#a3a3a3]">
       <Input
         aria-label="Cell reference"
         value={nameValue}
@@ -573,122 +630,181 @@ function FormulaBar({ activeCell, formulaValue, onFormulaChange, onFormulaCommit
         onChange={(event) => onFormulaChange(event.target.value)}
         onBlur={onFormulaCommit}
         onKeyDown={(event) => event.key === "Enter" && onFormulaCommit()}
-        className="h-full min-w-0 rounded-none border-0 bg-[#1a1a1a] px-3 text-[#d4d4d4] focus-visible:ring-0"
+        className="h-full min-w-0 rounded-none border-0 bg-[#1a1a1a] px-3 text-[#a3a3a3] focus-visible:ring-0"
       />
     </div>
   );
 }
 
-function SpreadsheetGrid({
-  activeCell,
-  editingCell,
-  editingValue,
+const SpreadsheetGrid = memo(function SpreadsheetGrid({
+  columnWidths,
   evaluatedCell,
   filterEnabled,
+  rowHeights,
   sheet,
   showFormulas,
-  onCellCommit,
-  onEditingValueChange,
-  onKeyDown,
-  onPaste,
-  onSelectCell,
-  onStartEdit,
+  onCellsCommit,
+  onColumnResize,
+  onRowResize,
+  onSelectionChange,
 }) {
-  return (
-    <div className="min-h-0 flex-1 overflow-auto bg-[#161616] scrollbar-subtle" tabIndex={0} onKeyDown={onKeyDown} onPaste={onPaste}>
-      <div className="pb-8" style={{ minWidth: 44 + COLUMN_COUNT * defaultCellWidth }}>
-        <div className="sticky top-0 z-20 grid" style={{ gridTemplateColumns: `44px repeat(${COLUMN_COUNT}, ${defaultCellWidth}px)` }}>
-          <div className="sticky left-0 z-30 h-7 border-b border-r border-[#333333] bg-[#202020]" />
-          {columns.map((column, index) => (
-            <div
-              key={column}
-              className={cn(
-                "flex h-7 items-center justify-center gap-1 border-b border-r border-[#333333] bg-[#202020] text-center text-xs font-medium text-[#d4d4d4]",
-                activeCell.col === index + 1 && "bg-[#2a2a2a] text-white",
-              )}
-            >
-              {column}
-              {filterEnabled && index < 4 ? <Filter className="h-3 w-3 text-[#737373]" /> : null}
-            </div>
-          ))}
-        </div>
-        <div className="grid" style={{ gridTemplateColumns: `44px repeat(${COLUMN_COUNT}, ${defaultCellWidth}px)` }}>
-          {rows.map((row) => (
-            <div key={row} className="contents">
-              <div
-                className={cn(
-                  "sticky left-0 z-10 border-b border-r border-[#333333] bg-[#202020] text-center text-xs text-[#d4d4d4]",
-                  activeCell.row === row && "bg-[#2a2a2a] text-white",
-                )}
-                style={{ height: defaultRowHeight, lineHeight: `${defaultRowHeight}px` }}
-              >
-                {row}
-              </div>
-              {columns.map((column, colIndex) => {
-                const col = colIndex + 1;
-                const cellKey = keyOf(row, col);
-                const style = { ...defaultStyle, ...(sheet.styles[cellKey] ?? {}) };
-                const selected = activeCell.row === row && activeCell.col === col;
-                const editing = editingCell?.row === row && editingCell?.col === col;
-                const rawValue = sheet.cells[cellKey] ?? "";
-                const displayValue = showFormulas && rawValue.startsWith?.("=") ? rawValue : rawValue.startsWith?.("=") ? evaluatedCell(row, col) : rawValue;
+  const handleCellsChanged = useCallback(
+    (changes) => {
+      onCellsCommit(
+        changes
+          .map((change) => ({
+            row: Number(change.rowId),
+            col: columns.indexOf(String(change.columnId)) + 1,
+            type: change.type,
+            value: change.newCell.text,
+          }))
+          .filter((change) => change.row > 0 && change.col > 0 && change.type === "text"),
+      );
+    },
+    [onCellsCommit],
+  );
 
-                return (
-                  <div
-                    key={`${column}${row}`}
-                    aria-label={`${column}${row}`}
-                    role="button"
-                    tabIndex={-1}
-                    className={cn(
-                      "relative min-w-0 overflow-hidden border-b border-r border-[#333333] bg-[#161616] px-2 text-left text-sm text-white outline-none transition-colors hover:bg-[#1d1d1d]",
-                      selected && "z-10 overflow-visible border-2 border-white bg-[#1d1d1d]",
-                    )}
-                    style={{
-                      alignItems: "center",
-                      backgroundColor: style.fillColor ?? undefined,
-                      color: style.textColor,
-                      display: "flex",
-                      fontSize: style.fontSize,
-                      fontStyle: style.italic ? "italic" : undefined,
-                      fontWeight: style.bold ? 700 : 400,
-                      height: defaultRowHeight,
-                      justifyContent: style.align === "right" ? "flex-end" : style.align === "center" ? "center" : "flex-start",
-                      boxShadow: style.outlined ? "inset 0 0 0 1px #ffffff" : undefined,
-                      textDecoration: [style.underline && "underline", style.strike && "line-through"].filter(Boolean).join(" ") || undefined,
-                    }}
-                    onClick={() => onSelectCell({ row, col })}
-                    onDoubleClick={() => onStartEdit({ row, col }, rawValue)}
-                  >
-                    {editing ? (
-                      <Input
-                        autoFocus
-                        value={editingValue}
-                        onChange={(event) => onEditingValueChange(event.target.value)}
-                        onBlur={(event) => onCellCommit(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") onCellCommit(event.currentTarget.value);
-                          if (event.key === "Escape") onCellCommit(rawValue);
-                        }}
-                        className="absolute inset-0 z-20 h-full rounded-none border border-white bg-[#202020] px-2 text-sm text-white focus-visible:ring-0"
-                      />
-                    ) : (
-                      <span className="block min-w-0 truncate">{formatDisplayValue(displayValue, style)}</span>
-                    )}
-                    {selected ? <span className="absolute -bottom-[5px] -right-[5px] h-2.5 w-2.5 rounded-full border border-[#161616] bg-white" /> : null}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-      </div>
+  const handleColumnResized = useCallback(
+    (columnId, width) => {
+      const col = columns.indexOf(String(columnId)) + 1;
+      if (col > 0) onColumnResize(col, width);
+    },
+    [onColumnResize],
+  );
+
+  const handleRowResized = useCallback(
+    (rowId, height) => {
+      const row = Number(rowId);
+      if (row > 0) onRowResize(row, height);
+    },
+    [onRowResize],
+  );
+
+  const gridColumns = useMemo(
+    () => [
+      { columnId: "row-header", width: 44, resizable: false },
+      ...columns.map((column, index) => ({
+        columnId: column,
+        width: columnWidths[index],
+        resizable: true,
+      })),
+    ],
+    [columnWidths],
+  );
+
+  const makeStyledRenderer = useCallback((text, style) => (
+    <span
+      className="sheet-grid-cell-value"
+      style={{
+        fontSize: style.fontSize,
+        fontStyle: style.italic ? "italic" : undefined,
+        fontWeight: style.bold ? 700 : 400,
+        justifyContent: style.align === "right" ? "flex-end" : style.align === "center" ? "center" : "flex-start",
+        textDecoration: [style.underline && "underline", style.strike && "line-through"].filter(Boolean).join(" ") || undefined,
+      }}
+    >
+      {text}
+    </span>
+  ), []);
+
+  const gridRows = useMemo(() => {
+    const headerRow = {
+      rowId: "header",
+      height: 28,
+      cells: [
+        {
+          type: "header",
+          text: "",
+          nonEditable: true,
+          className: "sheet-grid-corner",
+          style: { background: SHEET_GRID_COLORS.header, color: SHEET_GRID_COLORS.textSecondary },
+        },
+        ...columns.map((column, index) => ({
+          type: "header",
+          text: filterEnabled && index < 4 ? `${column}  Filter` : column,
+          nonEditable: true,
+          className: "sheet-grid-header",
+          style: {
+            background: SHEET_GRID_COLORS.header,
+            color: SHEET_GRID_COLORS.textSecondary,
+          },
+        })),
+      ],
+    };
+
+    const dataRows = rows.map((row) => ({
+      rowId: row,
+      height: rowHeights[row - 1],
+      resizable: true,
+      cells: [
+        {
+          type: "header",
+          text: String(row),
+          nonEditable: true,
+          className: "sheet-grid-row-header",
+          style: {
+            background: SHEET_GRID_COLORS.header,
+            color: SHEET_GRID_COLORS.textSecondary,
+          },
+        },
+        ...columns.map((column, colIndex) => {
+          const col = colIndex + 1;
+          const cellKey = keyOf(row, col);
+          const style = { ...defaultStyle, ...(sheet.styles[cellKey] ?? {}) };
+          const rawValue = sheet.cells[cellKey] ?? "";
+          const evaluatedValue = rawValue.startsWith?.("=") ? evaluatedCell(row, col) : rawValue;
+          const displayedValue = showFormulas && rawValue.startsWith?.("=") ? rawValue : formatDisplayValue(evaluatedValue, style);
+
+          return {
+            type: "text",
+            text: String(rawValue),
+            renderer: () => makeStyledRenderer(displayedValue, style),
+            className: cn("sheet-grid-data-cell", style.outlined && "sheet-grid-outlined-cell"),
+            style: {
+              background: style.fillColor ?? undefined,
+              color: style.textColor,
+              border: style.outlined
+                ? {
+                    bottom: { color: SHEET_GRID_COLORS.text, style: "solid", width: "1px" },
+                    left: { color: SHEET_GRID_COLORS.text, style: "solid", width: "1px" },
+                    right: { color: SHEET_GRID_COLORS.text, style: "solid", width: "1px" },
+                    top: { color: SHEET_GRID_COLORS.text, style: "solid", width: "1px" },
+                  }
+                : undefined,
+            },
+          };
+        }),
+      ],
+    }));
+
+    return [headerRow, ...dataRows];
+  }, [evaluatedCell, filterEnabled, makeStyledRenderer, rowHeights, sheet, showFormulas]);
+
+  return (
+    <div data-sheet-grid className="sheet-reactgrid min-h-0 flex-1 overflow-hidden bg-[#161616]">
+      <ReactGrid
+        columns={gridColumns}
+        rows={gridRows}
+        stickyTopRows={1}
+        stickyLeftColumns={1}
+        enableRangeSelection
+        enableColumnResizeOnAllHeaders
+        minColumnWidth={minCellWidth}
+        minRowHeight={minRowHeight}
+        onCellsChanged={handleCellsChanged}
+        onColumnResized={handleColumnResized}
+        onRowResized={handleRowResized}
+        onSelectionChanged={onSelectionChange}
+        onContextMenu={(_, __, ___, menuOptions) => menuOptions}
+        moveRightOnEnter
+      />
     </div>
   );
-}
+});
 
 function SheetTabs({ activeSheetId, sheets, onAddSheet, onDeleteSheet, onDuplicateSheet, onRenameSheet, onSelectSheet }) {
   return (
-    <footer className="flex h-10 shrink-0 items-center border-t border-[#333333] bg-[#1a1a1a] text-sm text-[#d4d4d4]">
+    <footer className="flex h-10 shrink-0 items-center border-t border-[#333333] bg-[#1a1a1a] text-sm text-[#a3a3a3]">
       <div className="flex h-full items-center gap-2 border-r border-[#333333] px-4">
         <IconButton label="Add sheet" className="h-7 w-7" onClick={onAddSheet}>
           <Plus className="h-4 w-4" />
@@ -703,7 +819,7 @@ function SheetTabs({ activeSheetId, sheets, onAddSheet, onDeleteSheet, onDuplica
             <Button
               type="button"
               variant="ghost"
-              className="h-10 rounded-none px-4 font-semibold text-[#d4d4d4] hover:bg-[#242424] hover:text-white"
+              className="h-10 rounded-none px-4 font-semibold text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
               onClick={() => onSelectSheet(sheet.id)}
             >
               {sheet.name}
@@ -734,62 +850,97 @@ function SheetTabs({ activeSheetId, sheets, onAddSheet, onDeleteSheet, onDuplica
 }
 
 function InsightsRail({ activeCell, activeValue, chartOpen, filterEnabled, sheet }) {
-  const filledCells = Object.values(sheet.cells).filter(Boolean).length;
-  const formulaCount = Object.values(sheet.cells).filter((value) => typeof value === "string" && value.startsWith("=")).length;
-  const evaluateCell = evaluateSheet(sheet);
-  const chartRows = [2, 3, 4].map((row) => ({
-    label: sheet.cells[keyOf(row, 1)] || `Row ${row}`,
-    value: Number(evaluateCell(row, 4)) || 0,
-  }));
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { chartRows, filledCells, formulaCount } = useMemo(() => {
+    const cellValues = Object.values(sheet.cells);
+    const evaluateCell = evaluateSheet(sheet);
+
+    return {
+      chartRows: [2, 3, 4].map((row) => ({
+        label: sheet.cells[keyOf(row, 1)] || `Row ${row}`,
+        value: Number(evaluateCell(row, 4)) || 0,
+      })),
+      filledCells: cellValues.filter(Boolean).length,
+      formulaCount: cellValues.filter((value) => typeof value === "string" && value.startsWith("=")).length,
+    };
+  }, [sheet]);
   const maxChartValue = Math.max(...chartRows.map((row) => row.value), 1);
 
   return (
-    <aside className="hidden w-64 shrink-0 border-l border-[#333333] bg-[#1a1a1a] xl:block">
-      <div className="border-b border-[#333333] p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Table2 className="h-4 w-4" />
-          Sheet summary
-        </div>
-      </div>
-      <div className="grid gap-4 p-4 text-sm">
-        <div>
-          <p className="text-xs uppercase tracking-normal text-[#737373]">Selected</p>
-          <p className="mt-1 font-mono text-white">{labelOf(activeCell)}</p>
-          <p className="mt-1 truncate text-[#a3a3a3]">{activeValue || "Blank cell"}</p>
-        </div>
-        <Separator className="bg-[#333333]" />
-        <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-md border border-[#333333] bg-[#202020] p-3">
-            <p className="text-xs text-[#a3a3a3]">Cells</p>
-            <p className="mt-1 text-lg font-semibold text-white">{filledCells}</p>
-          </div>
-          <div className="rounded-md border border-[#333333] bg-[#202020] p-3">
-            <p className="text-xs text-[#a3a3a3]">Formulas</p>
-            <p className="mt-1 text-lg font-semibold text-white">{formulaCount}</p>
-          </div>
-        </div>
-        {chartOpen ? (
-          <>
-            <Separator className="bg-[#333333]" />
-            <div>
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-xs uppercase tracking-normal text-[#737373]">Profit chart</p>
-                {filterEnabled ? <Filter className="h-3.5 w-3.5 text-[#a3a3a3]" /> : null}
+    <aside className={cn("hidden shrink-0 border-l border-[#333333] bg-[#1a1a1a] transition-[width] duration-200 xl:block", isSidebarOpen ? "w-64" : "w-12")}>
+      <Collapsible open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+        <div className={cn("border-b border-[#333333]", isSidebarOpen ? "p-4" : "p-2")}>
+          <div className={cn("flex items-center", isSidebarOpen ? "justify-between gap-2" : "justify-center")}>
+            {isSidebarOpen ? (
+              <div className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white">
+                <Table2 className="h-4 w-4 shrink-0" />
+                <span className="truncate">Sheet summary</span>
               </div>
-              <div className="grid gap-2">
-                {chartRows.map((row) => (
-                  <div key={row.label} className="grid grid-cols-[32px_1fr] items-center gap-2">
-                    <span className="truncate text-xs text-[#a3a3a3]">{row.label}</span>
-                    <div className="h-6 overflow-hidden rounded-sm border border-[#333333] bg-[#202020]">
-                      <div className="h-full bg-[#4ade80]" style={{ width: `${Math.max(8, (row.value / maxChartValue) * 100)}%` }} />
-                    </div>
-                  </div>
-                ))}
+            ) : null}
+            <button
+              type="button"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#474747]"
+              onClick={() => setIsSidebarOpen((value) => !value)}
+              aria-label={isSidebarOpen ? "Collapse sheet sidebar" : "Expand sheet sidebar"}
+              aria-expanded={isSidebarOpen}
+              title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              {isSidebarOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+        <CollapsibleContent>
+          <div className="grid gap-4 p-4 text-sm">
+            <div>
+              <p className="text-xs uppercase tracking-normal text-[#737373]">Selected</p>
+              <p className="mt-1 font-mono text-white">{labelOf(activeCell)}</p>
+              <p className="mt-1 truncate text-[#a3a3a3]">{activeValue || "Blank cell"}</p>
+            </div>
+            <Separator className="bg-[#333333]" />
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-md border border-[#333333] bg-[#202020] p-3">
+                <p className="text-xs text-[#a3a3a3]">Cells</p>
+                <p className="mt-1 text-lg font-semibold text-white">{filledCells}</p>
+              </div>
+              <div className="rounded-md border border-[#333333] bg-[#202020] p-3">
+                <p className="text-xs text-[#a3a3a3]">Formulas</p>
+                <p className="mt-1 text-lg font-semibold text-white">{formulaCount}</p>
               </div>
             </div>
-          </>
-        ) : null}
-      </div>
+            {chartOpen ? (
+              <>
+                <Separator className="bg-[#333333]" />
+                <div>
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-xs uppercase tracking-normal text-[#737373]">Profit chart</p>
+                    {filterEnabled ? <Filter className="h-3.5 w-3.5 text-[#a3a3a3]" /> : null}
+                  </div>
+                  <div className="grid gap-2">
+                    {chartRows.map((row) => (
+                      <div key={row.label} className="grid grid-cols-[32px_1fr] items-center gap-2">
+                        <span className="truncate text-xs text-[#a3a3a3]">{row.label}</span>
+                        <div className="h-6 overflow-hidden rounded-sm border border-[#333333] bg-[#202020]">
+                          <div className="h-full bg-[#4ade80]" style={{ width: `${Math.max(8, (row.value / maxChartValue) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : null}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+      {!isSidebarOpen ? (
+        <div className="grid gap-3 p-2 text-[#a3a3a3]">
+          <div className="grid h-8 place-items-center rounded-md border border-[#333333] bg-[#202020] text-[10px] font-semibold text-white">
+            {filledCells}
+          </div>
+          <div className="grid h-8 place-items-center rounded-md border border-[#333333] bg-[#202020]">
+            <BarChart3 className="h-4 w-4" />
+          </div>
+        </div>
+      ) : null}
     </aside>
   );
 }
@@ -799,11 +950,12 @@ function SheetEditor() {
   const [activeSheetId, setActiveSheetId] = useState(() => sheets[0].id);
   const [activeCell, setActiveCell] = useState({ row: 1, col: 1 });
   const [chartOpen, setChartOpen] = useState(true);
-  const [editingCell, setEditingCell] = useState(null);
-  const [editingValue, setEditingValue] = useState("");
+  const [columnWidths, setColumnWidths] = useState(() => Array.from({ length: COLUMN_COUNT }, () => defaultCellWidth));
   const [filterEnabled, setFilterEnabled] = useState(false);
   const [formulaValue, setFormulaValue] = useState(seededCells["1:1"]);
   const [history, setHistory] = useState([]);
+  const [rowHeights, setRowHeights] = useState(() => Array.from({ length: ROW_COUNT }, () => defaultRowHeight));
+  const [selectedRange, setSelectedRange] = useState({ start: { row: 1, col: 1 }, end: { row: 1, col: 1 } });
   const [future, setFuture] = useState([]);
   const [showFormulas, setShowFormulas] = useState(false);
   const importInputRef = useRef(null);
@@ -812,35 +964,40 @@ function SheetEditor() {
   const activeStyle = { ...defaultStyle, ...(activeSheet.styles[activeKey] ?? {}) };
   const evaluatedCell = useMemo(() => evaluateSheet(activeSheet), [activeSheet]);
   const activeValue = activeSheet.cells[activeKey] ?? "";
+  const sheetsRef = useRef(sheets);
+  const activeSheetIdRef = useRef(activeSheetId);
+  const activeSheetRef = useRef(activeSheet);
+  const activeCellRef = useRef(activeCell);
 
-  const pushSnapshot = () => {
-    setHistory((current) => [...current.slice(-24), sheets]);
+  useEffect(() => {
+    sheetsRef.current = sheets;
+    activeSheetIdRef.current = activeSheetId;
+    activeSheetRef.current = activeSheet;
+    activeCellRef.current = activeCell;
+  }, [activeCell, activeSheet, activeSheetId, sheets]);
+
+  const pushSnapshot = useCallback(() => {
+    setHistory((current) => [...current.slice(-24), sheetsRef.current]);
     setFuture([]);
-  };
+  }, []);
 
-  const updateActiveSheet = (updater) => {
-    setSheets((currentSheets) => currentSheets.map((sheet) => (sheet.id === activeSheetId ? updater(sheet) : sheet)));
-  };
+  const updateActiveSheet = useCallback((updater) => {
+    setSheets((currentSheets) => currentSheets.map((sheet) => (sheet.id === activeSheetIdRef.current ? updater(sheet) : sheet)));
+  }, []);
 
-  const selectCell = (cell) => {
-    setActiveCell(cell);
-    setEditingCell(null);
-    setEditingValue("");
-    setFormulaValue(activeSheet.cells[keyOf(cell.row, cell.col)] ?? "");
-  };
-
-  const startEdit = (cell, value = "") => {
-    setActiveCell(cell);
-    setEditingCell(cell);
-    setEditingValue(value);
-    setFormulaValue(value);
-  };
+  const selectCell = useCallback((cell) => {
+    setActiveCell((current) => (sameCell(current, cell) ? current : cell));
+    setSelectedRange((current) => {
+      const nextRange = { start: cell, end: cell };
+      return sameRange(current, nextRange) ? current : nextRange;
+    });
+    const nextValue = activeSheetRef.current.cells[keyOf(cell.row, cell.col)] ?? "";
+    setFormulaValue((current) => (current === nextValue ? current : nextValue));
+  }, []);
 
   const commitCellValue = (value, cell = activeCell) => {
     if ((activeSheet.cells[keyOf(cell.row, cell.col)] ?? "") === value) {
       setFormulaValue(value);
-      setEditingCell(null);
-      setEditingValue("");
       return;
     }
 
@@ -855,27 +1012,52 @@ function SheetEditor() {
       return { ...sheet, cells: nextCells };
     });
     setFormulaValue(value);
-    setEditingCell(null);
-    setEditingValue("");
   };
+
+  const commitGridCells = useCallback((changes) => {
+    if (!changes.length) return;
+    pushSnapshot();
+    updateActiveSheet((sheet) => {
+      const nextCells = { ...sheet.cells };
+
+      changes.forEach(({ row, col, value }) => {
+        const cellKey = keyOf(row, col);
+        if (value === "") delete nextCells[cellKey];
+        else nextCells[cellKey] = value;
+      });
+
+      return { ...sheet, cells: nextCells };
+    });
+
+    const active = activeCellRef.current;
+    const activeChange = changes.find((change) => change.row === active.row && change.col === active.col);
+    if (activeChange) setFormulaValue(activeChange.value);
+  }, [pushSnapshot, updateActiveSheet]);
 
   const updateStyle = (patch) => {
     pushSnapshot();
-    updateActiveSheet((sheet) => ({
-      ...sheet,
-      styles: {
-        ...sheet.styles,
-        [activeKey]: { ...(sheet.styles[activeKey] ?? {}), ...patch },
-      },
-    }));
+    updateActiveSheet((sheet) => {
+      const nextStyles = { ...sheet.styles };
+
+      forEachRangeCell(selectedRange, (row, col) => {
+        const cellKey = keyOf(row, col);
+        nextStyles[cellKey] = { ...(nextStyles[cellKey] ?? {}), ...patch };
+      });
+
+      return { ...sheet, styles: nextStyles };
+    });
   };
 
   const clearFormatting = () => {
-    if (!activeSheet.styles[activeKey]) return;
+    let hasFormatting = false;
+    forEachRangeCell(selectedRange, (row, col) => {
+      if (activeSheet.styles[keyOf(row, col)]) hasFormatting = true;
+    });
+    if (!hasFormatting) return;
     pushSnapshot();
     updateActiveSheet((sheet) => {
       const nextStyles = { ...sheet.styles };
-      delete nextStyles[activeKey];
+      forEachRangeCell(selectedRange, (row, col) => delete nextStyles[keyOf(row, col)]);
 
       return { ...sheet, styles: nextStyles };
     });
@@ -901,67 +1083,36 @@ function SheetEditor() {
     setSheets(next);
   };
 
-  const handleGridKeyDown = (event) => {
-    if (event.metaKey || event.ctrlKey) {
-      if (event.key.toLowerCase() === "b") {
-        event.preventDefault();
-        updateStyle({ bold: !activeStyle.bold });
-      }
-      if (event.key.toLowerCase() === "i") {
-        event.preventDefault();
-        updateStyle({ italic: !activeStyle.italic });
-      }
-      if (event.key.toLowerCase() === "u") {
-        event.preventDefault();
-        updateStyle({ underline: !activeStyle.underline });
-      }
-      return;
-    }
+  const handleGridSelectionChange = useCallback((ranges) => {
+    const range = ranges.at(-1);
+    if (!range) return;
 
-    const movements = {
-      ArrowDown: { row: Math.min(ROW_COUNT, activeCell.row + 1), col: activeCell.col },
-      ArrowLeft: { row: activeCell.row, col: Math.max(1, activeCell.col - 1) },
-      ArrowRight: { row: activeCell.row, col: Math.min(COLUMN_COUNT, activeCell.col + 1) },
-      ArrowUp: { row: Math.max(1, activeCell.row - 1), col: activeCell.col },
-      Tab: { row: activeCell.row, col: Math.min(COLUMN_COUNT, activeCell.col + 1) },
-      Enter: { row: Math.min(ROW_COUNT, activeCell.row + 1), col: activeCell.col },
-    };
+    const startRow = Math.max(1, Number(range.first.row.rowId));
+    const endRow = Math.max(1, Number(range.last.row.rowId));
+    const startCol = Math.max(1, columns.indexOf(String(range.first.column.columnId)) + 1);
+    const endCol = Math.max(1, columns.indexOf(String(range.last.column.columnId)) + 1);
+    const start = { row: Math.min(startRow, endRow), col: Math.min(startCol, endCol) };
+    const end = { row: Math.max(startRow, endRow), col: Math.max(startCol, endCol) };
 
-    if (movements[event.key]) {
-      event.preventDefault();
-      selectCell(movements[event.key]);
-      return;
-    }
+    if (!Number.isFinite(start.row) || !Number.isFinite(end.row) || start.col < 1 || end.col < 1) return;
 
-    if (event.key === "Backspace" || event.key === "Delete") {
-      event.preventDefault();
-      commitCellValue("");
-      return;
-    }
+    startTransition(() => {
+      const nextRange = { start, end };
+      setSelectedRange((current) => (sameRange(current, nextRange) ? current : nextRange));
+      setActiveCell((current) => (sameCell(current, start) ? current : start));
 
-    if (event.key.length === 1) {
-      event.preventDefault();
-      startEdit(activeCell, event.key);
-    }
-  };
-
-  const handlePaste = (event) => {
-    const text = event.clipboardData.getData("text/plain");
-    if (!text) return;
-    event.preventDefault();
-    pushSnapshot();
-    updateActiveSheet((sheet) => {
-      const nextCells = { ...sheet.cells };
-      text.split(/\r?\n/).filter(Boolean).forEach((line, rowIndex) => {
-        line.split("\t").forEach((value, colIndex) => {
-          const row = activeCell.row + rowIndex;
-          const col = activeCell.col + colIndex;
-          if (row <= ROW_COUNT && col <= COLUMN_COUNT) nextCells[keyOf(row, col)] = value;
-        });
-      });
-      return { ...sheet, cells: nextCells };
+      const nextValue = activeSheetRef.current.cells[keyOf(start.row, start.col)] ?? "";
+      setFormulaValue((current) => (current === nextValue ? current : nextValue));
     });
-  };
+  }, []);
+
+  const resizeColumn = useCallback((col, width) => {
+    setColumnWidths((current) => current.map((currentWidth, index) => (index === col - 1 ? width : currentWidth)));
+  }, []);
+
+  const resizeRow = useCallback((row, height) => {
+    setRowHeights((current) => current.map((currentHeight, index) => (index === row - 1 ? height : currentHeight)));
+  }, []);
 
   const addSheet = () => {
     pushSnapshot();
@@ -969,6 +1120,7 @@ function SheetEditor() {
     setSheets((current) => [...current, nextSheet]);
     setActiveSheetId(nextSheet.id);
     setActiveCell({ row: 1, col: 1 });
+    setSelectedRange({ start: { row: 1, col: 1 }, end: { row: 1, col: 1 } });
     setFormulaValue("");
   };
 
@@ -981,6 +1133,7 @@ function SheetEditor() {
     if (sheetId === activeSheetId) {
       setActiveSheetId(remainingSheets[0].id);
       setActiveCell({ row: 1, col: 1 });
+      setSelectedRange({ start: { row: 1, col: 1 }, end: { row: 1, col: 1 } });
       setFormulaValue(remainingSheets[0].cells["1:1"] ?? "");
     }
   };
@@ -998,6 +1151,9 @@ function SheetEditor() {
     };
     setSheets((current) => [...current, nextSheet]);
     setActiveSheetId(nextSheet.id);
+    setActiveCell({ row: 1, col: 1 });
+    setSelectedRange({ start: { row: 1, col: 1 }, end: { row: 1, col: 1 } });
+    setFormulaValue(nextSheet.cells["1:1"] ?? "");
   };
 
   const renameSheet = (sheetId) => {
@@ -1012,8 +1168,7 @@ function SheetEditor() {
     const nextSheet = sheets.find((sheet) => sheet.id === sheetId);
     setActiveSheetId(sheetId);
     setActiveCell({ row: 1, col: 1 });
-    setEditingCell(null);
-    setEditingValue("");
+    setSelectedRange({ start: { row: 1, col: 1 }, end: { row: 1, col: 1 } });
     setFormulaValue(nextSheet?.cells["1:1"] ?? "");
   };
 
@@ -1115,6 +1270,7 @@ function SheetEditor() {
       setSheets(importedSheets);
       setActiveSheetId(importedSheets[0].id);
       setActiveCell({ row: 1, col: 1 });
+      setSelectedRange({ start: { row: 1, col: 1 }, end: { row: 1, col: 1 } });
       setFormulaValue(importedSheets[0].cells["1:1"] ?? "");
     }
 
@@ -1167,27 +1323,22 @@ function SheetEditor() {
           <FormulaBar
             activeCell={activeCell}
             formulaValue={formulaValue}
+            selectedRange={selectedRange}
             onFormulaChange={setFormulaValue}
             onFormulaCommit={() => commitCellValue(formulaValue)}
             onJumpToCell={selectCell}
           />
           <SpreadsheetGrid
-            activeCell={activeCell}
-            editingCell={editingCell}
-            editingValue={editingValue}
+            columnWidths={columnWidths}
             evaluatedCell={evaluatedCell}
             filterEnabled={filterEnabled}
+            rowHeights={rowHeights}
             sheet={activeSheet}
             showFormulas={showFormulas}
-            onCellCommit={commitCellValue}
-            onEditingValueChange={(value) => {
-              setEditingValue(value);
-              setFormulaValue(value);
-            }}
-            onKeyDown={handleGridKeyDown}
-            onPaste={handlePaste}
-            onSelectCell={selectCell}
-            onStartEdit={startEdit}
+            onCellsCommit={commitGridCells}
+            onColumnResize={resizeColumn}
+            onRowResize={resizeRow}
+            onSelectionChange={handleGridSelectionChange}
           />
           <SheetTabs
             activeSheetId={activeSheetId}

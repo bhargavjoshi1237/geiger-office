@@ -1,10 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { Bell, HelpCircle, PanelLeft, Search, UserCircle } from "lucide-react";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-
-const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
 
 export function Topbar({ onMenuClick }) {
   return (
@@ -18,10 +15,7 @@ export function Topbar({ onMenuClick }) {
         >
           <PanelLeft className="h-5 w-5" />
         </button>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded md:-ml-1.5">
-          <Image src={`${assetPrefix}/logo1.svg`} alt="" width={20} height={20} className="-mr-0.5 h-5 w-5" />
-        </div>
-        <div className="hidden cursor-pointer items-center border-l border-[#333333] pl-2 sm:flex">
+        <div className="hidden cursor-pointer items-center sm:flex">
           <span className="ml-1 text-sm font-semibold text-white">Office</span>
         </div>
       </div>
