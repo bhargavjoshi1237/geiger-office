@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { Canvas as FabricCanvasEngine, Ellipse as FabricEllipse, FabricImage, Rect as FabricRect, Textbox as FabricTextbox } from "fabric";
 import {
   AlignCenter,
   AlignLeft,
@@ -207,6 +208,7 @@ function createTextElement(overrides = {}) {
     fontFamily: "Arial",
     color: "#111827",
     fill: "transparent",
+    angle: 0,
     bold: false,
     italic: false,
     underline: false,
@@ -226,6 +228,7 @@ function createShapeElement(overrides = {}) {
     h: 190,
     fill: "#2563eb",
     color: "#2563eb",
+    angle: 0,
     opacity: 1,
     ...overrides,
   };
@@ -241,6 +244,7 @@ function createImageElement(src, overrides = {}) {
     y: 170,
     w: 360,
     h: 250,
+    angle: 0,
     ...overrides,
   };
 }
@@ -383,87 +387,201 @@ function SlideThumbnail({ active, index, slide, onClick }) {
   );
 }
 
-function SlideElement({ element, selected, scale, onChange, onPointerDown, onSelect }) {
-  const commonStyle = {
-    left: element.x,
-    top: element.y,
-    width: element.w,
-    height: element.h,
+function getElementPatchFromFabricObject(object) {
+  const width = Math.max(1, Math.round((object.width ?? 1) * (object.scaleX ?? 1)));
+  const height = Math.max(1, Math.round((object.height ?? 1) * (object.scaleY ?? 1)));
+  const patch = {
+    angle: Math.round(object.angle ?? 0),
+    h: height,
+    w: width,
+    x: Math.round(object.left ?? 0),
+    y: Math.round(object.top ?? 0),
   };
 
-  if (element.type === "shape") {
-    return (
-      <button
-        type="button"
-        aria-label="Shape element"
-        onClick={(event) => {
-          event.stopPropagation();
-          onSelect(element.id);
-        }}
-        onPointerDown={(event) => onPointerDown(event, element.id)}
-        className={cn("absolute transition-shadow", selected && "ring-2 ring-[#60a5fa]")}
-        style={{
-          ...commonStyle,
-          background: element.fill,
-          borderRadius: element.shape === "ellipse" ? "9999px" : 22,
-          opacity: element.opacity,
-        }}
-      >
-        {selected ? <span className="absolute -bottom-2 -right-2 h-4 w-4 rounded-full border-2 border-white bg-[#2563eb]" /> : null}
-      </button>
-    );
+  if (object.geigerType === "text") {
+    patch.text = object.text ?? "";
+    patch.fontSize = Math.round(object.fontSize ?? 36);
   }
 
-  if (element.type === "image") {
-    return (
-      <button
-        type="button"
-        aria-label="Image element"
-        onClick={(event) => {
-          event.stopPropagation();
-          onSelect(element.id);
-        }}
-        onPointerDown={(event) => onPointerDown(event, element.id)}
-        className={cn("absolute overflow-hidden rounded-sm bg-[#e5e5e5] transition-shadow", selected && "ring-2 ring-[#60a5fa]")}
-        style={commonStyle}
-      >
-        <Image src={element.src} alt={element.alt} fill unoptimized sizes="360px" className="object-cover" />
-        {selected ? <span className="absolute -bottom-2 -right-2 h-4 w-4 rounded-full border-2 border-white bg-[#2563eb]" style={{ transform: `scale(${1 / scale})` }} /> : null}
-      </button>
-    );
+  return patch;
+}
+
+async function createFabricObjectFromElement(element) {
+  const baseOptions = {
+    angle: element.angle ?? 0,
+    cornerColor: "#ffffff",
+    cornerSize: 11,
+    cornerStrokeColor: "#2563eb",
+    geigerId: element.id,
+    geigerType: element.type,
+    left: element.x,
+    lockScalingFlip: true,
+    objectCaching: false,
+    originX: "left",
+    originY: "top",
+    padding: 0,
+    transparentCorners: false,
+    top: element.y,
+  };
+
+  if (element.type === "text") {
+    return new FabricTextbox(element.text, {
+      ...baseOptions,
+      backgroundColor: element.fill === "transparent" ? "" : element.fill,
+      fill: element.color,
+      fontFamily: element.fontFamily,
+      fontSize: element.fontSize,
+      fontStyle: element.italic ? "italic" : "normal",
+      fontWeight: element.bold ? "bold" : "normal",
+      height: element.h,
+      linethrough: false,
+      splitByGrapheme: false,
+      textAlign: element.align,
+      underline: element.underline,
+      width: element.w,
+    });
   }
+
+  if (element.type === "shape" && element.shape === "ellipse") {
+    return new FabricEllipse({
+      ...baseOptions,
+      fill: element.fill,
+      height: element.h,
+      opacity: element.opacity,
+      rx: element.w / 2,
+      ry: element.h / 2,
+      stroke: element.color,
+      strokeWidth: 0,
+      width: element.w,
+    });
+  }
+
+  if (element.type === "shape") {
+    return new FabricRect({
+      ...baseOptions,
+      fill: element.fill,
+      height: element.h,
+      opacity: element.opacity,
+      rx: 22,
+      ry: 22,
+      stroke: element.color,
+      strokeWidth: 0,
+      width: element.w,
+    });
+  }
+
+  const image = await FabricImage.fromURL(element.src, { crossOrigin: "anonymous" });
+  image.set({
+    ...baseOptions,
+    alt: element.alt,
+    scaleX: element.w / Math.max(1, image.width ?? element.w),
+    scaleY: element.h / Math.max(1, image.height ?? element.h),
+  });
+
+  return image;
+}
+
+function FabricSlideCanvas({ mode, scale, selectedElementId, slide, onChangeElement, onSelectElement }) {
+  const canvasElementRef = useRef(null);
+  const fabricCanvasRef = useRef(null);
+  const isSyncingRef = useRef(false);
+  const onChangeElementRef = useRef(onChangeElement);
+  const onSelectElementRef = useRef(onSelectElement);
+
+  useEffect(() => {
+    onChangeElementRef.current = onChangeElement;
+    onSelectElementRef.current = onSelectElement;
+  }, [onChangeElement, onSelectElement]);
+
+  useEffect(() => {
+    if (!canvasElementRef.current) return undefined;
+
+    const canvas = new FabricCanvasEngine(canvasElementRef.current, {
+      backgroundColor: "#ffffff",
+      height: SLIDE_HEIGHT,
+      preserveObjectStacking: true,
+      selection: true,
+      width: SLIDE_WIDTH,
+    });
+
+    fabricCanvasRef.current = canvas;
+
+    const handleSelection = () => {
+      const activeObject = canvas.getActiveObject();
+      onSelectElementRef.current(activeObject?.geigerId);
+    };
+
+    const handleModified = (event) => {
+      if (isSyncingRef.current || !event.target?.geigerId) return;
+      onChangeElementRef.current(event.target.geigerId, getElementPatchFromFabricObject(event.target));
+    };
+
+    const handleTextEditingExited = (event) => {
+      if (isSyncingRef.current || !event.target?.geigerId) return;
+      onChangeElementRef.current(event.target.geigerId, getElementPatchFromFabricObject(event.target));
+    };
+
+    canvas.on("selection:created", handleSelection);
+    canvas.on("selection:updated", handleSelection);
+    canvas.on("selection:cleared", handleSelection);
+    canvas.on("object:modified", handleModified);
+    canvas.on("text:editing:exited", handleTextEditingExited);
+
+    return () => {
+      canvas.dispose();
+      fabricCanvasRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const canvas = fabricCanvasRef.current;
+    if (!canvas) return undefined;
+
+    let cancelled = false;
+    isSyncingRef.current = true;
+
+    async function syncObjects() {
+      canvas.clear();
+      canvas.set({ backgroundColor: slide.background });
+      canvas.selection = mode === "edit";
+
+      const objects = await Promise.all(slide.elements.map((element) => createFabricObjectFromElement(element)));
+      if (cancelled) return;
+
+      objects.forEach((object) => {
+        object.selectable = mode === "edit";
+        object.evented = mode === "edit";
+        canvas.add(object);
+      });
+
+      const selectedObject = objects.find((object) => object.geigerId === selectedElementId);
+      if (selectedObject) {
+        canvas.setActiveObject(selectedObject);
+      }
+
+      canvas.requestRenderAll();
+      isSyncingRef.current = false;
+    }
+
+    syncObjects();
+
+    return () => {
+      cancelled = true;
+      isSyncingRef.current = false;
+    };
+  }, [mode, selectedElementId, slide]);
 
   return (
     <div
-      role="textbox"
-      tabIndex={0}
-      suppressContentEditableWarning
-      contentEditable
-      onClick={(event) => {
-        event.stopPropagation();
-        onSelect(element.id);
-      }}
-      onPointerDown={(event) => onPointerDown(event, element.id)}
-      onInput={(event) => onChange(element.id, { text: event.currentTarget.innerText })}
-      className={cn(
-        "absolute whitespace-pre-wrap rounded-sm px-2 py-1 outline-none transition-shadow focus:ring-2 focus:ring-[#60a5fa]",
-        selected && "ring-2 ring-[#60a5fa]",
-      )}
+      className="relative origin-top overflow-hidden border border-[#333333] shadow-2xl shadow-black/35"
       style={{
-        ...commonStyle,
-        color: element.color,
-        background: element.fill,
-        fontFamily: element.fontFamily,
-        fontSize: element.fontSize,
-        fontStyle: element.italic ? "italic" : "normal",
-        fontWeight: element.bold ? 700 : 400,
-        lineHeight: 1.12,
-        textAlign: element.align,
-        textDecoration: element.underline ? "underline" : "none",
+        height: SLIDE_HEIGHT,
+        marginBottom: -(SLIDE_HEIGHT * (1 - scale)),
+        transform: `scale(${scale})`,
+        width: SLIDE_WIDTH,
       }}
     >
-      {element.text}
-      {selected ? <span className="absolute -bottom-2 -right-2 h-4 w-4 rounded-full border-2 border-white bg-[#2563eb]" style={{ transform: `scale(${1 / scale})` }} /> : null}
+      <canvas ref={canvasElementRef} aria-label="Slide canvas" />
     </div>
   );
 }
@@ -594,7 +712,6 @@ function SlidesEditor() {
   const [mode, setMode] = useState("edit");
   const [isPresenting, setIsPresenting] = useState(false);
   const [isFilmstripOpen, setIsFilmstripOpen] = useState(true);
-  const dragRef = useRef(null);
   const imageInputRef = useRef(null);
 
   const activeSlide = slides.find((slide) => slide.id === activeSlideId) ?? slides[0];
@@ -717,36 +834,6 @@ function SlidesEditor() {
         };
       }),
     }));
-  };
-
-  const beginDrag = (event, elementId) => {
-    if (mode !== "edit") return;
-    event.stopPropagation();
-    setSelectedElementId(elementId);
-    const element = activeSlide.elements.find((item) => item.id === elementId);
-    dragRef.current = {
-      elementId,
-      startX: event.clientX,
-      startY: event.clientY,
-      x: element.x,
-      y: element.y,
-    };
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-  };
-
-  const handlePointerMove = (event) => {
-    if (!dragRef.current) return;
-    const drag = dragRef.current;
-    const dx = (event.clientX - drag.startX) / scale;
-    const dy = (event.clientY - drag.startY) / scale;
-    updateElement(drag.elementId, {
-      x: Math.max(0, Math.min(SLIDE_WIDTH - 40, Math.round(drag.x + dx))),
-      y: Math.max(0, Math.min(SLIDE_HEIGHT - 40, Math.round(drag.y + dy))),
-    });
-  };
-
-  const endDrag = () => {
-    dragRef.current = null;
   };
 
   const exportPptx = async () => {
@@ -1131,33 +1218,14 @@ function SlidesEditor() {
           <div className="relative min-h-0 flex-1 overflow-auto bg-[#161616] scrollbar-subtle">
             <div className="flex min-h-[760px] min-w-[1180px] flex-col items-center px-10 pb-24 pt-9">
               <div className="relative">
-                <div
-                  className="relative origin-top overflow-hidden border border-[#333333] shadow-2xl shadow-black/35"
-                  onClick={() => setSelectedElementId(undefined)}
-                  onPointerMove={handlePointerMove}
-                  onPointerUp={endDrag}
-                  onPointerCancel={endDrag}
-                  style={{
-                    width: SLIDE_WIDTH,
-                    height: SLIDE_HEIGHT,
-                    transform: `scale(${scale})`,
-                    marginBottom: -(SLIDE_HEIGHT * (1 - scale)),
-                    background: activeSlide.background,
-                  }}
-                >
-                  <div className="pointer-events-none absolute inset-10 border border-black/5" />
-                  {activeSlide.elements.map((element) => (
-                    <SlideElement
-                      key={element.id}
-                      element={element}
-                      scale={scale}
-                      selected={element.id === selectedElementId}
-                      onChange={updateElement}
-                      onPointerDown={beginDrag}
-                      onSelect={setSelectedElementId}
-                    />
-                  ))}
-                </div>
+                <FabricSlideCanvas
+                  mode={mode}
+                  scale={scale}
+                  selectedElementId={selectedElementId}
+                  slide={activeSlide}
+                  onChangeElement={updateElement}
+                  onSelectElement={setSelectedElementId}
+                />
               </div>
 
               <div className="mt-8 flex flex-col items-center gap-3">
