@@ -2,64 +2,51 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { Canvas as FabricCanvasEngine, Ellipse as FabricEllipse, FabricImage, Rect as FabricRect, Textbox as FabricTextbox } from "fabric";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AlignCenter,
   AlignLeft,
   AlignRight,
   BadgePlus,
-  Bell,
   Bold,
-  ChevronDown,
   ChevronLeft,
-  ChevronUp,
   Circle,
   Copy,
   Download,
-  Eye,
   Grid2X2,
-  HelpCircle,
   Highlighter,
   Image as ImageIcon,
   Italic,
   LayoutTemplate,
-  LineChart,
-  Lock,
   MessageSquareText,
   Minus,
   MonitorPlay,
   MousePointer2,
   PaintBucket,
   Palette,
-  PaintRoller,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
-  Presentation,
+  RectangleHorizontal,
   Redo2,
   Save,
-  Search,
   Shapes,
   Sparkles,
   Square,
-  Star,
-  TextCursorInput,
   Trash2,
+  Triangle,
   Type,
   Underline,
   Undo2,
-  UserCircle,
-  Video,
-  WandSparkles,
+  UserPlus,
   ZoomIn,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuSub,
@@ -67,652 +54,138 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { SlideFilmstripContextMenu } from "@/components/slides-editor/slide-filmstrip-context-menu";
 import { IconButton, ToolbarDivider, ToolbarSelect, ToolbarToggle } from "@/components/document-editor/editor-controls";
+import { ModeToolbarGroup } from "@/components/document-editor/editor-toolbar";
+import { FormattingColorPicker } from "@/components/document-editor/formatting/formatting-color-picker";
+import { HIGHLIGHT_COLOR_OPTIONS, TEXT_COLOR_OPTIONS } from "@/components/document-editor/formatting/color-options";
 import { cn } from "@/lib/utils";
+import { SaveStatus } from "@/components/editor/save-status";
+import { ProfileDropdown } from "@/components/editor/profile-dropdown";
+import { NotificationsDropdown } from "@/components/editor/notifications-dropdown";
+import { StarButton } from "@/components/editor/star-button";
+import { CommandSearch } from "@/components/editor/command-search";
+import { HelpDropdown } from "@/components/editor/help-dropdown";
+import { ShareButton, ViewOnlyBadge } from "@/components/share/share-button";
+import { useOfficeFile } from "@/lib/persistence/use-office-file";
+import { SLIDE_HEIGHT, SLIDE_WIDTH, transitionOptions, zoomOptions } from "@/components/slides-editor/constants";
+import { themeOptions } from "@/components/slides-editor/data/theme-presets";
+import { layouts } from "@/components/slides-editor/data/layout-presets";
+import { createImageElement, createShapeElement, createSlide, createTextElement } from "@/components/slides-editor/factories";
+import { useHistory } from "@/components/slides-editor/hooks/use-history";
+import { FabricSlideCanvas } from "@/components/slides-editor/fabric/fabric-slide-canvas";
+import { SlideThumbnail } from "@/components/slides-editor/components/slide-thumbnail";
+import { SlidesMenuBar } from "@/components/slides-editor/components/slides-menu-bar";
+import { SlidesSidebar } from "@/components/slides-editor/components/slides-sidebar";
 
-const SLIDE_WIDTH = 1280;
-const SLIDE_HEIGHT = 720;
+const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
 
-const activeCollaborators = [
-  { name: "Maya Patel", initials: "MP", color: "bg-[#365d4f] text-[#d7f4e8]" },
-  { name: "Noah Kim", initials: "NK", color: "bg-[#564a72] text-[#ece4ff]" },
-  { name: "Ava Chen", initials: "AC", color: "bg-[#6a493c] text-[#ffe5d8]" },
-];
-
-const themeOptions = [
-  { id: "clean", label: "Clean", background: "#ffffff", accent: "#2563eb", text: "#111827", muted: "#6b7280" },
-  { id: "ink", label: "Ink", background: "#111111", accent: "#f59e0b", text: "#ffffff", muted: "#d4d4d4" },
-  { id: "mint", label: "Mint", background: "#f4fbf8", accent: "#0f766e", text: "#12332f", muted: "#55736e" },
-  { id: "coral", label: "Coral", background: "#fff7f2", accent: "#e11d48", text: "#2f161b", muted: "#7a4e56" },
-  { id: "steel", label: "Steel", background: "#f8fafc", accent: "#475569", text: "#0f172a", muted: "#64748b" },
-];
-
-const layouts = [
-  { id: "title", label: "Title slide" },
-  { id: "section", label: "Section header" },
-  { id: "content", label: "Title and body" },
-  { id: "two-column", label: "Two columns" },
-  { id: "blank", label: "Blank" },
-];
-
-const colorOptions = ["#111827", "#ffffff", "#737373", "#ef4444", "#f97316", "#f59e0b", "#22c55e", "#14b8a6", "#3b82f6", "#8b5cf6", "#ec4899"];
-const zoomOptions = [50, 67, 75, 90, 100, 125, 150];
-const transitionOptions = ["None", "Fade", "Slide", "Wipe", "Zoom"];
-
-const slideMenus = [
-  {
-    label: "File",
-    groups: [
-      [
-        { label: "New presentation", shortcut: "Ctrl+Alt+N" },
-        { label: "Make a copy" },
-      ],
-      [
-        { label: "Download", type: "download" },
-        { label: "Share", hasSubmenu: true },
-      ],
-      [
-        { label: "Rename" },
-        { label: "Move" },
-        { label: "Version history", hasSubmenu: true },
-      ],
-    ],
-  },
-  {
-    label: "Edit",
-    groups: [
-      [
-        { label: "Undo", action: "undo", shortcut: "Ctrl+Z" },
-        { label: "Redo", action: "redo", shortcut: "Ctrl+Y" },
-      ],
-      [
-        { label: "Duplicate", action: "duplicate" },
-        { label: "Delete", action: "delete" },
-      ],
-    ],
-  },
-  {
-    label: "View",
-    groups: [
-      [
-        { label: "Present", action: "present" },
-        { label: "Show speaker notes" },
-        { label: "Grid view" },
-      ],
-    ],
-  },
-  {
-    label: "Insert",
-    groups: [
-      [
-        { label: "Text box", action: "text" },
-        { label: "Image", action: "image" },
-        { label: "Shape", action: "shape" },
-      ],
-    ],
-  },
-  {
-    label: "Slide",
-    groups: [
-      [
-        { label: "New slide", action: "new-slide", shortcut: "Ctrl+M" },
-        { label: "Duplicate slide", action: "duplicate-slide" },
-        { label: "Delete slide", action: "delete-slide" },
-      ],
-    ],
-  },
-  {
-    label: "Arrange",
-    groups: [
-      [
-        { label: "Bring forward", action: "forward" },
-        { label: "Send backward", action: "backward" },
-      ],
-    ],
-  },
-  {
-    label: "Tools",
-    groups: [
-      [
-        { label: "Explore" },
-        { label: "Linked objects" },
-        { label: "Preferences" },
-      ],
-    ],
-  },
-  {
-    label: "Help",
-    groups: [
-      [
-        { label: "Slides help" },
-        { label: "Keyboard shortcuts", shortcut: "Ctrl+/" },
-      ],
-    ],
-  },
-];
-
-function createTextElement(overrides = {}) {
-  return {
-    id: crypto.randomUUID(),
-    type: "text",
-    text: "Add text",
-    x: 120,
-    y: 120,
-    w: 460,
-    h: 96,
-    fontSize: 42,
-    fontFamily: "Arial",
-    color: "#111827",
-    fill: "transparent",
-    angle: 0,
-    bold: false,
-    italic: false,
-    underline: false,
-    align: "left",
-    ...overrides,
-  };
+function apiBase() {
+  const isProd = process.env.NODE_ENV === "production";
+  const basePath = isProd ? process.env.NEXT_PUBLIC_BASE_PATH || "/office" : "";
+  return `${basePath}/api/files`;
 }
 
-function createShapeElement(overrides = {}) {
-  return {
-    id: crypto.randomUUID(),
-    type: "shape",
-    shape: "rect",
-    x: 760,
-    y: 188,
-    w: 300,
-    h: 190,
-    fill: "#2563eb",
-    color: "#2563eb",
-    angle: 0,
-    opacity: 1,
-    ...overrides,
-  };
-}
-
-function createImageElement(src, overrides = {}) {
-  return {
-    id: crypto.randomUUID(),
-    type: "image",
-    src,
-    alt: "Inserted image",
-    x: 740,
-    y: 170,
-    w: 360,
-    h: 250,
-    angle: 0,
-    ...overrides,
-  };
-}
-
-function createSlide(layout = "title", theme = themeOptions[0]) {
-  const base = {
-    id: crypto.randomUUID(),
-    title: "Untitled slide",
-    layout,
-    themeId: theme.id,
-    background: theme.background,
-    notes: "",
-    transition: "Fade",
-    elements: [],
-  };
-
-  if (layout === "title") {
-    base.title = "Project update";
-    base.elements = [
-      createTextElement({ text: "Project update", x: 112, y: 170, w: 1056, h: 120, fontSize: 72, bold: true, color: theme.text, align: "center" }),
-      createTextElement({ text: "Add subtitle", x: 220, y: 330, w: 840, h: 72, fontSize: 34, color: theme.muted, align: "center" }),
-    ];
-  }
-
-  if (layout === "section") {
-    base.title = "Section";
-    base.elements = [
-      createShapeElement({ x: 0, y: 0, w: 1280, h: 720, fill: theme.accent, color: theme.accent }),
-      createTextElement({ text: "Section title", x: 130, y: 252, w: 860, h: 108, fontSize: 68, bold: true, color: "#ffffff" }),
-      createTextElement({ text: "A focused point for the next part", x: 134, y: 370, w: 760, h: 58, fontSize: 30, color: "#ffffff" }),
-    ];
-  }
-
-  if (layout === "content") {
-    base.title = "Slide title";
-    base.elements = [
-      createTextElement({ text: "Slide title", x: 84, y: 58, w: 900, h: 72, fontSize: 48, bold: true, color: theme.text }),
-      createTextElement({ text: "Add key point\nAdd supporting detail\nAdd next step", x: 112, y: 178, w: 760, h: 300, fontSize: 32, color: theme.text }),
-      createShapeElement({ x: 930, y: 178, w: 230, h: 300, fill: theme.accent, color: theme.accent }),
-    ];
-  }
-
-  if (layout === "two-column") {
-    base.title = "Comparison";
-    base.elements = [
-      createTextElement({ text: "Comparison", x: 84, y: 58, w: 900, h: 72, fontSize: 48, bold: true, color: theme.text }),
-      createTextElement({ text: "Option A", x: 120, y: 190, w: 420, h: 76, fontSize: 38, bold: true, color: theme.text }),
-      createTextElement({ text: "Add details", x: 120, y: 286, w: 420, h: 180, fontSize: 28, color: theme.muted }),
-      createTextElement({ text: "Option B", x: 730, y: 190, w: 420, h: 76, fontSize: 38, bold: true, color: theme.text }),
-      createTextElement({ text: "Add details", x: 730, y: 286, w: 420, h: 180, fontSize: 28, color: theme.muted }),
-    ];
-  }
-
-  return base;
-}
-
-function useHistory(initialSlides) {
-  const [past, setPast] = useState([]);
-  const [present, setPresent] = useState(initialSlides);
-  const [future, setFuture] = useState([]);
-
-  const commit = (updater) => {
-    setPresent((current) => {
-      const next = typeof updater === "function" ? updater(current) : updater;
-      if (next === current) return current;
-      setPast((items) => [...items.slice(-40), current]);
-      setFuture([]);
-      return next;
-    });
-  };
-
-  const undo = () => {
-    setPast((items) => {
-      if (!items.length) return items;
-      const previous = items[items.length - 1];
-      setFuture((futureItems) => [present, ...futureItems]);
-      setPresent(previous);
-      return items.slice(0, -1);
-    });
-  };
-
-  const redo = () => {
-    setFuture((items) => {
-      if (!items.length) return items;
-      const next = items[0];
-      setPast((pastItems) => [...pastItems, present]);
-      setPresent(next);
-      return items.slice(1);
-    });
-  };
-
-  return { canRedo: future.length > 0, canUndo: past.length > 0, commit, present, redo, undo };
-}
-
-function SlideThumbnail({ active, index, slide, onClick }) {
-  const scale = 156 / SLIDE_WIDTH;
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "group flex w-full items-start gap-2 rounded-md p-1 text-left transition-colors hover:bg-[#242424]",
-        active && "bg-[#242424]",
-      )}
-    >
-      <span className="w-5 pt-1 text-right text-xs text-[#a3a3a3]">{index + 1}</span>
-      <span
-        className={cn(
-          "relative h-[88px] w-[156px] shrink-0 overflow-hidden rounded-sm border bg-white shadow-sm",
-          active ? "border-white" : "border-[#333333]",
-        )}
-        style={{ background: slide.background }}
-      >
-        <span style={{ transform: `scale(${scale})`, transformOrigin: "top left" }} className="absolute left-0 top-0 h-[720px] w-[1280px]">
-          {slide.elements.map((element) => (
-            <span
-              key={element.id}
-              className={cn("absolute block overflow-hidden", element.type === "shape" && element.shape === "ellipse" && "rounded-full")}
-              style={{
-                left: element.x,
-                top: element.y,
-                width: element.w,
-                height: element.h,
-                background: element.type === "shape" ? element.fill : "transparent",
-                color: element.color,
-                fontSize: element.fontSize,
-                fontWeight: element.bold ? 700 : 400,
-                textAlign: element.align,
-                borderRadius: element.type === "shape" && element.shape === "rect" ? 18 : undefined,
-              }}
-            >
-              {element.type === "text" ? element.text : null}
-              {element.type === "image" ? <Image src={element.src} alt="" fill unoptimized sizes="156px" className="object-cover" /> : null}
-            </span>
-          ))}
-        </span>
-      </span>
-    </button>
-  );
-}
-
-function getElementPatchFromFabricObject(object) {
-  const width = Math.max(1, Math.round((object.width ?? 1) * (object.scaleX ?? 1)));
-  const height = Math.max(1, Math.round((object.height ?? 1) * (object.scaleY ?? 1)));
-  const patch = {
-    angle: Math.round(object.angle ?? 0),
-    h: height,
-    w: width,
-    x: Math.round(object.left ?? 0),
-    y: Math.round(object.top ?? 0),
-  };
-
-  if (object.geigerType === "text") {
-    patch.text = object.text ?? "";
-    patch.fontSize = Math.round(object.fontSize ?? 36);
-  }
-
-  return patch;
-}
-
-async function createFabricObjectFromElement(element) {
-  const baseOptions = {
-    angle: element.angle ?? 0,
-    cornerColor: "#ffffff",
-    cornerSize: 11,
-    cornerStrokeColor: "#2563eb",
-    geigerId: element.id,
-    geigerType: element.type,
-    left: element.x,
-    lockScalingFlip: true,
-    objectCaching: false,
-    originX: "left",
-    originY: "top",
-    padding: 0,
-    transparentCorners: false,
-    top: element.y,
-  };
-
-  if (element.type === "text") {
-    return new FabricTextbox(element.text, {
-      ...baseOptions,
-      backgroundColor: element.fill === "transparent" ? "" : element.fill,
-      fill: element.color,
-      fontFamily: element.fontFamily,
-      fontSize: element.fontSize,
-      fontStyle: element.italic ? "italic" : "normal",
-      fontWeight: element.bold ? "bold" : "normal",
-      height: element.h,
-      linethrough: false,
-      splitByGrapheme: false,
-      textAlign: element.align,
-      underline: element.underline,
-      width: element.w,
-    });
-  }
-
-  if (element.type === "shape" && element.shape === "ellipse") {
-    return new FabricEllipse({
-      ...baseOptions,
-      fill: element.fill,
-      height: element.h,
-      opacity: element.opacity,
-      rx: element.w / 2,
-      ry: element.h / 2,
-      stroke: element.color,
-      strokeWidth: 0,
-      width: element.w,
-    });
-  }
-
-  if (element.type === "shape") {
-    return new FabricRect({
-      ...baseOptions,
-      fill: element.fill,
-      height: element.h,
-      opacity: element.opacity,
-      rx: 22,
-      ry: 22,
-      stroke: element.color,
-      strokeWidth: 0,
-      width: element.w,
-    });
-  }
-
-  const image = await FabricImage.fromURL(element.src, { crossOrigin: "anonymous" });
-  image.set({
-    ...baseOptions,
-    alt: element.alt,
-    scaleX: element.w / Math.max(1, image.width ?? element.w),
-    scaleY: element.h / Math.max(1, image.height ?? element.h),
-  });
-
-  return image;
-}
-
-function FabricSlideCanvas({ mode, scale, selectedElementId, slide, onChangeElement, onSelectElement }) {
-  const canvasElementRef = useRef(null);
-  const fabricCanvasRef = useRef(null);
-  const isSyncingRef = useRef(false);
-  const onChangeElementRef = useRef(onChangeElement);
-  const onSelectElementRef = useRef(onSelectElement);
-
-  useEffect(() => {
-    onChangeElementRef.current = onChangeElement;
-    onSelectElementRef.current = onSelectElement;
-  }, [onChangeElement, onSelectElement]);
-
-  useEffect(() => {
-    if (!canvasElementRef.current) return undefined;
-
-    const canvas = new FabricCanvasEngine(canvasElementRef.current, {
-      backgroundColor: "#ffffff",
-      height: SLIDE_HEIGHT,
-      preserveObjectStacking: true,
-      selection: true,
-      width: SLIDE_WIDTH,
-    });
-
-    fabricCanvasRef.current = canvas;
-
-    const handleSelection = () => {
-      const activeObject = canvas.getActiveObject();
-      onSelectElementRef.current(activeObject?.geigerId);
-    };
-
-    const handleModified = (event) => {
-      if (isSyncingRef.current || !event.target?.geigerId) return;
-      onChangeElementRef.current(event.target.geigerId, getElementPatchFromFabricObject(event.target));
-    };
-
-    const handleTextEditingExited = (event) => {
-      if (isSyncingRef.current || !event.target?.geigerId) return;
-      onChangeElementRef.current(event.target.geigerId, getElementPatchFromFabricObject(event.target));
-    };
-
-    canvas.on("selection:created", handleSelection);
-    canvas.on("selection:updated", handleSelection);
-    canvas.on("selection:cleared", handleSelection);
-    canvas.on("object:modified", handleModified);
-    canvas.on("text:editing:exited", handleTextEditingExited);
-
-    return () => {
-      canvas.dispose();
-      fabricCanvasRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    const canvas = fabricCanvasRef.current;
-    if (!canvas) return undefined;
-
-    let cancelled = false;
-    isSyncingRef.current = true;
-
-    async function syncObjects() {
-      canvas.clear();
-      canvas.set({ backgroundColor: slide.background });
-      canvas.selection = mode === "edit";
-
-      const objects = await Promise.all(slide.elements.map((element) => createFabricObjectFromElement(element)));
-      if (cancelled) return;
-
-      objects.forEach((object) => {
-        object.selectable = mode === "edit";
-        object.evented = mode === "edit";
-        canvas.add(object);
-      });
-
-      const selectedObject = objects.find((object) => object.geigerId === selectedElementId);
-      if (selectedObject) {
-        canvas.setActiveObject(selectedObject);
-      }
-
-      canvas.requestRenderAll();
-      isSyncingRef.current = false;
-    }
-
-    syncObjects();
-
-    return () => {
-      cancelled = true;
-      isSyncingRef.current = false;
-    };
-  }, [mode, selectedElementId, slide]);
-
-  return (
-    <div
-      className="relative origin-top overflow-hidden border border-[#333333] shadow-2xl shadow-black/35"
-      style={{
-        height: SLIDE_HEIGHT,
-        marginBottom: -(SLIDE_HEIGHT * (1 - scale)),
-        transform: `scale(${scale})`,
-        width: SLIDE_WIDTH,
-      }}
-    >
-      <canvas ref={canvasElementRef} aria-label="Slide canvas" />
-    </div>
-  );
-}
-
-function ColorMenu({ activeColor, icon: Icon, label, onSelect }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <IconButton label={label}>
-          <Icon className="h-4 w-4" />
-          <span className="absolute bottom-1 h-0.5 w-4 rounded-full" style={{ background: activeColor }} />
-        </IconButton>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-52 p-2" align="start">
-        <DropdownMenuLabel>{label}</DropdownMenuLabel>
-        <div className="grid grid-cols-6 gap-1.5 p-1">
-          {colorOptions.map((color) => (
-            <button
-              key={color}
-              type="button"
-              aria-label={color}
-              onClick={() => onSelect(color)}
-              className={cn("h-7 rounded border border-[#333333] ring-offset-2 ring-offset-[#202020]", activeColor === color && "ring-2 ring-white")}
-              style={{ background: color }}
-            />
-          ))}
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-function BackgroundMenu({ activeColor, onSelect }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <ToolbarSelect className="w-32">Background</ToolbarSelect>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 p-2" align="start">
-        <DropdownMenuLabel>Slide background</DropdownMenuLabel>
-        <div className="grid grid-cols-6 gap-1.5 p-1">
-          {colorOptions.map((color) => (
-            <button
-              key={color}
-              type="button"
-              aria-label={`Set background ${color}`}
-              onClick={() => onSelect(color)}
-              className={cn("h-7 rounded border border-[#333333] ring-offset-2 ring-offset-[#202020]", activeColor === color && "ring-2 ring-white")}
-              style={{ background: color }}
-            />
-          ))}
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-function SlidesMenuBar({ onAction }) {
-  return (
-    <nav className="hidden items-center gap-1 text-sm text-white md:flex" aria-label="Slides menu">
-      {slideMenus.map((menu) => (
-        <DropdownMenu key={menu.label}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-6 rounded px-2 py-2 text-sm font-normal text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white focus-visible:ring-[#474747] data-[state=open]:bg-[#2a2a2a] data-[state=open]:text-white"
-            >
-              {menu.label}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {menu.groups.map((group, groupIndex) => (
-              <div key={`${menu.label}-${groupIndex}`}>
-                {groupIndex > 0 && <DropdownMenuSeparator />}
-                {group.map((item) => {
-                  if (item.type === "download") {
-                    return (
-                      <DropdownMenuSub key={item.label}>
-                        <DropdownMenuSubTrigger>
-                          <span>{item.label}</span>
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent className="min-w-52">
-                          <DropdownMenuItem onSelect={() => onAction("export-pptx")}>
-                            PowerPoint (.pptx)
-                          </DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuSub>
-                    );
-                  }
-
-                  if (item.hasSubmenu) {
-                    return (
-                      <DropdownMenuSub key={item.label}>
-                        <DropdownMenuSubTrigger>
-                          <span>{item.label}</span>
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent>
-                          <DropdownMenuItem disabled>Coming soon</DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuSub>
-                    );
-                  }
-
-                  return (
-                    <DropdownMenuItem key={item.label} onSelect={() => item.action && onAction(item.action)}>
-                      <span>{item.label}</span>
-                      {item.shortcut && <DropdownMenuShortcut>{item.shortcut}</DropdownMenuShortcut>}
-                    </DropdownMenuItem>
-                  );
-                })}
-              </div>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ))}
-    </nav>
-  );
-}
-
-function SlidesEditor() {
-  const initialSlides = useMemo(() => [createSlide("title", themeOptions[0]), createSlide("content", themeOptions[2]), createSlide("two-column", themeOptions[4])], []);
-  const { canRedo, canUndo, commit, present: slides, redo, undo } = useHistory(initialSlides);
+function SlidesEditor({ fileId }) {
+  const router = useRouter();
+  const { file, initialContent, isLoading, status, role, starred, toggleStar, saveContent, rename } = useOfficeFile(fileId);
+  const initialSlides = useMemo(() => [createSlide("blank", themeOptions[0])], []);
+  const { canRedo, canUndo, commit, present: slides, redo, reset, undo } = useHistory(initialSlides);
   const [activeSlideId, setActiveSlideId] = useState(initialSlides[0].id);
-  const [selectedElementId, setSelectedElementId] = useState(initialSlides[0].elements[0].id);
+  const [selectedElementId, setSelectedElementId] = useState(initialSlides[0].elements[0]?.id ?? null);
+  const [presentationName, setPresentationName] = useState("Untitled presentation");
   const [zoom, setZoom] = useState(90);
   const [mode, setMode] = useState("edit");
   const [isPresenting, setIsPresenting] = useState(false);
   const [isFilmstripOpen, setIsFilmstripOpen] = useState(true);
+  const [draggingSlideId, setDraggingSlideId] = useState(null);
+  const [sidebarTool, setSidebarTool] = useState(null);
+  const [gridOpen, setGridOpen] = useState(false);
   const imageInputRef = useRef(null);
+  const hydratedRef = useRef(false);
+  const lastSavedJsonRef = useRef(null);
+  const elementClipboardRef = useRef(null);
+  const slideClipboardRef = useRef(null);
+
+  useEffect(() => {
+    if (isLoading || hydratedRef.current) return;
+    const saved = initialContent;
+    if (saved && Array.isArray(saved.slides) && saved.slides.length > 0) {
+      reset(saved.slides);
+      setActiveSlideId(saved.slides[0].id);
+      setSelectedElementId(saved.slides[0].elements[0]?.id ?? null);
+      lastSavedJsonRef.current = JSON.stringify({ slides: saved.slides });
+    } else {
+      lastSavedJsonRef.current = null;
+    }
+    if (file?.name) setPresentationName(file.name);
+    hydratedRef.current = true;
+  }, [isLoading, initialContent, file, reset]);
+
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    const json = JSON.stringify({ slides });
+    if (json === lastSavedJsonRef.current) return;
+    lastSavedJsonRef.current = json;
+    saveContent({ slides });
+  }, [slides, saveContent]);
+
+  const handleRename = (nextName) => {
+    setPresentationName(nextName);
+    rename(nextName);
+  };
+
+  const renamePrompt = () => {
+    const next = window.prompt("Rename presentation", presentationName);
+    if (next?.trim()) handleRename(next.trim());
+  };
+
+  const makeCopy = async () => {
+    try {
+      const res = await fetch(apiBase(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "presentation", name: `${presentationName} (copy)`, content: { slides } }),
+      });
+      if (!res.ok) return;
+      const created = await res.json();
+      router.push(`/slide/${created.id}`);
+    } catch {
+      /* best-effort; stay on the current file */
+    }
+  };
+
+  const newPresentation = async () => {
+    try {
+      const res = await fetch(apiBase(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "presentation" }),
+      });
+      if (!res.ok) return;
+      const created = await res.json();
+      router.push(`/slide/${created.id}`);
+    } catch {
+      /* best-effort */
+    }
+  };
 
   const activeSlide = slides.find((slide) => slide.id === activeSlideId) ?? slides[0];
   const selectedElement = activeSlide?.elements.find((element) => element.id === selectedElementId);
@@ -760,23 +233,95 @@ function SlidesEditor() {
     setSelectedElementId(clone.elements[0]?.id);
   };
 
-  const deleteSlide = () => {
+  const deleteSlide = (slideId = activeSlide.id) => {
     if (slides.length === 1) return;
-    const currentIndex = slides.findIndex((slide) => slide.id === activeSlide.id);
+    const currentIndex = slides.findIndex((slide) => slide.id === slideId);
+    if (currentIndex === -1) return;
     const fallback = slides[currentIndex - 1] ?? slides[currentIndex + 1];
-    commit((current) => current.filter((slide) => slide.id !== activeSlide.id));
+    commit((current) => current.filter((slide) => slide.id !== slideId));
     setActiveSlideId(fallback.id);
     setSelectedElementId(fallback.elements[0]?.id);
   };
 
+  const reorderSlide = (fromId, toId) => {
+    if (!fromId || fromId === toId) return;
+    commit((current) => {
+      const fromIndex = current.findIndex((slide) => slide.id === fromId);
+      const toIndex = current.findIndex((slide) => slide.id === toId);
+      if (fromIndex === -1 || toIndex === -1) return current;
+      const next = [...current];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  };
+
+  // Move a slide within the filmstrip. direction: "top" | "up" | "down" | "bottom".
+  const moveSlide = (slideId, direction) => {
+    commit((current) => {
+      const from = current.findIndex((item) => item.id === slideId);
+      if (from === -1) return current;
+      const to =
+        direction === "top" ? 0
+        : direction === "bottom" ? current.length - 1
+        : direction === "up" ? Math.max(0, from - 1)
+        : Math.min(current.length - 1, from + 1);
+      if (to === from) return current;
+      const next = [...current];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  };
+
+  const toggleSkipSlide = (slideId) => {
+    updateSlide(slideId, (slide) => ({ ...slide, skipped: !slide.skipped }));
+  };
+
+  const copySlide = (slideId) => {
+    const source = slides.find((item) => item.id === slideId);
+    if (source) slideClipboardRef.current = source;
+  };
+
+  const pasteSlide = () => {
+    const source = slideClipboardRef.current;
+    if (!source) return;
+    const clone = {
+      ...source,
+      id: crypto.randomUUID(),
+      elements: source.elements.map((element) => ({ ...element, id: crypto.randomUUID() })),
+    };
+    commit((current) => {
+      const index = current.findIndex((item) => item.id === activeSlideId);
+      const next = [...current];
+      next.splice(index + 1, 0, clone);
+      return next;
+    });
+    setActiveSlideId(clone.id);
+    setSelectedElementId(clone.elements[0]?.id);
+  };
+
+  const cutSlide = (slideId) => {
+    copySlide(slideId);
+    deleteSlide(slideId);
+  };
+
+  const changeSlideBackground = (slideId = activeSlide.id) => {
+    const current = slides.find((slide) => slide.id === slideId)?.background ?? "#ffffff";
+    const next = window.prompt("Slide background color (hex)", current);
+    if (!next?.trim()) return;
+    updateSlide(slideId, { background: next.trim() });
+  };
+
   const addTextBox = () => {
-    const element = createTextElement({ text: "New text", x: 150, y: 150, fontSize: 36, color: activeTheme.text });
+    const element = createTextElement({ text: "New text", x: 150, y: 150, fontSize: 14, color: activeTheme.text });
     updateSlide(activeSlide.id, (slide) => ({ ...slide, elements: [...slide.elements, element] }));
     setSelectedElementId(element.id);
   };
 
   const addShape = (shape = "rect") => {
-    const element = createShapeElement({ shape, fill: activeTheme.accent, color: activeTheme.accent });
+    const dimensions = shape === "square" ? { w: 240, h: 240 } : shape === "line" ? { w: 360, h: 8 } : shape === "triangle" ? { w: 260, h: 220 } : {};
+    const element = createShapeElement({ shape, fill: activeTheme.accent, color: activeTheme.accent, ...dimensions });
     updateSlide(activeSlide.id, (slide) => ({ ...slide, elements: [...slide.elements, element] }));
     setSelectedElementId(element.id);
   };
@@ -798,6 +343,23 @@ function SlidesEditor() {
     setSelectedElementId(undefined);
   };
 
+  // Delete / Backspace removes the selected element. Skipped while typing in a field
+  // (Fabric edits text through a hidden textarea) or while presenting. No dependency
+  // array so the listener always closes over the current selection and handlers.
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key !== "Delete" && event.key !== "Backspace") return;
+      const tag = (event.target?.tagName ?? "").toLowerCase();
+      if (tag === "input" || tag === "textarea" || event.target?.isContentEditable) return;
+      if (isPresenting || mode !== "edit" || !selectedElement) return;
+      event.preventDefault();
+      removeSelectedElement();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
+
   const moveSelectedElement = (direction) => {
     if (!selectedElement) return;
     updateSlide(activeSlide.id, (slide) => {
@@ -809,6 +371,40 @@ function SlidesEditor() {
       elements.splice(nextIndex, 0, element);
       return { ...slide, elements };
     });
+  };
+
+  const setSelectedElementDepth = (placement) => {
+    if (!selectedElement) return;
+    updateSlide(activeSlide.id, (slide) => {
+      const others = slide.elements.filter((element) => element.id !== selectedElement.id);
+      const elements = placement === "front" ? [...others, selectedElement] : [selectedElement, ...others];
+      return { ...slide, elements };
+    });
+  };
+
+  const duplicateSelectedElement = () => {
+    if (!selectedElement) return;
+    const clone = { ...selectedElement, id: crypto.randomUUID(), x: selectedElement.x + 24, y: selectedElement.y + 24 };
+    updateSlide(activeSlide.id, (slide) => ({ ...slide, elements: [...slide.elements, clone] }));
+    setSelectedElementId(clone.id);
+  };
+
+  const copySelectedElement = () => {
+    if (selectedElement) elementClipboardRef.current = selectedElement;
+  };
+
+  const cutSelectedElement = () => {
+    if (!selectedElement) return;
+    elementClipboardRef.current = selectedElement;
+    removeSelectedElement();
+  };
+
+  const pasteElement = () => {
+    const copied = elementClipboardRef.current;
+    if (!copied) return;
+    const clone = { ...copied, id: crypto.randomUUID(), x: copied.x + 24, y: copied.y + 24 };
+    updateSlide(activeSlide.id, (slide) => ({ ...slide, elements: [...slide.elements, clone] }));
+    setSelectedElementId(clone.id);
   };
 
   const applyLayout = (layout) => {
@@ -893,11 +489,17 @@ function SlidesEditor() {
       "export-pptx": exportPptx,
       "forward": () => moveSelectedElement("forward"),
       "image": () => imageInputRef.current?.click(),
+      "make-copy": makeCopy,
+      "new-presentation": newPresentation,
       "new-slide": () => addSlide(activeSlide.layout),
       "present": () => setIsPresenting(true),
+      "print": () => window.print(),
       "redo": redo,
+      "rename": renamePrompt,
       "shape": () => addShape("rect"),
       "text": addTextBox,
+      "toggle-grid": () => setGridOpen(true),
+      "toggle-notes": () => setSidebarTool((tool) => (tool === "notes" ? null : "notes")),
       "undo": undo,
     };
 
@@ -909,75 +511,54 @@ function SlidesEditor() {
       <header className="shrink-0 border-b border-[#333333] bg-[#202020] shadow-sm shadow-black/20">
         <div className="mt-2 flex h-14 items-center gap-3 px-4">
           <div className="mr-auto flex min-w-0 items-start gap-3">
-            <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#2a2a2a] p-1.5">
-              <Image src="/logo1.svg" alt="Geiger Office" width={28} height={28} className="h-7 w-7 object-contain" priority />
-            </div>
             <div className="min-w-0">
               <div className="flex min-w-0 items-center gap-2">
-                <h1 className="truncate text-sm font-semibold leading-7 text-white">Untitled presentation</h1>
-                <IconButton label="Star presentation" className="h-7 w-7">
-                  <Star className="h-4 w-4" />
-                </IconButton>
-                <Presentation className="h-4 w-4 text-amber-300" />
+                <Link
+                  href="/home"
+                  aria-label="Go to home"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[#2a2a2a]"
+                >
+                  <Image src={`${assetPrefix}/logo1.svg`} alt="Home" width={20} height={20} />
+                </Link>
+                <div className="grid min-w-0 max-w-[52vw] items-center">
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none invisible col-start-1 row-start-1 whitespace-pre rounded-md border border-transparent px-1 text-sm font-semibold leading-7"
+                  >
+                    {presentationName || "Untitled presentation"}
+                  </span>
+                  <input
+                    value={presentationName}
+                    onChange={(event) => handleRename(event.target.value)}
+                    aria-label="Presentation name"
+                    spellCheck={false}
+                    className="col-start-1 row-start-1 w-full rounded-md border border-transparent bg-transparent px-1 text-sm font-semibold leading-7 text-white outline-none transition-colors hover:border-[#3a3a3a] focus:border-[#474747] focus:bg-[#161616]"
+                  />
+                </div>
+                <StarButton
+                  starred={starred}
+                  onToggle={toggleStar}
+                  label="Star presentation"
+                  className="h-7 w-7"
+                />
+                <SaveStatus status={status} className="ml-1" />
+                <ViewOnlyBadge role={role} className="ml-1" />
               </div>
               <SlidesMenuBar onAction={handleMenuAction} />
             </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <div className="hidden -space-x-2 sm:flex" aria-label="People editing this presentation">
-              {activeCollaborators.map((collaborator) => (
-                <Avatar key={collaborator.name} className="h-8 w-8 border-2 border-[#202020] shadow-sm shadow-black/20" title={`${collaborator.name} is editing`}>
-                  <AvatarFallback className={`text-[10px] font-semibold ${collaborator.color}`}>
-                    {collaborator.initials}
-                  </AvatarFallback>
-                </Avatar>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="group relative hidden h-8 w-[220px] items-center justify-start rounded-md border border-[#333333] bg-[#242424] px-2.5 text-sm text-[#a3a3a3] shadow-sm transition-colors hover:border-[#474747] hover:bg-[#2a2a2a] hover:text-white lg:flex"
-            >
-              <Search className="mr-2 h-4 w-4 text-[#a3a3a3] transition-colors group-hover:text-white" />
-              <span className="text-[#a3a3a3] transition-colors group-hover:text-white">Search slides...</span>
-              <div className="absolute right-1.5 top-1.5 flex items-center gap-1">
-                <KbdGroup>
-                  <Kbd className="border border-[#333333] bg-[#202020] text-[#a3a3a3] transition-colors group-hover:bg-[#2a2a2a] group-hover:text-white">
-                    Ctrl
-                  </Kbd>
-                  <Kbd className="border border-[#333333] bg-[#202020] text-[#a3a3a3] transition-colors group-hover:bg-[#2a2a2a] group-hover:text-white">
-                    K
-                  </Kbd>
-                </KbdGroup>
-              </div>
-            </button>
-            <IconButton label="Comments" className="hidden sm:inline-flex">
-              <MessageSquareText className="h-5 w-5" />
-            </IconButton>
-            <IconButton label="Video call" className="hidden sm:inline-flex">
-              <Video className="h-5 w-5" />
-            </IconButton>
-            <Button type="button" variant="outline" onClick={() => setIsPresenting(true)} className="hidden h-9 rounded-md border-[#333333] bg-[#202020] px-5 text-[#e5e5e5] hover:border-[#474747] hover:bg-[#2a2a2a] sm:inline-flex">
+            <CommandSearch placeholder="Search slides..." triggerClassName="hidden lg:flex" />
+            <IconButton type="button" variant="outline" onClick={() => setIsPresenting(true)} className="hidden h-9 rounded-md bg-[#202020] px-5 text-[#e5e5e5]  sm:inline-flex">
               <MonitorPlay className="h-4 w-4" />
-              Slideshow
-            </Button>
-            <Button type="button" className="h-9 rounded-md px-4">
-              <Lock className="h-4 w-4" />
-              Share
-              <ChevronDown className="h-4 w-4" />
-            </Button>
+            </IconButton>
             <IconButton label="Gemini" className="hidden sm:inline-flex">
               <Sparkles className="h-5 w-5" />
             </IconButton>
-            <IconButton label="Help" className="hidden sm:inline-flex">
-              <HelpCircle className="h-5 w-5" />
-            </IconButton>
-            <IconButton label="Notifications">
-              <Bell className="h-5 w-5" />
-            </IconButton>
-            <Button type="button" variant="outline" size="icon" className="h-9 w-9 rounded-full border-[#333333] bg-[#202020] text-[#a3a3a3] hover:border-[#474747] hover:bg-[#242424] hover:text-white">
-              <UserCircle className="h-5 w-5" />
-            </Button>
+            <HelpDropdown appName="Office Slides" triggerClassName="hidden sm:flex" />
+            <NotificationsDropdown triggerClassName="h-9 w-9 rounded-md hover:bg-[#242424]" />
+            <ProfileDropdown triggerClassName="h-9 w-9 border-[#333333] bg-[#202020] hover:bg-[#242424]" />
           </div>
         </div>
 
@@ -1040,18 +621,27 @@ function SlidesEditor() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               <DropdownMenuItem onSelect={() => addShape("rect")}>
-                <Square className="h-4 w-4" />
+                <RectangleHorizontal className="h-4 w-4" />
                 Rectangle
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addShape("square")}>
+                <Square className="h-4 w-4" />
+                Square
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addShape("ellipse")}>
                 <Circle className="h-4 w-4" />
                 Ellipse
               </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addShape("triangle")}>
+                <Triangle className="h-4 w-4" />
+                Triangle
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addShape("line")}>
+                <Minus className="h-4 w-4" />
+                Line
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <IconButton label="Line">
-            <LineChart className="h-4 w-4" />
-          </IconButton>
           <IconButton label="Insert image" onClick={() => imageInputRef.current?.click()}>
             <ImageIcon className="h-4 w-4" />
           </IconButton>
@@ -1066,7 +656,13 @@ function SlidesEditor() {
             }}
           />
           <ToolbarDivider />
-          <BackgroundMenu activeColor={activeSlide.background} onSelect={(background) => updateSlide(activeSlide.id, { background })} />
+          <FormattingColorPicker
+            activeColor={activeSlide.background}
+            icon={PaintBucket}
+            label="Slide background"
+            options={TEXT_COLOR_OPTIONS}
+            onSelectColor={(background) => updateSlide(activeSlide.id, { background: background ?? "#ffffff" })}
+          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <ToolbarSelect className="w-24">Layout</ToolbarSelect>
@@ -1141,8 +737,20 @@ function SlidesEditor() {
               <IconButton label="Align right" onClick={() => updateElement(selectedElement.id, { align: "right" })}>
                 <AlignRight className="h-4 w-4" />
               </IconButton>
-              <ColorMenu activeColor={selectedElement.color} icon={Palette} label="Text color" onSelect={(color) => updateElement(selectedElement.id, { color })} />
-              <ColorMenu activeColor={selectedElement.fill} icon={Highlighter} label="Text fill" onSelect={(fill) => updateElement(selectedElement.id, { fill })} />
+              <FormattingColorPicker
+                activeColor={selectedElement.color}
+                icon={Palette}
+                label="Text color"
+                options={TEXT_COLOR_OPTIONS}
+                onSelectColor={(color) => updateElement(selectedElement.id, { color: color ?? "#111827" })}
+              />
+              <FormattingColorPicker
+                activeColor={selectedElement.fill === "transparent" ? null : selectedElement.fill}
+                icon={Highlighter}
+                label="Text fill"
+                options={HIGHLIGHT_COLOR_OPTIONS}
+                onSelectColor={(fill) => updateElement(selectedElement.id, { fill: fill ?? "transparent" })}
+              />
               <IconButton label="Delete text box" onClick={removeSelectedElement}>
                 <Trash2 className="h-4 w-4" />
               </IconButton>
@@ -1151,7 +759,13 @@ function SlidesEditor() {
           {selectedElement?.type === "shape" || selectedElement?.type === "image" ? (
             <>
               {selectedElement.type === "shape" ? (
-                <ColorMenu activeColor={selectedElement.fill} icon={PaintBucket} label="Shape fill" onSelect={(fill) => updateElement(selectedElement.id, { fill, color: fill })} />
+                <FormattingColorPicker
+                  activeColor={selectedElement.fill}
+                  icon={PaintBucket}
+                  label="Shape fill"
+                  options={TEXT_COLOR_OPTIONS}
+                  onSelectColor={(fill) => updateElement(selectedElement.id, { fill: fill ?? activeTheme.accent, color: fill ?? activeTheme.accent })}
+                />
               ) : null}
               <IconButton label="Bring forward" onClick={() => moveSelectedElement("forward")}>
                 <PanelLeftOpen className="h-4 w-4 rotate-90" />
@@ -1164,14 +778,18 @@ function SlidesEditor() {
               </IconButton>
             </>
           ) : null}
-          <div className="ml-auto flex shrink-0 items-center gap-1">
-            <Button type="button" variant="ghost" size="sm" onClick={() => setMode(mode === "edit" ? "view" : "edit")} className="h-8 rounded-md px-2 text-[#d4d4d4] hover:bg-[#2a2a2a]">
-              {mode === "edit" ? <TextCursorInput className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              {mode === "edit" ? "Editing" : "Viewing"}
-            </Button>
-            <IconButton label="Collapse toolbar">
-              <ChevronUp className="h-4 w-4" />
-            </IconButton>
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+              <ShareButton
+              fileId={fileId}
+              fileType="presentation"
+              name={presentationName}
+              render={(openShare) => (
+                <IconButton label="Share" onClick={openShare}>
+                  <UserPlus className="h-4 w-4" />
+                </IconButton>
+              )}
+            />
+            <ModeToolbarGroup mode={mode} onModeChange={setMode} />
           </div>
         </div>
       </header>
@@ -1186,7 +804,7 @@ function SlidesEditor() {
                   <IconButton label="Duplicate slide" className="h-7 w-7" onClick={duplicateSlide}>
                     <Copy className="h-4 w-4" />
                   </IconButton>
-                  <IconButton label="Delete slide" className="h-7 w-7" disabled={slides.length === 1} onClick={deleteSlide}>
+                  <IconButton label="Delete slide" className="h-7 w-7" disabled={slides.length === 1} onClick={() => deleteSlide()}>
                     <Trash2 className="h-4 w-4" />
                   </IconButton>
                 </>
@@ -1199,34 +817,138 @@ function SlidesEditor() {
           {isFilmstripOpen ? (
             <div className="space-y-2 overflow-y-auto pr-1 scrollbar-subtle">
               {slides.map((slide, index) => (
-                <SlideThumbnail
+                <SlideFilmstripContextMenu
                   key={slide.id}
-                  active={slide.id === activeSlide.id}
-                  index={index}
-                  slide={slide}
+                  canDelete={slides.length > 1}
+                  isFirst={index === 0}
+                  isSkipped={Boolean(slide.skipped)}
+                  layouts={layouts}
+                  onOpenForContext={() => {
+                    setActiveSlideId(slide.id);
+                    setSelectedElementId(slide.elements[0]?.id);
+                  }}
+                  onCut={() => cutSlide(slide.id)}
+                  onCopy={() => copySlide(slide.id)}
+                  onPaste={pasteSlide}
+                  onDelete={() => deleteSlide(slide.id)}
+                  onNewSlide={() => addSlide(slide.layout)}
+                  onCreateSlide={(layoutId) => addSlide(layoutId)}
+                  onTemplates={() => addSlide(slide.layout)}
+                  onDuplicate={duplicateSlide}
+                  onSkip={() => toggleSkipSlide(slide.id)}
+                  onChangeBackground={() => changeSlideBackground(slide.id)}
+                  onApplyLayout={applyLayout}
+                  onChangeTheme={() => applyTheme(activeTheme)}
+                  onTransition={() => {
+                    setActiveSlideId(slide.id);
+                    setSidebarTool("transitions");
+                  }}
+                  onMoveToBeginning={() => moveSlide(slide.id, "top")}
+                  onComment={() => {
+                    setActiveSlideId(slide.id);
+                    setSidebarTool("notes");
+                  }}
+                >
+                  <SlideThumbnail
+                    active={slide.id === activeSlide.id}
+                    dragging={draggingSlideId === slide.id}
+                    index={index}
+                    slide={slide}
+                    onClick={() => {
+                      setActiveSlideId(slide.id);
+                      setSelectedElementId(slide.elements[0]?.id);
+                    }}
+                    onDragStart={() => setDraggingSlideId(slide.id)}
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={() => {
+                      reorderSlide(draggingSlideId, slide.id);
+                      setDraggingSlideId(null);
+                    }}
+                    onDragEnd={() => setDraggingSlideId(null)}
+                  />
+                </SlideFilmstripContextMenu>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2 overflow-y-auto scrollbar-subtle">
+              {slides.map((slide, index) => (
+                <button
+                  key={slide.id}
+                  type="button"
+                  title={`Slide ${index + 1}`}
                   onClick={() => {
                     setActiveSlideId(slide.id);
                     setSelectedElementId(slide.elements[0]?.id);
                   }}
-                />
+                  className="flex w-full flex-col items-center gap-0.5"
+                >
+                  <span className={cn("text-[10px]", slide.id === activeSlide.id ? "text-white" : "text-[#737373]")}>{index + 1}</span>
+                  <span
+                    className={cn(
+                      "h-[24px] w-10 shrink-0 overflow-hidden rounded-sm border",
+                      slide.id === activeSlide.id ? "border-white ring-1 ring-white" : "border-[#333333]",
+                    )}
+                    style={{ background: slide.background }}
+                  />
+                </button>
               ))}
             </div>
-          ) : null}
+          )}
         </aside>
 
         <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#161616]">
           <div className="relative min-h-0 flex-1 overflow-auto bg-[#161616] scrollbar-subtle">
             <div className="flex min-h-[760px] min-w-[1180px] flex-col items-center px-10 pb-24 pt-9">
-              <div className="relative">
-                <FabricSlideCanvas
-                  mode={mode}
-                  scale={scale}
-                  selectedElementId={selectedElementId}
-                  slide={activeSlide}
-                  onChangeElement={updateElement}
-                  onSelectElement={setSelectedElementId}
-                />
-              </div>
+              <ContextMenu>
+                <ContextMenuTrigger asChild>
+                  <div className="relative">
+                    <FabricSlideCanvas
+                      mode={mode}
+                      scale={scale}
+                      selectedElementId={selectedElementId}
+                      slide={activeSlide}
+                      onChangeElement={updateElement}
+                      onSelectElement={setSelectedElementId}
+                    />
+                  </div>
+                </ContextMenuTrigger>
+                <ContextMenuContent className="w-52">
+                  <ContextMenuItem disabled={!selectedElement} onSelect={cutSelectedElement}>
+                    Cut
+                    <ContextMenuShortcut>Ctrl+X</ContextMenuShortcut>
+                  </ContextMenuItem>
+                  <ContextMenuItem disabled={!selectedElement} onSelect={copySelectedElement}>
+                    Copy
+                    <ContextMenuShortcut>Ctrl+C</ContextMenuShortcut>
+                  </ContextMenuItem>
+                  <ContextMenuItem disabled={!elementClipboardRef.current} onSelect={pasteElement}>
+                    Paste
+                    <ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
+                  </ContextMenuItem>
+                  <ContextMenuItem disabled={!selectedElement} onSelect={duplicateSelectedElement}>
+                    Duplicate
+                    <ContextMenuShortcut>Ctrl+D</ContextMenuShortcut>
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem disabled={!selectedElement} onSelect={() => setSelectedElementDepth("front")}>
+                    Bring to front
+                  </ContextMenuItem>
+                  <ContextMenuItem disabled={!selectedElement} onSelect={() => moveSelectedElement("forward")}>
+                    Bring forward
+                  </ContextMenuItem>
+                  <ContextMenuItem disabled={!selectedElement} onSelect={() => moveSelectedElement("backward")}>
+                    Send backward
+                  </ContextMenuItem>
+                  <ContextMenuItem disabled={!selectedElement} onSelect={() => setSelectedElementDepth("back")}>
+                    Send to back
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem variant="destructive" disabled={!selectedElement} onSelect={removeSelectedElement}>
+                    Delete
+                    <ContextMenuShortcut>Del</ContextMenuShortcut>
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
 
               <div className="mt-8 flex flex-col items-center gap-3">
                 <Button type="button" variant="ghost" size="sm" onClick={() => addSlide(activeSlide.layout)} className="h-10 rounded-full bg-[#202020] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#2a2a2a]">
@@ -1238,7 +960,7 @@ function SlidesEditor() {
             </div>
           </div>
           <footer className="flex h-11 shrink-0 items-center gap-4 border-t border-[#2a2a2a] bg-[#1a1a1a] px-6 text-sm">
-            <IconButton label="Grid view" className="h-7 w-7">
+            <IconButton label="Grid view" className="h-7 w-7" onClick={() => setGridOpen(true)}>
               <Grid2X2 className="h-4 w-4" />
             </IconButton>
             <IconButton label={isFilmstripOpen ? "Collapse filmstrip" : "Expand filmstrip"} className="h-7 w-7" onClick={() => setIsFilmstripOpen(!isFilmstripOpen)}>
@@ -1254,24 +976,15 @@ function SlidesEditor() {
           </footer>
         </main>
 
-        <aside className="hidden w-[76px] shrink-0 flex-col items-center gap-3 bg-[#161616] py-64 xl:flex">
-          {[
-            [{ icon: WandSparkles, label: "AI assist" }],
-            [
-              { icon: LayoutTemplate, label: "Layouts" },
-              { icon: PaintRoller, label: "Themes" },
-              { icon: ImageIcon, label: "Media" },
-            ],
-          ].map((group, index) => (
-            <div key={index} className="flex flex-col items-center gap-4 rounded-md bg-[#202020] px-3 py-4">
-              {group.map(({ icon: Icon, label }) => (
-                <IconButton key={label} label={label} className="h-8 w-8 rounded-md">
-                  <Icon className={cn("h-4 w-4", label === "AI assist" && "text-amber-300")} />
-                </IconButton>
-              ))}
-            </div>
-          ))}
-        </aside>
+        <SlidesSidebar
+          activeSlide={activeSlide}
+          openTool={sidebarTool}
+          onOpenToolChange={setSidebarTool}
+          onAddSlide={addSlide}
+          onApplyTheme={applyTheme}
+          onSetTransition={(transition) => updateSlide(activeSlide.id, { transition })}
+          onSetNotes={(notes) => updateSlide(activeSlide.id, { notes })}
+        />
       </div>
 
       {isPresenting ? (
@@ -1301,6 +1014,29 @@ function SlidesEditor() {
           </div>
         </div>
       ) : null}
+
+      <Dialog open={gridOpen} onOpenChange={setGridOpen}>
+        <DialogContent className="w-[min(900px,calc(100vw-32px))]">
+          <DialogHeader>
+            <DialogTitle>All slides ({slides.length})</DialogTitle>
+          </DialogHeader>
+          <div className="grid max-h-[70vh] grid-cols-2 gap-2 overflow-y-auto p-1 sm:grid-cols-3 md:grid-cols-4">
+            {slides.map((slide, index) => (
+              <SlideThumbnail
+                key={slide.id}
+                active={slide.id === activeSlideId}
+                index={index}
+                slide={slide}
+                onClick={() => {
+                  setActiveSlideId(slide.id);
+                  setSelectedElementId(slide.elements[0]?.id ?? null);
+                  setGridOpen(false);
+                }}
+              />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

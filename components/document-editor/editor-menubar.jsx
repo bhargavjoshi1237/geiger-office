@@ -60,8 +60,10 @@ const editorMenus = [
         { label: "Cut", shortcut: "Ctrl+X" },
         { label: "Copy", shortcut: "Ctrl+C" },
         { label: "Paste", shortcut: "Ctrl+V" },
+        { label: "Paste without formatting", shortcut: "Ctrl+Shift+V" },
       ],
       [
+        { label: "Select all", shortcut: "Ctrl+A" },
         { label: "Find and replace", shortcut: "Ctrl+H" },
       ],
     ],
@@ -70,9 +72,15 @@ const editorMenus = [
     label: "View",
     groups: [
       [
+        { label: "Editing mode" },
+        { label: "Suggesting mode" },
+        { label: "Viewing mode" },
+      ],
+      [
         { label: "Print layout" },
         { label: "Show ruler" },
         { label: "Show outline" },
+        { label: "Show comments" },
       ],
       [
         { label: "Full screen" },
@@ -86,11 +94,23 @@ const editorMenus = [
         { label: "Image" },
         { label: "Table" },
         { label: "Drawing" },
+        { label: "Chart" },
+      ],
+      [
+        { label: "Horizontal line" },
+        { label: "Page break" },
+        { label: "Special characters" },
+        { label: "Emoji" },
       ],
       [
         { label: "Link", shortcut: "Ctrl+K" },
-        { label: "Comment" },
-        { label: "Header and footer" },
+        { label: "Comment", shortcut: "Ctrl+Alt+M" },
+        { label: "Footnote", shortcut: "Ctrl+Alt+F" },
+      ],
+      [
+        { label: "Headers & footers" },
+        { label: "Page numbers" },
+        { label: "Table of contents" },
       ],
     ],
   },
@@ -98,13 +118,22 @@ const editorMenus = [
     label: "Format",
     groups: [
       [
+        { label: "Bold", shortcut: "Ctrl+B" },
+        { label: "Italic", shortcut: "Ctrl+I" },
+        { label: "Underline", shortcut: "Ctrl+U" },
+      ],
+      [
         { label: "Text" },
         { label: "Paragraph styles" },
         { label: "Align and indent" },
       ],
       [
         { label: "Line spacing" },
+        { label: "Bullets & numbering" },
         { label: "Columns" },
+      ],
+      [
+        { label: "Clear formatting", shortcut: "Ctrl+\\" },
       ],
     ],
   },
@@ -116,8 +145,17 @@ const editorMenus = [
         { label: "Word count", shortcut: "Ctrl+Shift+C" },
       ],
       [
+        { label: "Voice typing", shortcut: "Ctrl+Shift+S" },
+        { label: "Citations" },
+        { label: "Dictionary", shortcut: "Ctrl+Shift+Y" },
+      ],
+      [
         { label: "Compare documents" },
         { label: "Review suggested edits" },
+      ],
+      [
+        { label: "Preferences" },
+        { label: "Accessibility" },
       ],
     ],
   },
@@ -169,7 +207,30 @@ function DownloadSubmenu({ editor }) {
   );
 }
 
-function MenuItem({ editor, item }) {
+// Menu items whose label maps to a real editor command. Everything else renders as a
+// labelled (inert) entry so the menus mirror Google Docs without dead-clicks crashing.
+const EDITOR_ACTIONS = {
+  Undo: (editor) => editor?.chain().focus().undo().run(),
+  Redo: (editor) => editor?.chain().focus().redo().run(),
+  "Select all": (editor) => editor?.chain().focus().selectAll().run(),
+  Bold: (editor) => editor?.chain().focus().toggleBold().run(),
+  Italic: (editor) => editor?.chain().focus().toggleItalic().run(),
+  Underline: (editor) => editor?.chain().focus().toggleUnderline().run(),
+  "Clear formatting": (editor) => editor?.chain().focus().unsetAllMarks().clearNodes().run(),
+  "Horizontal line": (editor) => editor?.chain().focus().setHorizontalRule().run(),
+  Link: (editor) => {
+    const url = window.prompt("Link URL", "https://");
+    if (url?.trim()) editor?.chain().focus().extendMarkRange("link").setLink({ href: url.trim() }).run();
+  },
+  "Full screen": () => {
+    if (typeof document === "undefined") return;
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else document.documentElement.requestFullscreen?.();
+  },
+  Print: () => window.print(),
+};
+
+function MenuItem({ editor, item, fileActions }) {
   if (item.type === "download") {
     return <DownloadSubmenu editor={editor} />;
   }
@@ -187,15 +248,19 @@ function MenuItem({ editor, item }) {
     );
   }
 
+  const editorAction = EDITOR_ACTIONS[item.label];
+  const fileAction = fileActions?.[item.label];
+  const onSelect = editorAction ? () => editorAction(editor) : fileAction ? () => fileAction() : undefined;
+
   return (
-    <DropdownMenuItem onSelect={item.label === "Print" ? () => window.print() : undefined}>
+    <DropdownMenuItem disabled={!onSelect} onSelect={onSelect}>
       <span>{item.label}</span>
       {item.shortcut && <DropdownMenuShortcut>{item.shortcut}</DropdownMenuShortcut>}
     </DropdownMenuItem>
   );
 }
 
-function EditorMenuBar({ editor }) {
+function EditorMenuBar({ editor, fileActions }) {
   return (
     <nav className="hidden items-center gap-1 text-sm text-white md:flex" aria-label="Document menu">
       {editorMenus.map((menu) => (
@@ -215,7 +280,7 @@ function EditorMenuBar({ editor }) {
               <div key={`${menu.label}-${groupIndex}`}>
                 {groupIndex > 0 && <DropdownMenuSeparator />}
                 {group.map((item) => (
-                  <MenuItem key={item.label} editor={editor} item={item} />
+                  <MenuItem key={item.label} editor={editor} item={item} fileActions={fileActions} />
                 ))}
               </div>
             ))}

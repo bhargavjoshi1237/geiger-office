@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { OfficeWorkspace } from "@/components/forms/forms-workspace";
+import { OfficeWorkspace } from "@/components/workspace/office-workspace";
 
 export default function LandingOfficeShowcase({ ctaHref, ctaLabel }) {
   return (

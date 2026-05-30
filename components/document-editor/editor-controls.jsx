@@ -32,13 +32,13 @@ function ToolbarSelect({ children, className, ...props }) {
       variant="ghost"
       size="sm"
       className={cn(
-        "h-8 flex shrink-0 items-center justify-start rounded-md px-2 text-sm font-normal text-[#d4d4d4] hover:bg-[#2a2a2a] hover:text-white focus-visible:ring-[#474747]",
+        "h-8 flex shrink-0 items-center justify-between gap-1.5 rounded-md px-2 text-sm font-normal text-[#d4d4d4] hover:bg-[#2a2a2a] hover:text-white focus-visible:ring-[#474747]",
         className,
       )}
       {...props}
     >
-      {children}
-      <ChevronDown className="ml-1.5 mt-0.5 h-3.5 w-3.5 shrink-0 text-[#a3a3a3]" />
+      <span className="min-w-0 truncate">{children}</span>
+      <ChevronDown className="ml-auto mt-0.5 h-3.5 w-3.5 shrink-0 text-[#a3a3a3]" />
     </Button>
   );
 }

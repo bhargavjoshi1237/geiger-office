@@ -39,8 +39,9 @@ import { IconButton, ToolbarDivider, ToolbarSelect, ToolbarToggle } from "@/comp
 import { HIGHLIGHT_COLOR_OPTIONS, TEXT_COLOR_OPTIONS } from "@/components/document-editor/formatting/color-options";
 import { CONTENT_OPTIONS } from "@/components/document-editor/formatting/content-options";
 import { FONT_FAMILY_OPTIONS } from "@/components/document-editor/formatting/font-family-options";
-import { FONT_SIZE_OPTIONS, MAX_FONT_SIZE, MIN_FONT_SIZE, clampFontSize } from "@/components/document-editor/formatting/font-size-options";
+import { FONT_SIZE_OPTIONS, clampFontSize } from "@/components/document-editor/formatting/font-size-options";
 import { FormattingColorPicker } from "@/components/document-editor/formatting/formatting-color-picker";
+import { ShareButton } from "@/components/share/share-button";
 import { ImageDialog, LinkDialog } from "@/components/document-editor/formatting/insert-dialogs";
 import { TEXT_EFFECTS } from "@/components/document-editor/formatting/text-effects";
 import { MAX_ZOOM, MIN_ZOOM, ZOOM_PRESETS, ZOOM_STEP, clampZoom } from "@/components/document-editor/zoom-options";
@@ -311,7 +312,7 @@ function InsertToolbarGroup({ activeLinkUrl, disabled, onInsertImage, onSetLink 
         <IconButton label="Insert link" disabled={disabled} onClick={() => setIsLinkDialogOpen(true)}>
           <Link className="h-4 w-4" />
         </IconButton>
-        <IconButton label="Add comment">
+        <IconButton label="Add comment (coming soon)" disabled>
           <MessageSquareText className="h-4 w-4" />
         </IconButton>
         <IconButton label="Insert image" disabled={disabled} onClick={() => setIsImageDialogOpen(true)}>
@@ -448,24 +449,25 @@ function ModeToolbarGroup({ mode, onModeChange }) {
   );
 }
 
-function ShareDocumentButton() {
-  return (
-    <IconButton label="Share document" className=" ">
-      <Share2 className="h-4 w-4" />
-    </IconButton>
-  );
-}
-
-function RightToolbarGroup({ mode, onModeChange }) {
+function RightToolbarGroup({ mode, shareFileId, shareName, onModeChange }) {
   return (
     <ToolbarGroup className="ml-auto flex gap-2">
-      <ShareDocumentButton />
       <ModeToolbarGroup mode={mode} onModeChange={onModeChange} />
+      <ShareButton
+        fileId={shareFileId}
+        fileType="document"
+        name={shareName}
+        render={(openShare) => (
+          <IconButton label="Share" onClick={openShare}>
+            <Share2 className="h-4 w-4" />
+          </IconButton>
+        )}
+      />
     </ToolbarGroup>
   );
 }
 
-function EditorToolbar({ formatting, mode, zoom, onModeChange, onZoomChange }) {
+function EditorToolbar({ formatting, mode, shareFileId, shareName, zoom, onModeChange, onZoomChange }) {
   const isEditing = mode === "edit";
 
   return (
@@ -531,7 +533,7 @@ function EditorToolbar({ formatting, mode, zoom, onModeChange, onZoomChange }) {
         onToggleOrderedList={formatting.toggleOrderedList}
         onToggleTaskList={formatting.toggleTaskList}
       />
-      <RightToolbarGroup mode={mode} onModeChange={onModeChange} />
+      <RightToolbarGroup mode={mode} shareFileId={shareFileId} shareName={shareName} onModeChange={onModeChange} />
     </div>
   );
 }

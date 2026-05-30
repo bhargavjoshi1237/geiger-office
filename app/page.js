@@ -9,8 +9,8 @@ import {
   Smartphone,
   Wifi,
 } from "lucide-react";
-import LandingOfficeShowcase from "@/components/LandingOfficeShowcase";
-import OfficeFeatureShowcases from "@/components/OfficeFeatureShowcases";
+import LandingOfficeShowcase from "@/components/landing/landing-office-showcase";
+import OfficeFeatureShowcases from "@/components/landing/office-feature-showcases";
 
 const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
 

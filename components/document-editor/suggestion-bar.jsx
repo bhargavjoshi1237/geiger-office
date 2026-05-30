@@ -7,11 +7,9 @@ import {
   ChevronDown,
   ChevronUp,
   ClipboardList,
-  Columns3,
   Mail,
   PaintRoller,
   Plus,
-  Search,
   Sparkles,
   Table2,
 } from "lucide-react";

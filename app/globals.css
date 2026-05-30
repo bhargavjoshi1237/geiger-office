@@ -61,8 +61,12 @@
   --sidebar-border: #2a2a2a;
   --sidebar-ring: #474747;
   --sheet-grid-background: #161616;
+  --sheet-grid-cell: #1e1e1e;
   --sheet-grid-header: #202020;
   --sheet-grid-border: #333333;
+  --sheet-grid-border-strong: #474747;
+  --sheet-grid-surface: #202020;
+  --sheet-grid-surface-hover: #2a2a2a;
   --sheet-grid-text: #ffffff;
   --sheet-grid-text-secondary: #a3a3a3;
 }
@@ -147,9 +151,14 @@
   border-left-color: var(--sheet-grid-border) !important;
   border-right-color: var(--sheet-grid-border) !important;
   border-top-color: var(--sheet-grid-border) !important;
-  background-color: var(--sheet-grid-background);
+  background-color: var(--sheet-grid-cell);
   color: var(--sheet-grid-text);
   font-size: 13px;
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-cell.sheet-grid-ref-cell {
+  background-color: #2a2a2a;
+  box-shadow: inset 0 0 0 1px var(--sheet-grid-border-strong);
 }
 
 .sheet-reactgrid .reactgrid-content .rg-pane .rg-cell.sheet-grid-header,
@@ -184,27 +193,67 @@
 .sheet-reactgrid .rg-celleditor,
 .sheet-reactgrid .rg-celleditor-input,
 .sheet-reactgrid .rg-celleditor .rg-input {
-  border-color: var(--sheet-grid-text);
+  border-color: var(--sheet-grid-border-strong);
   background-color: var(--sheet-grid-header);
   color: var(--sheet-grid-text);
   font: inherit;
 }
 
+.sheet-reactgrid .reactgrid-content .rg-context-menu {
+  overflow: hidden;
+  border: 1px solid var(--sheet-grid-border);
+  border-radius: 6px;
+  background-color: var(--sheet-grid-surface);
+  color: var(--sheet-grid-text);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.sheet-reactgrid .reactgrid-content .rg-context-menu .rg-context-menu-option {
+  color: var(--sheet-grid-text-secondary);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.sheet-reactgrid .reactgrid-content .rg-context-menu .rg-context-menu-option:hover {
+  background-color: var(--sheet-grid-surface-hover);
+  color: var(--sheet-grid-text);
+}
+
 .sheet-reactgrid .reactgrid-content .rg-pane .rg-partial-area.rg-partial-area-selected-range {
-  border-color: var(--sheet-grid-text);
-  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--sheet-grid-border-strong);
+  background-color: rgba(71, 71, 71, 0.28);
+}
+
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-partial-area.rg-partial-area-part {
+  border-color: var(--sheet-grid-border-strong);
 }
 
 .sheet-reactgrid .reactgrid-content .rg-pane .rg-cell-focus,
 .sheet-reactgrid .reactgrid-content .rg-pane .rg-cell-highlight {
-  border-color: var(--sheet-grid-text);
-  background-color: rgba(255, 255, 255, 0.04);
+  border-color: var(--sheet-grid-border-strong);
+  background-color: rgba(71, 71, 71, 0.16);
 }
 
 .sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-column-resize-handle .rg-resize-handle:hover,
-.sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-row-resize-handle .rg-resize-handle:hover,
+.sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-row-resize-handle .rg-resize-handle:hover {
+  border-color: var(--sheet-grid-background);
+  background-color: var(--sheet-grid-border-strong);
+}
+
 .sheet-reactgrid .reactgrid-content .rg-pane .rg-touch-fill-handle .rg-fill-handle {
-  background-color: var(--sheet-grid-text);
+  width: 7px;
+  height: 7px;
+  background-color: var(--sheet-grid-text) !important;
+  border: 1px solid var(--sheet-grid-background) !important;
+  background-clip: border-box;
+}
+
+.sheet-reactgrid .reactgrid-content .rg-shadow,
+.sheet-reactgrid .reactgrid-content .rg-line,
+.sheet-reactgrid .reactgrid-content .rg-column-resize-hint,
+.sheet-reactgrid .reactgrid-content .rg-row-resize-hint {
+  background-color: var(--sheet-grid-border-strong);
 }
 
 .document-editor-content > * + * {

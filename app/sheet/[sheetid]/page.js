@@ -1,5 +1,6 @@
 import { SheetEditor } from "@/components/sheet-editor/sheet-editor";
 
-export default function SheetEditorPage() {
-  return <SheetEditor />;
+export default async function SheetEditorPage({ params }) {
+  const { sheetId } = await params;
+  return <SheetEditor fileId={sheetId} />;
 }

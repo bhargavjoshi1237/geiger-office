@@ -5,9 +5,7 @@ import { PanelLeft, X } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
 import { cn } from "@/lib/utils";
 
-const navItems = [];
-
-function SidebarContent({ activeView, onViewChange, onNavigate, showHeader = false, collapsed = false, onToggle }) {
+function SidebarContent({ nav = [], activeView, onViewChange, onNavigate, showHeader = false, collapsed = false, onToggle }) {
   return (
     <>
       {showHeader ? (
@@ -17,10 +15,31 @@ function SidebarContent({ activeView, onViewChange, onNavigate, showHeader = fal
           </div>
         </div>
       ) : null}
-      <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-1 py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="relative flex w-full min-w-0 flex-col p-2">
+      <nav
+        className={cn(
+          "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          collapsed ? "px-0" : "px-1",
+        )}
+      >
+        <div
+          className={cn(
+            "relative flex w-full min-w-0 flex-col",
+            collapsed ? "py-2" : "p-2",
+          )}
+        >
           <ul className="flex w-full min-w-0 flex-col gap-1">
-        {navItems.map(({ id, Icon }) => (
+        {nav.map(({ id, label, Icon, heading, count }) => (
+          heading ? (
+            <li
+              key={id}
+              className={cn(
+                "px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-[#737373]",
+                collapsed && "sr-only",
+              )}
+            >
+              {label}
+            </li>
+          ) : (
           <li key={id} className="relative">
           <button
             type="button"
@@ -35,12 +54,25 @@ function SidebarContent({ activeView, onViewChange, onNavigate, showHeader = fal
                 ? "bg-[#2a2a2a] font-medium text-white"
                 : "text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white",
             )}
-            title={collapsed ? id : undefined}
+            title={collapsed ? label : undefined}
           >
             <Icon className={cn("h-4 w-4 shrink-0", collapsed && "h-[18px] w-[18px]")} strokeWidth={2} />
-            <span className={cn("truncate", collapsed && "sr-only")}>{id}</span>
+            <span className={cn("truncate", collapsed && "sr-only")}>{label}</span>
+            {count > 0 && !collapsed ? (
+              <span
+                className={cn(
+                  "ml-auto shrink-0 rounded px-1.5 py-0.5 text-[10px] tabular-nums",
+                  activeView === id
+                    ? "bg-[#3a3a3a] text-[#e7e7e7]"
+                    : "bg-[#242424] text-[#737373]",
+                )}
+              >
+                {count}
+              </span>
+            ) : null}
           </button>
           </li>
+          )
         ))}
           </ul>
         </div>
@@ -63,7 +95,7 @@ function SidebarContent({ activeView, onViewChange, onNavigate, showHeader = fal
   );
 }
 
-export function AppShell({ activeView = "", onViewChange = () => {}, children }) {
+export function AppShell({ nav = [], activeView = "", onViewChange = () => {}, children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -101,6 +133,7 @@ export function AppShell({ activeView = "", onViewChange = () => {}, children })
               <X className="h-4 w-4" />
             </button>
             <SidebarContent
+              nav={nav}
               activeView={activeView}
               onViewChange={onViewChange}
               onNavigate={() => setMobileOpen(false)}
@@ -119,6 +152,7 @@ export function AppShell({ activeView = "", onViewChange = () => {}, children })
           )}
         >
           <SidebarContent
+            nav={nav}
             activeView={activeView}
             onViewChange={onViewChange}
             collapsed={collapsed}
