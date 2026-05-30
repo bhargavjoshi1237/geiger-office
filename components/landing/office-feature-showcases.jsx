@@ -2,37 +2,40 @@
 
 import Link from "next/link";
 import { ArrowRight, FileText, Presentation, Sheet } from "lucide-react";
-import { DocumentEditor } from "@/components/document-editor/document-editor";
-import { SheetEditor } from "@/components/sheet-editor/sheet-editor";
-import { SlidesEditor } from "@/components/slides-editor/slides-editor";
+import {
+  DocumentPreview,
+  SheetPreview,
+  SlidePreview,
+} from "@/components/landing/editor-previews";
+import { appHref } from "@/lib/href";
 
 const featureShowcases = [
   {
-    title: "Write with the full document editor.",
+    title: "Write in a focused document.",
     description:
       "Draft pages, format text, manage document tabs, and use the same controls available in Geiger Office documents.",
     ctaLabel: "Open Docs",
-    href: "/document/welcome",
+    href: appHref("/document/welcome"),
     icon: FileText,
-    Editor: DocumentEditor,
+    Editor: DocumentPreview,
   },
   {
     title: "Work directly in live spreadsheets.",
     description:
       "Select cells, edit formulas, manage sheets, review summary data, and explore workbook controls from the landing page.",
     ctaLabel: "Open Sheets",
-    href: "/sheet/welcome",
+    href: appHref("/sheet/welcome"),
     icon: Sheet,
-    Editor: SheetEditor,
+    Editor: SheetPreview,
   },
   {
     title: "Shape decks in the slide editor.",
     description:
       "Use the presentation canvas, slide strip, layout controls, themes, notes, and editable objects without leaving the product page.",
     ctaLabel: "Open Slides",
-    href: "/slide/welcome",
+    href: appHref("/slide/welcome"),
     icon: Presentation,
-    Editor: SlidesEditor,
+    Editor: SlidePreview,
   },
 ];
 

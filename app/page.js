@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import LandingOfficeShowcase from "@/components/landing/landing-office-showcase";
 import OfficeFeatureShowcases from "@/components/landing/office-feature-showcases";
+import { SiteHeader } from "@/components/landing/site-header";
+import { appHref } from "@/lib/href";
 
 const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
 
@@ -82,43 +84,6 @@ const faqs = [
   },
 ];
 
-function Header() {
-  return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b border-zinc-800 bg-zinc-950 md:border-zinc-800/50 md:bg-zinc-950/85 md:backdrop-blur-md">
-      <div className="relative mx-auto flex h-12 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex min-w-0 items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center">
-            <Image src={`${assetPrefix}/logo1.svg`} alt="Logo" width={20} height={20} />
-          </div>
-          <span className="truncate bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-sm font-bold tracking-tight text-transparent sm:text-base">
-            Geiger Studios
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-6 text-sm font-medium text-zinc-400 md:flex">
-          <a href="#tools" className="transition-colors hover:text-zinc-100">
-            Tools
-          </a>
-          <a href="#questions" className="transition-colors hover:text-zinc-100">
-            Questions
-          </a>
-          <Link href="/home" className="transition-colors hover:text-zinc-100">
-            Workspace
-          </Link>
-        </nav>
-
-        <Link
-          href="/home"
-          className="inline-flex h-9 items-center gap-2 rounded-full bg-zinc-100 px-4 text-sm font-medium text-zinc-950 transition-colors hover:bg-white"
-        >
-          Open Office
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-    </header>
-  );
-}
-
 function FaqItem({ question, answer }) {
   return (
     <details className="group border-b border-zinc-800 py-4">
@@ -157,22 +122,22 @@ function Footer() {
             <h4 className="mb-4 font-bold text-zinc-100">Products</h4>
             <ul className="space-y-3 text-sm text-zinc-400">
               <li>
-                <Link href="/" className="transition-colors hover:text-zinc-100">
+                <Link href={appHref("/")} className="transition-colors hover:text-zinc-100">
                   Geiger Office
                 </Link>
               </li>
               <li>
-                <Link href="/document/welcome" className="transition-colors hover:text-zinc-100">
+                <Link href={appHref("/document/welcome")} className="transition-colors hover:text-zinc-100">
                   Docs
                 </Link>
               </li>
               <li>
-                <Link href="/sheet/welcome" className="transition-colors hover:text-zinc-100">
+                <Link href={appHref("/sheet/welcome")} className="transition-colors hover:text-zinc-100">
                   Sheets
                 </Link>
               </li>
               <li>
-                <Link href="/slide/welcome" className="transition-colors hover:text-zinc-100">
+                <Link href={appHref("/slide/welcome")} className="transition-colors hover:text-zinc-100">
                   Slides
                 </Link>
               </li>
@@ -183,7 +148,7 @@ function Footer() {
             <h4 className="mb-4 font-bold text-zinc-100">Workspace</h4>
             <ul className="flex flex-col gap-3 text-sm text-zinc-400">
               <li>
-                <Link href="/home" className="transition-colors hover:text-zinc-100">
+                <Link href={appHref("/home")} className="transition-colors hover:text-zinc-100">
                   Home
                 </Link>
               </li>
@@ -248,7 +213,7 @@ export default function OfficeLandingPage() {
     <div className="flex min-h-screen w-full flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-indigo-500/30">
       <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(to_right,#80808030_1px,transparent_1px),linear-gradient(to_bottom,#80808030_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      <Header />
+      <SiteHeader />
 
       <main className="relative z-10 flex flex-1 flex-col pt-16 sm:pt-20">
         <section className="mx-auto mb-10 mt-10 flex w-full max-w-6xl items-start justify-start px-4 sm:mt-16 sm:px-6">
@@ -261,7 +226,7 @@ export default function OfficeLandingPage() {
               focused workspace for practical team workflows.
             </p>
             <Link
-              href="/home"
+              href={appHref("/home")}
               className="inline-flex h-10 items-center gap-2 rounded-full bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-colors hover:bg-white sm:text-base"
             >
               Continue to Office
@@ -271,7 +236,7 @@ export default function OfficeLandingPage() {
         </section>
 
         <div id="tools" className="mx-auto my-10 w-[94%] sm:my-20 md:w-[80%]">
-          <LandingOfficeShowcase ctaHref="/home" ctaLabel="Checkout Office" />
+          <LandingOfficeShowcase ctaHref={appHref("/home")} ctaLabel="Checkout Office" />
         </div>
 
         <section className="mx-auto grid w-full max-w-6xl gap-4 px-4 sm:px-6 md:grid-cols-3">
@@ -310,14 +275,14 @@ export default function OfficeLandingPage() {
             </h2>
             <div className="flex w-full max-w-md flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <Link
-                href="/home"
+                href={appHref("/home")}
                 className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-colors hover:bg-white sm:w-auto"
               >
                 Office
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/"
+                href={appHref("/")}
                 className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-colors hover:bg-white sm:w-auto"
               >
                 Contact Sales
