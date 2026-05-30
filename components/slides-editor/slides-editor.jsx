@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { appHref } from "@/lib/href";
 import {
   AlignCenter,
   AlignLeft,
@@ -95,8 +94,9 @@ import { FabricSlideCanvas } from "@/components/slides-editor/fabric/fabric-slid
 import { SlideThumbnail } from "@/components/slides-editor/components/slide-thumbnail";
 import { SlidesMenuBar } from "@/components/slides-editor/components/slides-menu-bar";
 import { SlidesSidebar } from "@/components/slides-editor/components/slides-sidebar";
+import { SlidesEditorSkeleton } from "@/components/slides-editor/slides-editor-skeleton";
 
-const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
+const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 function apiBase() {
   const isProd = process.env.NODE_ENV === "production";
@@ -507,6 +507,10 @@ function SlidesEditor({ fileId }) {
     actions[action]?.();
   };
 
+  if (isLoading) {
+    return <SlidesEditorSkeleton />;
+  }
+
   return (
     <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-[#161616] text-white">
       <header className="shrink-0 border-b border-[#333333] bg-[#202020] shadow-sm shadow-black/20">
@@ -515,7 +519,7 @@ function SlidesEditor({ fileId }) {
             <div className="min-w-0">
               <div className="flex min-w-0 items-center gap-2">
                 <Link
-                  href={appHref("/home")}
+                  href="/home"
                   aria-label="Go to home"
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[#2a2a2a]"
                 >

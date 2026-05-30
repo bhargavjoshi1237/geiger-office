@@ -12,9 +12,8 @@ import {
 import LandingOfficeShowcase from "@/components/landing/landing-office-showcase";
 import OfficeFeatureShowcases from "@/components/landing/office-feature-showcases";
 import { SiteHeader } from "@/components/landing/site-header";
-import { appHref } from "@/lib/href";
 
-const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
+const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export const metadata = {
   title: "Office - Geiger Studio",
@@ -122,22 +121,22 @@ function Footer() {
             <h4 className="mb-4 font-bold text-zinc-100">Products</h4>
             <ul className="space-y-3 text-sm text-zinc-400">
               <li>
-                <Link href={appHref("/")} className="transition-colors hover:text-zinc-100">
+                <Link href="/" className="transition-colors hover:text-zinc-100">
                   Geiger Office
                 </Link>
               </li>
               <li>
-                <Link href={appHref("/document/welcome")} className="transition-colors hover:text-zinc-100">
+                <Link href="/document/welcome" className="transition-colors hover:text-zinc-100">
                   Docs
                 </Link>
               </li>
               <li>
-                <Link href={appHref("/sheet/welcome")} className="transition-colors hover:text-zinc-100">
+                <Link href="/sheet/welcome" className="transition-colors hover:text-zinc-100">
                   Sheets
                 </Link>
               </li>
               <li>
-                <Link href={appHref("/slide/welcome")} className="transition-colors hover:text-zinc-100">
+                <Link href="/slide/welcome" className="transition-colors hover:text-zinc-100">
                   Slides
                 </Link>
               </li>
@@ -148,7 +147,7 @@ function Footer() {
             <h4 className="mb-4 font-bold text-zinc-100">Workspace</h4>
             <ul className="flex flex-col gap-3 text-sm text-zinc-400">
               <li>
-                <Link href={appHref("/home")} className="transition-colors hover:text-zinc-100">
+                <Link href="/home" className="transition-colors hover:text-zinc-100">
                   Home
                 </Link>
               </li>
@@ -226,7 +225,7 @@ export default function OfficeLandingPage() {
               focused workspace for practical team workflows.
             </p>
             <Link
-              href={appHref("/home")}
+              href="/home"
               className="inline-flex h-10 items-center gap-2 rounded-full bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-colors hover:bg-white sm:text-base"
             >
               Continue to Office
@@ -236,7 +235,7 @@ export default function OfficeLandingPage() {
         </section>
 
         <div id="tools" className="mx-auto my-10 w-[94%] sm:my-20 md:w-[80%]">
-          <LandingOfficeShowcase ctaHref={appHref("/home")} ctaLabel="Checkout Office" />
+          <LandingOfficeShowcase ctaHref="/home" ctaLabel="Checkout Office" />
         </div>
 
         <section className="mx-auto grid w-full max-w-6xl gap-4 px-4 sm:px-6 md:grid-cols-3">
@@ -275,14 +274,14 @@ export default function OfficeLandingPage() {
             </h2>
             <div className="flex w-full max-w-md flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <Link
-                href={appHref("/home")}
+                href="/home"
                 className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-colors hover:bg-white sm:w-auto"
               >
                 Office
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href={appHref("/")}
+                href="/"
                 className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-colors hover:bg-white sm:w-auto"
               >
                 Contact Sales

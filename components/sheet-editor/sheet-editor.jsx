@@ -30,6 +30,7 @@ import { SpreadsheetGrid } from "@/components/sheet-editor/components/spreadshee
 import { SheetTabs } from "@/components/sheet-editor/components/sheet-tabs";
 import { SheetSidebar } from "@/components/sheet-editor/components/sheet-sidebar";
 import { SheetHeader } from "@/components/sheet-editor/components/sheet-header";
+import { SheetEditorSkeleton } from "@/components/sheet-editor/components/sheet-editor-skeleton";
 import { FindReplaceDialog } from "@/components/sheet-editor/components/find-replace-dialog";
 
 function apiBase() {
@@ -698,6 +699,10 @@ function SheetEditor({ fileId }) {
     if (document.fullscreenElement) document.exitFullscreen?.();
     else document.documentElement.requestFullscreen?.();
   };
+
+  if (isLoading) {
+    return <SheetEditorSkeleton />;
+  }
 
   return (
     <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-[#161616] text-white">

@@ -1,24 +1,15 @@
-const isProd = process.env.NODE_ENV === "production";
-const assetPrefix = isProd ? "/office" : "";
-
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === "production";
+
+// Multi-Zones setup (matches geiger-notes): the office app owns the /office
+// prefix via basePath, and geiger-dash forwards /office/* WITHOUT stripping it.
+// basePath auto-prefixes routes, API routes, _next assets, and RSC/segment
+// prefetches, so everything resolves correctly behind the proxy.
 const nextConfig = {
-  assetPrefix,
+  basePath: isProd ? "/office" : "",
   allowedDevOrigins: ["127.0.0.1"],
   env: {
-    NEXT_PUBLIC_ASSET_PREFIX: assetPrefix,
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/office/_next/:path*",
-        destination: "/_next/:path*",
-      },
-      {
-        source: "/office/:file(logo1\\.svg)",
-        destination: "/:file",
-      },
-    ];
+    NEXT_PUBLIC_BASE_PATH: isProd ? "/office" : "",
   },
 };
 

@@ -7,7 +7,6 @@ import {
   SheetPreview,
   SlidePreview,
 } from "@/components/landing/editor-previews";
-import { appHref } from "@/lib/href";
 
 const featureShowcases = [
   {
@@ -15,7 +14,7 @@ const featureShowcases = [
     description:
       "Draft pages, format text, manage document tabs, and use the same controls available in Geiger Office documents.",
     ctaLabel: "Open Docs",
-    href: appHref("/document/welcome"),
+    href: "/document/welcome",
     icon: FileText,
     Editor: DocumentPreview,
   },
@@ -24,7 +23,7 @@ const featureShowcases = [
     description:
       "Select cells, edit formulas, manage sheets, review summary data, and explore workbook controls from the landing page.",
     ctaLabel: "Open Sheets",
-    href: appHref("/sheet/welcome"),
+    href: "/sheet/welcome",
     icon: Sheet,
     Editor: SheetPreview,
   },
@@ -33,7 +32,7 @@ const featureShowcases = [
     description:
       "Use the presentation canvas, slide strip, layout controls, themes, notes, and editable objects without leaving the product page.",
     ctaLabel: "Open Slides",
-    href: appHref("/slide/welcome"),
+    href: "/slide/welcome",
     icon: Presentation,
     Editor: SlidePreview,
   },

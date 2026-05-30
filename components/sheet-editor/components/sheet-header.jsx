@@ -13,9 +13,8 @@ import { CommandSearch } from "@/components/editor/command-search";
 import { HelpDropdown } from "@/components/editor/help-dropdown";
 import { ViewOnlyBadge } from "@/components/share/share-button";
 import { SheetMenuBar } from "@/components/sheet-editor/components/sheet-menu-bar";
-import { appHref } from "@/lib/href";
 
-const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
+const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export function SheetHeader({ children, menuProps, name, status, onExportWorkbook, onRename, role, starred, onToggleStar }) {
   const [isEditingName, setIsEditingName] = useState(false);
@@ -53,7 +52,7 @@ export function SheetHeader({ children, menuProps, name, status, onExportWorkboo
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
               <Link
-                href={appHref("/home")}
+                href="/home"
                 aria-label="Go to home"
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[#2a2a2a]"
               >

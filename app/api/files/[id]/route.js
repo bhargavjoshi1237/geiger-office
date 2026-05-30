@@ -22,12 +22,21 @@ export async function GET(_request, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data, error } = await supabase
-      .from("office_files")
-      .select("*")
-      .eq("id", id)
-      .single();
+    // Fetch the file and the caller's role in parallel — they don't depend on
+    // each other. Skip the (potentially large) `thumbnail` column: the editors
+    // never use it on load, and pulling it over the wire slows the first paint.
+    const [fileResult, role] = await Promise.all([
+      supabase
+        .from("office_files")
+        .select(
+          "id, user_id, type, name, content, starred, trashed, created_at, updated_at, visibility, link_role",
+        )
+        .eq("id", id)
+        .single(),
+      getRole(supabase, id),
+    ]);
 
+    const { data, error } = fileResult;
     if (error) {
       const status = error.code === "PGRST116" ? 404 : 500;
       return NextResponse.json(
@@ -36,7 +45,6 @@ export async function GET(_request, { params }) {
       );
     }
 
-    const role = await getRole(supabase, id);
     return NextResponse.json({ ...data, _role: role });
   } catch (error) {
     console.error("[API] Error fetching file:", error);

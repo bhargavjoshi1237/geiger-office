@@ -7,11 +7,11 @@ import { MegaMenu } from "@/components/landing/mega-menu";
 import { ProfileDropdown } from "@/components/editor/profile-dropdown";
 import { getUser } from "@/lib/supabase/user";
 
-const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
+const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 // Shared Geiger Studio suite header (mirrors geiger-notes "/"): logo + mega-menu
-// + account pfp. Cross-app links inside MegaMenu stay bare (apex-proxied); only
-// office's own routes use appHref.
+// + account pfp. Office's own routes are plain (Next basePath prefixes them);
+// cross-app links inside MegaMenu stay bare (apex-proxied).
 export function SiteHeader() {
   const [user, setUser] = useState(null);
   const [resolved, setResolved] = useState(false);
@@ -29,7 +29,7 @@ export function SiteHeader() {
   return (
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-zinc-800 bg-zinc-950 md:border-zinc-800/50 md:bg-zinc-950/85 md:backdrop-blur-md">
       <div className="relative mx-auto flex h-12 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href={`${assetPrefix}/`} className="flex min-w-0 items-center gap-2">
+        <Link href="/" className="flex min-w-0 items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center">
             <Image
               src={`${assetPrefix}/logo1.svg`}

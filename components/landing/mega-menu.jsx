@@ -21,18 +21,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { appHref } from "@/lib/href";
 
-const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
+const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
-// Cross-app links are proxied by geiger-dash at the apex and must stay bare.
-// Only office's own routes (Office workspace) go through appHref().
+// Office's own routes are plain — Next basePath prefixes them to /office/*.
+// Cross-app links (/flow, /notes, ...) are proxied by geiger-dash at the apex.
 const products = [
   {
     icon: FileSpreadsheet,
     label: "Office",
     description: "Docs, sheets, and slides.",
-    href: appHref("/home"),
+    href: "/home",
   },
   {
     icon: ContainerIcon,
@@ -214,7 +213,7 @@ export function MegaMenu({ user }) {
 
                 <SheetClose asChild>
                   <Link
-                    href={user ? appHref("/home") : "/login"}
+                    href={user ? "/home" : "/login"}
                     className="inline-flex w-full items-center justify-center rounded-lg border border-zinc-700 bg-transparent px-4 py-2 text-sm font-medium text-zinc-100"
                   >
                     {user ? "Open Office" : "Sign In"}

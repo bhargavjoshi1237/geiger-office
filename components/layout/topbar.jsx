@@ -6,7 +6,7 @@ import { NotificationsDropdown } from "@/components/editor/notifications-dropdow
 import { CommandSearch } from "@/components/editor/command-search";
 import { HelpDropdown } from "@/components/editor/help-dropdown";
 
-const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
+const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export function Topbar({ onMenuClick }) {
   return (

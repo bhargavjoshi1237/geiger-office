@@ -3,6 +3,7 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DocumentCanvas } from "@/components/document-editor/document-canvas";
+import { DocumentEditorSkeleton } from "@/components/document-editor/document-editor-skeleton";
 import { DocumentHeader } from "@/components/document-editor/document-header";
 import { DocumentTabsSidebar } from "@/components/document-editor/document-tabs-sidebar";
 import { EditorToolbar } from "@/components/document-editor/editor-toolbar";
@@ -88,6 +89,10 @@ function DocumentEditor({ fileId }) {
       }
     },
   };
+
+  if (isLoading) {
+    return <DocumentEditorSkeleton />;
+  }
 
   return (
     <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-[#161616] text-white">
