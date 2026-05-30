@@ -10,6 +10,7 @@ import { CommandSearch } from "@/components/editor/command-search";
 import { HelpDropdown } from "@/components/editor/help-dropdown";
 import { SaveStatus } from "@/components/editor/save-status";
 import { ViewOnlyBadge } from "@/components/share/share-button";
+import { appHref } from "@/lib/href";
 
 const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || "";
 
@@ -27,7 +28,7 @@ function DocumentHeader({ editor, toolbar, name = "Untitled document", onRename,
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
               <Link
-                href="/home"
+                href={appHref("/home")}
                 aria-label="Go to home"
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[#2a2a2a]"
               >

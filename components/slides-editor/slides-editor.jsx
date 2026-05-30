@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { appHref } from "@/lib/href";
 import {
   AlignCenter,
   AlignLeft,
@@ -514,7 +515,7 @@ function SlidesEditor({ fileId }) {
             <div className="min-w-0">
               <div className="flex min-w-0 items-center gap-2">
                 <Link
-                  href="/home"
+                  href={appHref("/home")}
                   aria-label="Go to home"
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[#2a2a2a]"
                 >
