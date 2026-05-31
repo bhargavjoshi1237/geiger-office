@@ -9,10 +9,10 @@ import {
   Loader2,
   Presentation,
   Search,
-  Settings,
   Sheet,
   Star,
   Trash2,
+  Upload,
   Users,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
@@ -21,6 +21,7 @@ import { StatsRow } from "@/components/home/stats-row";
 import { TemplatesView } from "@/components/home/templates-view";
 import { SettingsView } from "@/components/home/settings-view";
 import { NewFileMenu } from "@/components/home/new-file-menu";
+import { UploadDialog } from "@/components/home/upload-dialog";
 import { EmptyState } from "@/components/home/empty-state";
 import { RenameDialog } from "@/components/home/rename-dialog";
 import { ConfirmDialog } from "@/components/home/confirm-dialog";
@@ -43,7 +44,6 @@ const NAV = [
   { id: "presentation", label: "Slides", Icon: Presentation },
   { id: "workspace-heading", label: "Workspace", heading: true },
   { id: "templates", label: "Templates", Icon: LayoutTemplate },
-  { id: "settings", label: "Settings", Icon: Settings },
   { id: "trash", label: "Trash", Icon: Trash2 },
 ];
 
@@ -59,7 +59,6 @@ const PAGE = {
   spreadsheet: { title: "Spreadsheets", subtitle: "All your spreadsheets." },
   presentation: { title: "Presentations", subtitle: "All your presentations." },
   templates: { title: "Templates", subtitle: "Start something new." },
-  settings: { title: "Settings", subtitle: "Manage your workspace preferences." },
   trash: { title: "Trash", subtitle: "Files are permanently deleted after you empty trash." },
 };
 
@@ -88,6 +87,7 @@ export function HomeView() {
   const [renameTarget, setRenameTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [shareTarget, setShareTarget] = useState(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const isListView = LIST_VIEWS.has(view);
 
@@ -168,6 +168,27 @@ export function HomeView() {
     }
   };
 
+  // Create a file from an already-parsed upload payload ({ type, name, content }).
+  // Returns the created file so the dialog can finish its flow.
+  const handleUploadCreate = async ({ type, name, content }) => {
+    const res = await fetch(apiUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, name, content }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `Upload failed (HTTP ${res.status})`);
+    }
+    return res.json();
+  };
+
+  const handleUploaded = (created) => {
+    if (!created) return;
+    setFiles((prev) => [{ ...created, _role: "owner" }, ...prev]);
+    fetchStats();
+  };
+
   const patch = async (file, body) => {
     await fetch(apiUrl(`/${file.id}`), {
       method: "PATCH",
@@ -244,9 +265,9 @@ export function HomeView() {
             <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">{page.title}</h1>
             <p className="mt-1 text-sm text-[#a3a3a3]">{page.subtitle}</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {showSearch ? (
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-none">
                 <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
                 <input
                   value={query}
@@ -255,6 +276,17 @@ export function HomeView() {
                   className="h-9 w-full rounded-md border border-[#2a2a2a] bg-[#202020] pl-8 pr-3 text-sm text-white outline-none transition-colors placeholder:text-[#737373] focus:border-[#474747] sm:w-64"
                 />
               </div>
+            ) : null}
+            {showNew ? (
+              <button
+                type="button"
+                onClick={() => setUploadOpen(true)}
+                aria-label="Upload a file"
+                title="Upload"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#2a2a2a] bg-[#202020] text-[#e7e7e7] transition-colors hover:border-[#474747] hover:bg-[#242424]"
+              >
+                <Upload className="h-4 w-4" />
+              </button>
             ) : null}
             {showNew ? <NewFileMenu onCreate={handleCreate} creating={creating} /> : null}
           </div>
@@ -325,6 +357,12 @@ export function HomeView() {
         open={!!shareTarget}
         file={shareTarget}
         onOpenChange={(open) => !open && setShareTarget(null)}
+      />
+      <UploadDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        onCreate={handleUploadCreate}
+        onCreated={handleUploaded}
       />
     </AppShell>
   );

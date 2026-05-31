@@ -137,7 +137,12 @@ export function FabricSlideCanvas({ mode, scale, selectedElementId, slide, onCha
       className="relative origin-top overflow-hidden border border-[#333333] shadow-2xl shadow-black/35"
       style={{
         height: SLIDE_HEIGHT,
+        // Collapse the layout box to the scaled size. CSS transforms don't shrink
+        // layout, so without these the 1280×720 box would overflow narrow screens.
+        // Origin is top-center, so compensate full height below and half width each side.
         marginBottom: -(SLIDE_HEIGHT * (1 - scale)),
+        marginLeft: -(SLIDE_WIDTH * (1 - scale)) / 2,
+        marginRight: -(SLIDE_WIDTH * (1 - scale)) / 2,
         transform: `scale(${scale})`,
         width: SLIDE_WIDTH,
       }}

@@ -11,6 +11,7 @@ import {
   BadgePlus,
   Bold,
   ChevronLeft,
+  ChevronRight,
   Circle,
   Copy,
   Download,
@@ -77,6 +78,7 @@ import { ModeToolbarGroup } from "@/components/document-editor/editor-toolbar";
 import { FormattingColorPicker } from "@/components/document-editor/formatting/formatting-color-picker";
 import { HIGHLIGHT_COLOR_OPTIONS, TEXT_COLOR_OPTIONS } from "@/components/document-editor/formatting/color-options";
 import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { SaveStatus } from "@/components/editor/save-status";
 import { ProfileDropdown } from "@/components/editor/profile-dropdown";
 import { NotificationsDropdown } from "@/components/editor/notifications-dropdown";
@@ -124,6 +126,19 @@ function SlidesEditor({ fileId }) {
   const lastSavedJsonRef = useRef(null);
   const elementClipboardRef = useRef(null);
   const slideClipboardRef = useRef(null);
+  const canvasViewportRef = useRef(null);
+  const [canvasViewportWidth, setCanvasViewportWidth] = useState(0);
+
+  // Track the canvas viewport width so narrow screens can fit the slide to it.
+  useEffect(() => {
+    const node = canvasViewportRef.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver((entries) => {
+      setCanvasViewportWidth(entries[0]?.contentRect?.width ?? 0);
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (isLoading || hydratedRef.current) return;
@@ -189,9 +204,23 @@ function SlidesEditor({ fileId }) {
   };
 
   const activeSlide = slides.find((slide) => slide.id === activeSlideId) ?? slides[0];
+  const activeIndex = slides.findIndex((slide) => slide.id === activeSlide?.id);
+  const goToSlide = (index) => {
+    const target = slides[index];
+    if (!target) return;
+    setActiveSlideId(target.id);
+    setSelectedElementId(target.elements[0]?.id ?? null);
+  };
   const selectedElement = activeSlide?.elements.find((element) => element.id === selectedElementId);
   const activeTheme = themeOptions.find((theme) => theme.id === activeSlide?.themeId) ?? themeOptions[0];
-  const scale = zoom / 100;
+
+  // Below `lg` the filmstrip is hidden and screens are narrow, so fit the slide
+  // to the available width instead of honouring the (desktop) zoom level, which
+  // would force the 1280px-wide canvas to overflow.
+  const isCompact = useMediaQuery("(max-width: 1023px)");
+  const baseScale = zoom / 100;
+  const fitScale = canvasViewportWidth > 0 ? (canvasViewportWidth - 24) / SLIDE_WIDTH : baseScale;
+  const scale = isCompact ? Math.min(baseScale, Math.max(0.1, fitScale)) : baseScale;
 
   const updateSlide = (slideId, updater) => {
     commit((current) =>
@@ -902,8 +931,8 @@ function SlidesEditor({ fileId }) {
         </aside>
 
         <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#161616]">
-          <div className="relative min-h-0 flex-1 overflow-auto bg-[#161616] scrollbar-subtle">
-            <div className="flex min-h-[760px] min-w-[1180px] flex-col items-center px-10 pb-24 pt-9">
+          <div ref={canvasViewportRef} className="relative min-h-0 flex-1 overflow-auto bg-[#161616] scrollbar-subtle">
+            <div className="flex min-h-0 flex-col items-center px-3 pb-12 pt-4 md:min-h-[760px] md:pb-24 md:pt-9 lg:min-w-[1180px] lg:px-10">
               <ContextMenu>
                 <ContextMenuTrigger asChild>
                   <div className="relative">
@@ -964,11 +993,26 @@ function SlidesEditor({ fileId }) {
               </div>
             </div>
           </div>
-          <footer className="flex h-11 shrink-0 items-center gap-4 border-t border-[#2a2a2a] bg-[#1a1a1a] px-6 text-sm">
-            <IconButton label="Grid view" className="h-7 w-7" onClick={() => setGridOpen(true)}>
+          {/* Mobile/tablet slide navigation — the filmstrip is hidden below lg. */}
+          <div className="flex shrink-0 items-center justify-center gap-3 border-t border-[#2a2a2a] bg-[#1a1a1a] px-4 py-2 lg:hidden">
+            <IconButton label="Previous slide" className="h-8 w-8" disabled={activeIndex <= 0} onClick={() => goToSlide(activeIndex - 1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </IconButton>
+            <span className="min-w-20 text-center text-xs tabular-nums text-[#a3a3a3]">
+              Slide {activeIndex + 1} / {slides.length}
+            </span>
+            <IconButton label="Next slide" className="h-8 w-8" disabled={activeIndex >= slides.length - 1} onClick={() => goToSlide(activeIndex + 1)}>
+              <ChevronRight className="h-4 w-4" />
+            </IconButton>
+            <IconButton label="Add slide" className="h-8 w-8" onClick={() => addSlide(activeSlide.layout)}>
+              <Plus className="h-4 w-4" />
+            </IconButton>
+          </div>
+          <footer className="flex h-11 shrink-0 items-center gap-4 border-t border-[#2a2a2a] bg-[#1a1a1a] px-4 text-sm md:px-6">
+            <IconButton label="Grid view" className="hidden h-7 w-7 lg:flex" onClick={() => setGridOpen(true)}>
               <Grid2X2 className="h-4 w-4" />
             </IconButton>
-            <IconButton label={isFilmstripOpen ? "Collapse filmstrip" : "Expand filmstrip"} className="h-7 w-7" onClick={() => setIsFilmstripOpen(!isFilmstripOpen)}>
+            <IconButton label={isFilmstripOpen ? "Collapse filmstrip" : "Expand filmstrip"} className="hidden h-7 w-7 lg:flex" onClick={() => setIsFilmstripOpen(!isFilmstripOpen)}>
               <ChevronLeft className={cn("h-4 w-4", !isFilmstripOpen && "rotate-180")} />
             </IconButton>
             <Textarea

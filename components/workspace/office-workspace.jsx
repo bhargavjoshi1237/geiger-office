@@ -7,7 +7,6 @@ import {
   LayoutTemplate,
   Presentation,
   Search,
-  Settings,
   Sheet,
   Star,
   Trash2,
@@ -35,7 +34,6 @@ const NAV = [
   { id: "presentation", label: "Slides", Icon: Presentation },
   { id: "workspace-heading", label: "Workspace", heading: true },
   { id: "templates", label: "Templates", Icon: LayoutTemplate },
-  { id: "settings", label: "Settings", Icon: Settings },
   { id: "trash", label: "Trash", Icon: Trash2 },
 ];
 
@@ -49,7 +47,6 @@ const PAGE = {
   spreadsheet: { title: "Spreadsheets", subtitle: "All your spreadsheets." },
   presentation: { title: "Presentations", subtitle: "All your presentations." },
   templates: { title: "Templates", subtitle: "Start something new." },
-  settings: { title: "Settings", subtitle: "Manage your workspace preferences." },
   trash: { title: "Trash", subtitle: "Files are permanently deleted after you empty trash." },
 };
 
