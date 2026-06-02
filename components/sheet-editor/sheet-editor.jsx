@@ -45,7 +45,7 @@ function escapeRegExp(value) {
 
 function SheetEditor({ fileId }) {
   const router = useRouter();
-  const { file, initialContent, isLoading, status, canEdit, role, starred, toggleStar, saveContent, rename } = useOfficeFile(fileId);
+  const { file, initialContent, isLoading, loadError, status, canEdit, role, starred, toggleStar, saveContent, rename } = useOfficeFile(fileId);
   const [findReplaceOpen, setFindReplaceOpen] = useState(false);
   const [workbookName, setWorkbookName] = useState("Untitled Spreadsheet");
   const [sheets, setSheets] = useState([createSheet()]);
@@ -702,6 +702,14 @@ function SheetEditor({ fileId }) {
 
   if (isLoading) {
     return <SheetEditorSkeleton />;
+  }
+
+  if (!file) {
+    return (
+      <div className="flex h-[100dvh] items-center justify-center bg-[#161616] px-6 text-center text-sm text-red-300">
+        {loadError || "Failed to load spreadsheet."}
+      </div>
+    );
   }
 
   return (

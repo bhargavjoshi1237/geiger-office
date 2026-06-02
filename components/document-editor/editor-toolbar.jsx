@@ -546,7 +546,6 @@ export {
   ModeToolbarGroup,
   ParagraphToolbarGroup,
   RightToolbarGroup,
-  ShareDocumentButton,
   TextStyleToolbarGroup,
   ToolbarGroup,
   TypeToolbarGroup,

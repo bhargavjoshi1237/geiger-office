@@ -32,7 +32,7 @@ function DocumentEditor({ fileId }) {
   const formatting = useDocumentFormatting(editor, { isEditing });
   const headings = collectDocumentHeadings(editor);
 
-  const { file, initialContent, isLoading, status, canEdit, role, starred, toggleStar, saveContent, rename } =
+  const { file, initialContent, isLoading, loadError, status, canEdit, role, starred, toggleStar, saveContent, rename } =
     useOfficeFile(fileId);
   const hydratedRef = useRef(false);
 
@@ -92,6 +92,14 @@ function DocumentEditor({ fileId }) {
 
   if (isLoading) {
     return <DocumentEditorSkeleton />;
+  }
+
+  if (!file) {
+    return (
+      <div className="flex h-[100dvh] items-center justify-center bg-[#161616] px-6 text-center text-sm text-red-300">
+        {loadError || "Failed to load document."}
+      </div>
+    );
   }
 
   return (
