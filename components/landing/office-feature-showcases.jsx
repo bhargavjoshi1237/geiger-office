@@ -55,6 +55,7 @@ export default function OfficeFeatureShowcases() {
             <p className="mt-3 max-w-sm text-sm leading-6 text-zinc-400">{description}</p>
             <Link
               href={href}
+              prefetch={false}
               className="mt-5 inline-flex h-10 items-center gap-2 rounded-full bg-zinc-100 px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-white"
             >
               {ctaLabel}

@@ -126,17 +126,17 @@ function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/document/welcome" className="transition-colors hover:text-zinc-100">
+                <Link href="/document/welcome" prefetch={false} className="transition-colors hover:text-zinc-100">
                   Docs
                 </Link>
               </li>
               <li>
-                <Link href="/sheet/welcome" className="transition-colors hover:text-zinc-100">
+                <Link href="/sheet/welcome" prefetch={false} className="transition-colors hover:text-zinc-100">
                   Sheets
                 </Link>
               </li>
               <li>
-                <Link href="/slide/welcome" className="transition-colors hover:text-zinc-100">
+                <Link href="/slide/welcome" prefetch={false} className="transition-colors hover:text-zinc-100">
                   Slides
                 </Link>
               </li>

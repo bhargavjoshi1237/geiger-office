@@ -72,7 +72,7 @@ export function FileTable({
             return (
               <TableRow key={file.id} className="group">
                 <TableCell className="pl-5">
-                  <Link href={href} className="flex min-w-0 items-center gap-3">
+                  <Link href={href} prefetch={false} className="flex min-w-0 items-center gap-3">
                     <span className="flex min-w-0 flex-col">
                       <span className="truncate text-sm font-medium text-[#ededed] group-hover:text-white">
                         {file.name}
@@ -131,7 +131,7 @@ export function FileTable({
                         {!inTrash && (
                           <>
                             <DropdownMenuItem asChild>
-                              <Link href={href}>Open</Link>
+                              <Link href={href} prefetch={false}>Open</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => onShare(file)}>
                               <Share2 className="h-4 w-4" />

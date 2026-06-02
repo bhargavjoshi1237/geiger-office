@@ -37,6 +37,7 @@ export function FileCard({
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-colors hover:border-[#474747]">
       <Link
         href={href}
+        prefetch={false}
         className="flex h-28 items-center justify-center border-b border-[#2a2a2a] bg-[#202020]"
         aria-label={`Open ${file.name}`}
       >
@@ -46,7 +47,7 @@ export function FileCard({
       <div className="flex items-start gap-2 p-3">
         <Icon className="mt-0.5 h-4 w-4 shrink-0" style={{ color: meta.accent }} />
         <div className="min-w-0 flex-1">
-          <Link href={href} className="block">
+          <Link href={href} prefetch={false} className="block">
             <h3 className="truncate text-sm font-medium text-[#e7e7e7] hover:text-white">
               {file.name}
             </h3>
@@ -83,7 +84,7 @@ export function FileCard({
             {!inTrash && (
               <>
                 <DropdownMenuItem asChild>
-                  <Link href={href}>Open</Link>
+                  <Link href={href} prefetch={false}>Open</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onRename(file)}>
                   <Pencil className="h-4 w-4" />
