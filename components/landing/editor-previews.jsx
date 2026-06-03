@@ -159,7 +159,6 @@ export function SheetPreview() {
                     >
                       {isSel ? (
                         <input
-                          autoFocus
                           value={data[cell] ?? ""}
                           onChange={(e) => update(cell, e.target.value)}
                           className="h-full w-full bg-transparent text-zinc-100 outline-none"

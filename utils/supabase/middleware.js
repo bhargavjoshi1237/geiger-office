@@ -3,7 +3,9 @@ import { NextResponse } from 'next/server'
 
 const PUBLIC_PATHS = new Set([
   '/',
+  '/office',
   '/login',
+  '/office/login',
   '/robots.txt',
   '/sitemap.xml',
 ])
@@ -59,16 +61,21 @@ export async function updateSession(request) {
     },
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const result = await supabase.auth.getUser()
+    user = result.data.user
+  } catch {
+    // Supabase unreachable — let the request through so the API route
+    // can return its own 401/500 instead of the middleware hanging.
+  }
 
   if (!user) {
     if (PUBLIC_PATHS.has(pathname)) {
       return supabaseResponse
     }
 
-    const isApiRequest = pathname.startsWith('/api/')
+    const isApiRequest = pathname.includes('/api/') || pathname.endsWith('/api')
     if (isApiRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

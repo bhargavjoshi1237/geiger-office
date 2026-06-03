@@ -91,6 +91,16 @@ function DropdownMenuRadioItem({ className, children, ...props }) {
   );
 }
 
+function DropdownMenuRadioGroup({ className, ...props }) {
+  return (
+    <DropdownMenuPrimitive.RadioGroup
+      data-slot="dropdown-menu-radio-group"
+      className={cn("", className)}
+      {...props}
+    />
+  );
+}
+
 function DropdownMenuLabel({ className, inset, ...props }) {
   return (
     <DropdownMenuPrimitive.Label
@@ -159,6 +169,7 @@ export {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,

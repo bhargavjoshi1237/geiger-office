@@ -25,7 +25,8 @@ export async function GET(request) {
     const filter = searchParams.get("filter") || "recent";
     const type = searchParams.get("type");
     const q = searchParams.get("q")?.trim();
-    const cols = "id, type, name, starred, trashed, thumbnail, created_at, updated_at, user_id";
+    const folderId = searchParams.get("folder_id");
+    const cols = "id, type, name, starred, trashed, thumbnail, created_at, updated_at, user_id, folder_id";
 
     if (filter === "shared") {
       const email = (user.email ?? "").toLowerCase();
@@ -62,6 +63,10 @@ export async function GET(request) {
     } else {
       query = query.eq("trashed", false);
       if (filter === "starred") query = query.eq("starred", true);
+    }
+
+    if (folderId) {
+      query = query.eq("folder_id", folderId);
     }
 
     if (type && VALID_TYPES.has(type)) query = query.eq("type", type);
@@ -103,6 +108,7 @@ export async function POST(request) {
     const body = await request.json().catch(() => ({}));
     const { type } = body;
     const name = body.name?.trim();
+    const folderId = body.folder_id || null;
 
     if (!type || !VALID_TYPES.has(type)) {
       return NextResponse.json(
@@ -118,6 +124,7 @@ export async function POST(request) {
         type,
         name: name || DEFAULT_NAMES[type],
         content: body.content ?? {},
+        folder_id: folderId,
       })
       .select()
       .single();

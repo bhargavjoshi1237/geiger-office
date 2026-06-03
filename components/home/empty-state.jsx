@@ -1,6 +1,6 @@
 "use client";
 
-import { FilePlus2, FileText, Presentation, Sheet, Star, Trash2, Users } from "lucide-react";
+import { FilePlus2, FileText, Folder, Presentation, Sheet, Star, Trash2, Users } from "lucide-react";
 
 const CONFIG = {
   recent: {
@@ -37,6 +37,11 @@ const CONFIG = {
     icon: Trash2,
     title: "Trash is empty",
     body: "Files you move to trash will appear here.",
+  },
+  folders: {
+    icon: Folder,
+    title: "No folders yet",
+    body: "Create a folder to organize your files.",
   },
   search: {
     icon: FilePlus2,

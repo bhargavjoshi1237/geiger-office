@@ -33,10 +33,9 @@ function TypeBadge({ type }) {
   const meta = getFileType(type);
   const Icon = meta.icon;
   return (
-    <Badge className="gap-1.5 bg-[#1a1a1a] text-[#737373]">
-      <Icon className="h-3.5 w-3.5" />
-      {meta.label}
-    </Badge>
+    <span title={meta.label} className="flex justify-center">
+      <Icon className="h-5 w-5 text-[#737373]" />
+    </span>
   );
 }
 
@@ -57,7 +56,7 @@ export function FileTable({
         <TableHeader className="bg-[#1a1a1a]">
           <TableRow className="hover:bg-transparent">
             <TableHead className="pl-5">Name</TableHead>
-            <TableHead className="hidden sm:table-cell">Type</TableHead>
+            <TableHead className="hidden sm:table-cell text-center">Type</TableHead>
             <TableHead className="hidden md:table-cell">Owner</TableHead>
             <TableHead className="hidden lg:table-cell">Modified</TableHead>
             <TableHead className="w-12 pr-5 text-right">Actions</TableHead>
@@ -83,7 +82,7 @@ export function FileTable({
                     </span>
                   </Link>
                 </TableCell>
-                <TableCell className="hidden sm:table-cell">
+                <TableCell className="hidden sm:table-cell text-center">
                   <TypeBadge type={file.type} />
                 </TableCell>
                 <TableCell className="hidden md:table-cell">

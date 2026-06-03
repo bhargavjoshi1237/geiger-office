@@ -90,6 +90,7 @@ export async function PATCH(request, { params }) {
         update.visibility = body.visibility;
       }
       if (ROLES.has(body.link_role)) update.link_role = body.link_role;
+      if (body.folder_id !== undefined) update.folder_id = body.folder_id || null;
     }
 
     if (Object.keys(update).length === 0) {

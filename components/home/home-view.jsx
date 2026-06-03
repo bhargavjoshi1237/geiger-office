@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import {
   Clock,
   FileText,
+  FolderOpen,
+  FolderPlus,
   LayoutTemplate,
   Loader2,
+  Plus,
   Presentation,
   Search,
   Sheet,
@@ -19,6 +22,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { FileTable } from "@/components/home/file-table";
 import { StatsRow } from "@/components/home/stats-row";
 import { TemplatesView } from "@/components/home/templates-view";
+import { FoldersView } from "@/components/home/folders-view";
 import { SettingsView } from "@/components/home/settings-view";
 import { NewFileMenu } from "@/components/home/new-file-menu";
 import { UploadDialog } from "@/components/home/upload-dialog";
@@ -26,6 +30,7 @@ import { EmptyState } from "@/components/home/empty-state";
 import { RenameDialog } from "@/components/home/rename-dialog";
 import { ConfirmDialog } from "@/components/home/confirm-dialog";
 import { ShareDialog } from "@/components/share/share-dialog";
+import { AddToFolderDialog } from "@/components/home/add-to-folder-dialog";
 import { editorHref } from "@/lib/files/file-meta";
 
 function apiUrl(path = "") {
@@ -43,6 +48,7 @@ const NAV = [
   { id: "spreadsheet", label: "Spreadsheets", Icon: Sheet },
   { id: "presentation", label: "Slides", Icon: Presentation },
   { id: "workspace-heading", label: "Workspace", heading: true },
+  { id: "folders", label: "Folders", Icon: FolderOpen },
   { id: "templates", label: "Templates", Icon: LayoutTemplate },
   { id: "trash", label: "Trash", Icon: Trash2 },
 ];
@@ -59,6 +65,7 @@ const PAGE = {
   spreadsheet: { title: "Spreadsheets", subtitle: "All your spreadsheets." },
   presentation: { title: "Presentations", subtitle: "All your presentations." },
   templates: { title: "Templates", subtitle: "Start something new." },
+  folders: { title: "Folders", subtitle: "Organize your files." },
   trash: { title: "Trash", subtitle: "Files are permanently deleted after you empty trash." },
 };
 
@@ -88,6 +95,10 @@ export function HomeView() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [shareTarget, setShareTarget] = useState(null);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [folderCreateOpen, setFolderCreateOpen] = useState(false);
+  const [activeFolder, setActiveFolder] = useState(null);
+  const [addToFolderOpen, setAddToFolderOpen] = useState(false);
+  const [addToFolderTarget, setAddToFolderTarget] = useState(null);
 
   const isListView = LIST_VIEWS.has(view);
 
@@ -255,7 +266,10 @@ export function HomeView() {
 
   const page = PAGE[view] ?? PAGE.recent;
   const showSearch = isListView;
-  const showNew = view !== "settings";
+  const showNew = view !== "settings" && view !== "folders";
+  const showUpload = showNew && view !== "templates";
+  const isTemplateView = view === "templates";
+  const isFolderView = view === "folders";
 
   return (
     <AppShell nav={navItems} activeView={view} onViewChange={setView}>
@@ -277,7 +291,7 @@ export function HomeView() {
                 />
               </div>
             ) : null}
-            {showNew ? (
+            {showUpload ? (
               <button
                 type="button"
                 onClick={() => setUploadOpen(true)}
@@ -288,18 +302,65 @@ export function HomeView() {
                 <Upload className="h-4 w-4" />
               </button>
             ) : null}
-            {showNew ? <NewFileMenu onCreate={handleCreate} creating={creating} /> : null}
+            {isTemplateView ? (
+              <button
+                type="button"
+                disabled={creating}
+                onClick={() => handleCreate("document")}
+                className="inline-flex h-9 items-center gap-2 rounded-md bg-white px-4 text-sm font-medium text-[#161616] transition-colors hover:bg-[#e5e5e5] disabled:opacity-60"
+              >
+                <Plus className="h-4 w-4" />
+                New Template
+              </button>
+            ) : isFolderView ? (
+              activeFolder ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAddToFolderTarget(activeFolder);
+                    setAddToFolderOpen(true);
+                  }}
+                  className="inline-flex h-9 items-center gap-2 rounded-md bg-white px-4 text-sm font-medium text-[#161616] transition-colors hover:bg-[#e5e5e5]"
+                >
+                  <FolderPlus className="h-4 w-4" />
+                  Add to folder
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setFolderCreateOpen(true)}
+                  className="inline-flex h-9 items-center gap-2 rounded-md bg-white px-4 text-sm font-medium text-[#161616] transition-colors hover:bg-[#e5e5e5]"
+                >
+                  <FolderPlus className="h-4 w-4" />
+                  New folder
+                </button>
+              )
+            ) : showNew ? (
+              <NewFileMenu onCreate={handleCreate} creating={creating} />
+            ) : null}
           </div>
         </div>
 
         {STATS_VIEWS.has(view) ? (
-          <div className="mb-6 border-b border-[#2a2a2a] pb-6">
+          <div className="mb-6 pb-3">
             <StatsRow stats={stats} loading={statsLoading} />
           </div>
         ) : null}
 
         {view === "templates" ? (
           <TemplatesView onCreate={handleCreate} creating={creating} />
+        ) : view === "folders" ? (
+          <FoldersView
+            onCreate={handleCreate}
+            creating={creating}
+            createOpen={folderCreateOpen}
+            onCreateOpenChange={setFolderCreateOpen}
+            onActiveFolderChange={setActiveFolder}
+            onAddToFolder={(folder) => {
+              setAddToFolderTarget(folder);
+              setAddToFolderOpen(true);
+            }}
+          />
         ) : view === "settings" ? (
           <SettingsView email={stats?.email} />
         ) : loading ? (
@@ -364,6 +425,18 @@ export function HomeView() {
         onCreate={handleUploadCreate}
         onCreated={handleUploaded}
       />
+      {addToFolderTarget ? (
+        <AddToFolderDialog
+          open={addToFolderOpen}
+          folderId={addToFolderTarget.id}
+          folderName={addToFolderTarget.name}
+          onClose={() => {
+            setAddToFolderOpen(false);
+            setAddToFolderTarget(null);
+          }}
+          onAdded={() => fetchStats()}
+        />
+      ) : null}
     </AppShell>
   );
 }
