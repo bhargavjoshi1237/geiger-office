@@ -52,14 +52,14 @@ export function FileTable({
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
-      <Table>
+      <Table className="table-fixed">
         <TableHeader className="bg-[#1a1a1a]">
           <TableRow className="hover:bg-transparent">
-            <TableHead className="pl-5">Name</TableHead>
-            <TableHead className="hidden sm:table-cell text-center">Type</TableHead>
-            <TableHead className="hidden md:table-cell">Owner</TableHead>
-            <TableHead className="hidden lg:table-cell">Modified</TableHead>
-            <TableHead className="w-12 pr-5 text-right">Actions</TableHead>
+            <TableHead className="w-[48%] pl-5 sm:w-[56%] md:w-[46%] lg:w-[42%]">Name</TableHead>
+            <TableHead className="hidden w-[14%] text-center sm:table-cell md:w-[12%]">Type</TableHead>
+            <TableHead className="hidden w-[18%] md:table-cell lg:w-[16%]">Owner</TableHead>
+            <TableHead className="hidden w-[18%] lg:table-cell">Modified</TableHead>
+            <TableHead className="w-[5.5rem] pr-5 text-right lg:w-[9%]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -87,16 +87,16 @@ export function FileTable({
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   {owned ? (
-                    <span className="text-sm text-[#a3a3a3]">You</span>
+                    <span className="block truncate text-sm text-[#a3a3a3]">You</span>
                   ) : (
-                    <span className="inline-flex items-center gap-2 text-sm text-[#a3a3a3]">
+                    <span className="inline-flex min-w-0 max-w-full items-center gap-2 text-sm text-[#a3a3a3]">
                       Shared
                       <Badge className="bg-[#737373] text-[#737373]">{ROLE_LABEL[file._role] ?? "Viewer"}</Badge>
                     </span>
                   )}
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">
-                  <span className="text-sm text-[#737373]">{timeAgo(file.updated_at || file.created_at)}</span>
+                  <span className="block truncate text-sm text-[#737373]">{timeAgo(file.updated_at || file.created_at)}</span>
                 </TableCell>
                 <TableCell className="pr-5 text-right">
                   <div className="flex items-center justify-end gap-1">
