@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SaveStatus } from "@/components/editor/save-status";
 import { ProfileDropdown } from "@/components/editor/profile-dropdown";
@@ -76,9 +76,24 @@ export function SheetHeader({ children, menuProps, name, status, onExportWorkboo
                     }}
                     className="h-8 w-[220px] max-w-[52vw] bg-[#161616] font-semibold text-white"
                   />
-                  <Button type="submit" size="sm" className="h-8 px-3" disabled={!nameDraft.trim()}>
-                    Save
-                  </Button>
+                  <button
+                    type="submit"
+                    disabled={!nameDraft.trim()}
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#d4d4d4] transition-colors hover:bg-[#2a2a2a] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label="Save spreadsheet name"
+                    title="Save"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={cancelEditingName}
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#2a2a2a] hover:text-white"
+                    aria-label="Cancel renaming spreadsheet"
+                    title="Cancel"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </form>
               ) : (
                 <h1

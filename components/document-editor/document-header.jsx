@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Check, X } from "lucide-react";
 import { EditorMenuBar } from "@/components/document-editor/editor-menubar";
 import { ProfileDropdown } from "@/components/editor/profile-dropdown";
 import { NotificationsDropdown } from "@/components/editor/notifications-dropdown";
@@ -20,6 +22,34 @@ const DOC_SHORTCUTS = [
 ];
 
 function DocumentHeader({ editor, toolbar, name = "Untitled document", onRename, status, role, starred, onToggleStar, fileActions }) {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState(name);
+  const nameInputRef = useRef(null);
+
+  useEffect(() => {
+    if (isEditingName) {
+      nameInputRef.current?.focus();
+      nameInputRef.current?.select();
+    }
+  }, [isEditingName]);
+
+  const startEditingName = () => {
+    setNameDraft(name);
+    setIsEditingName(true);
+  };
+
+  const cancelEditingName = () => {
+    setNameDraft(name);
+    setIsEditingName(false);
+  };
+
+  const saveName = () => {
+    const nextName = nameDraft.trim();
+    if (!nextName) return;
+    onRename?.(nextName);
+    setIsEditingName(false);
+  };
+
   return (
     <header className="shrink-0 border-b border-[#333333] bg-[#202020] shadow-sm shadow-black/20">
       <div className="flex h-14 items-center gap-3 px-4 mt-2">
@@ -33,21 +63,53 @@ function DocumentHeader({ editor, toolbar, name = "Untitled document", onRename,
               >
                 <Image src={`${assetPrefix}/logo1.svg`} alt="Home" width={20} height={20} />
               </Link>
-              <div className="grid min-w-0 max-w-[52vw] items-center">
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none invisible col-start-1 row-start-1 whitespace-pre rounded-md border border-transparent px-1 text-sm font-semibold leading-7"
+              {isEditingName ? (
+                <form
+                  className="flex min-w-0 items-center gap-1"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    saveName();
+                  }}
+                >
+                  <input
+                    ref={nameInputRef}
+                    value={nameDraft}
+                    onChange={(event) => setNameDraft(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Escape") cancelEditingName();
+                    }}
+                    aria-label="Document name"
+                    spellCheck={false}
+                    className="h-8 w-[220px] max-w-[52vw] rounded-md border border-[#474747] bg-[#161616] px-2 text-sm font-semibold text-white outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!nameDraft.trim()}
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#d4d4d4] transition-colors hover:bg-[#2a2a2a] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label="Save document name"
+                    title="Save"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={cancelEditingName}
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#2a2a2a] hover:text-white"
+                    aria-label="Cancel renaming document"
+                    title="Cancel"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </form>
+              ) : (
+                <h1
+                  className="max-w-[240px] truncate text-sm font-semibold leading-7 text-white"
+                  title="Double-click to rename"
+                  onDoubleClick={startEditingName}
                 >
                   {name || "Untitled document"}
-                </span>
-                <input
-                  value={name}
-                  onChange={(event) => onRename?.(event.target.value)}
-                  aria-label="Document name"
-                  spellCheck={false}
-                  className="col-start-1 row-start-1 w-full rounded-md border border-transparent bg-transparent px-1 text-sm font-semibold leading-7 text-white outline-none transition-colors hover:border-[#3a3a3a] focus:border-[#474747] focus:bg-[#161616]"
-                />
-              </div>
+                </h1>
+              )}
               <StarButton
                 starred={starred}
                 onToggle={onToggleStar}

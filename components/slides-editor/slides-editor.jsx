@@ -10,6 +10,7 @@ import {
   AlignRight,
   BadgePlus,
   Bold,
+  Check,
   ChevronLeft,
   ChevronRight,
   Circle,
@@ -41,6 +42,7 @@ import {
   Underline,
   Undo2,
   UserPlus,
+  X,
   ZoomIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -121,7 +123,10 @@ function SlidesEditor({ fileId }) {
   const [draggingSlideId, setDraggingSlideId] = useState(null);
   const [sidebarTool, setSidebarTool] = useState(null);
   const [gridOpen, setGridOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState(presentationName);
   const imageInputRef = useRef(null);
+  const nameInputRef = useRef(null);
   const hydratedRef = useRef(false);
   const lastSavedJsonRef = useRef(null);
   const elementClipboardRef = useRef(null);
@@ -163,9 +168,33 @@ function SlidesEditor({ fileId }) {
     saveContent({ slides });
   }, [slides, saveContent]);
 
+  useEffect(() => {
+    if (isEditingName) {
+      nameInputRef.current?.focus();
+      nameInputRef.current?.select();
+    }
+  }, [isEditingName]);
+
   const handleRename = (nextName) => {
     setPresentationName(nextName);
     rename(nextName);
+  };
+
+  const startEditingName = () => {
+    setNameDraft(presentationName);
+    setIsEditingName(true);
+  };
+
+  const cancelEditingName = () => {
+    setNameDraft(presentationName);
+    setIsEditingName(false);
+  };
+
+  const saveName = () => {
+    const nextName = nameDraft.trim();
+    if (!nextName) return;
+    handleRename(nextName);
+    setIsEditingName(false);
   };
 
   const renamePrompt = () => {
@@ -554,21 +583,53 @@ function SlidesEditor({ fileId }) {
                 >
                   <Image src={`${assetPrefix}/logo1.svg`} alt="Home" width={20} height={20} />
                 </Link>
-                <div className="grid min-w-0 max-w-[52vw] items-center">
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none invisible col-start-1 row-start-1 whitespace-pre rounded-md border border-transparent px-1 text-sm font-semibold leading-7"
+                {isEditingName ? (
+                  <form
+                    className="flex min-w-0 items-center gap-1"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      saveName();
+                    }}
+                  >
+                    <input
+                      ref={nameInputRef}
+                      value={nameDraft}
+                      onChange={(event) => setNameDraft(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Escape") cancelEditingName();
+                      }}
+                      aria-label="Presentation name"
+                      spellCheck={false}
+                      className="h-8 w-[220px] max-w-[52vw] rounded-md border border-[#474747] bg-[#161616] px-2 text-sm font-semibold text-white outline-none"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!nameDraft.trim()}
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#d4d4d4] transition-colors hover:bg-[#2a2a2a] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                      aria-label="Save presentation name"
+                      title="Save"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEditingName}
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#2a2a2a] hover:text-white"
+                      aria-label="Cancel renaming presentation"
+                      title="Cancel"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </form>
+                ) : (
+                  <h1
+                    className="max-w-[240px] truncate text-sm font-semibold leading-7 text-white"
+                    title="Double-click to rename"
+                    onDoubleClick={startEditingName}
                   >
                     {presentationName || "Untitled presentation"}
-                  </span>
-                  <input
-                    value={presentationName}
-                    onChange={(event) => handleRename(event.target.value)}
-                    aria-label="Presentation name"
-                    spellCheck={false}
-                    className="col-start-1 row-start-1 w-full rounded-md border border-transparent bg-transparent px-1 text-sm font-semibold leading-7 text-white outline-none transition-colors hover:border-[#3a3a3a] focus:border-[#474747] focus:bg-[#161616]"
-                  />
-                </div>
+                  </h1>
+                )}
                 <StarButton
                   starred={starred}
                   onToggle={toggleStar}
