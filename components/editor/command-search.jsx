@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Home, Loader2, Plus, Search } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -65,7 +66,7 @@ export function CommandSearch({ placeholder = "Search...", triggerClassName }) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         router.push(editorHref(await res.json()));
       } catch {
-        /* swallow — palette is best-effort navigation */
+        toast.error("Couldn't create file");
       }
     },
     [router],

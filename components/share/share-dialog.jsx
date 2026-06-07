@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ROLE_LABEL, SHARE_ROLES, shareableLink } from "@/lib/files/file-meta";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -177,7 +178,9 @@ export function ShareDialog({ open, onOpenChange, file }) {
       setInviteEmail("");
       setSuggestions([]);
       setSuggestOpen(false);
+      toast.success("Person added", { description: `${email} can now access this file.` });
     } catch (err) {
+      toast.error("Couldn't add person", { description: err.message });
       setError(err.message || "Failed to add person");
     } finally {
       setBusy(false);
@@ -199,6 +202,7 @@ export function ShareDialog({ open, onOpenChange, file }) {
   const removeShare = async (share) => {
     setState((prev) => ({ ...prev, shares: prev.shares.filter((s) => s.id !== share.id) }));
     await fetch(`${apiBase()}/${fileId}/share/${share.id}`, { method: "DELETE" });
+    toast.success("Access removed", { description: share.email });
   };
 
   const updateGeneralAccess = async (patch) => {
@@ -219,7 +223,9 @@ export function ShareDialog({ open, onOpenChange, file }) {
       await navigator.clipboard.writeText(shareableLink(fileForLink));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      toast.success("Link copied to clipboard");
     } catch {
+      toast.error("Couldn't copy the link");
       setError("Couldn't copy the link");
     }
   };

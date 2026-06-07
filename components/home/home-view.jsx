@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   Clock,
   FileText,
@@ -174,6 +175,7 @@ export function HomeView() {
       const file = await res.json();
       router.push(editorHref(file));
     } catch (err) {
+      toast.error("Couldn't create file", { description: err.message });
       setError(err.message || "Failed to create file");
       setCreating(false);
     }
@@ -198,6 +200,7 @@ export function HomeView() {
     if (!created) return;
     setFiles((prev) => [{ ...created, _role: "owner" }, ...prev]);
     fetchStats();
+    toast.success("File uploaded", { description: created.name });
   };
 
   const patch = async (file, body) => {
@@ -223,12 +226,24 @@ export function HomeView() {
     setFiles((prev) => prev.filter((f) => f.id !== file.id));
     await patch(file, { trashed: true });
     fetchStats();
+    toast("Moved to trash", {
+      description: file.name,
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          await patch(file, { trashed: false });
+          fetchFiles();
+          fetchStats();
+        },
+      },
+    });
   };
 
   const handleRestore = async (file) => {
     setFiles((prev) => prev.filter((f) => f.id !== file.id));
     await patch(file, { trashed: false });
     fetchStats();
+    toast.success("Restored", { description: file.name });
   };
 
   const handleRenameSubmit = async (name) => {
@@ -236,6 +251,7 @@ export function HomeView() {
     if (!file) return;
     setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, name } : f)));
     await patch(file, { name });
+    toast.success("Renamed", { description: name });
   };
 
   const handleDuplicate = async (file) => {
@@ -253,7 +269,9 @@ export function HomeView() {
       const created = await res.json();
       setFiles((prev) => [{ ...created, _role: "owner" }, ...prev]);
       fetchStats();
+      toast.success("Duplicated", { description: created.name });
     } catch (err) {
+      toast.error("Couldn't duplicate file", { description: err.message });
       setError(err.message || "Failed to duplicate file");
     }
   };
@@ -262,6 +280,7 @@ export function HomeView() {
     setFiles((prev) => prev.filter((f) => f.id !== file.id));
     await fetch(apiUrl(`/${file.id}`), { method: "DELETE" });
     fetchStats();
+    toast.success("Deleted permanently", { description: file.name });
   };
 
   const page = PAGE[view] ?? PAGE.recent;

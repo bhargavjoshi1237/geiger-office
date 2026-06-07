@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, X } from "lucide-react";
+import { toast } from "sonner";
 import { EditorMenuBar } from "@/components/document-editor/editor-menubar";
 import { ProfileDropdown } from "@/components/editor/profile-dropdown";
 import { NotificationsDropdown } from "@/components/editor/notifications-dropdown";
@@ -48,6 +49,7 @@ function DocumentHeader({ editor, toolbar, name = "Untitled document", onRename,
     if (!nextName) return;
     onRename?.(nextName);
     setIsEditingName(false);
+    if (nextName !== name) toast.success("Renamed", { description: nextName });
   };
 
   return (

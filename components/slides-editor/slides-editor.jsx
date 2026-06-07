@@ -79,6 +79,7 @@ import { IconButton, ToolbarDivider, ToolbarSelect, ToolbarToggle } from "@/comp
 import { ModeToolbarGroup } from "@/components/document-editor/editor-toolbar";
 import { FormattingColorPicker } from "@/components/document-editor/formatting/formatting-color-picker";
 import { HIGHLIGHT_COLOR_OPTIONS, TEXT_COLOR_OPTIONS } from "@/components/document-editor/formatting/color-options";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { SaveStatus } from "@/components/editor/save-status";
@@ -176,8 +177,10 @@ function SlidesEditor({ fileId }) {
   }, [isEditingName]);
 
   const handleRename = (nextName) => {
+    if (nextName === presentationName) return;
     setPresentationName(nextName);
     rename(nextName);
+    toast.success("Renamed", { description: nextName });
   };
 
   const startEditingName = () => {

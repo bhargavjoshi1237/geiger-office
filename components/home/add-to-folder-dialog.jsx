@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, FileText, FolderPlus, Loader2, Presentation, Search, Sheet, X } from "lucide-react";
 import { FILE_TYPE_LIST, timeAgo } from "@/lib/files/file-meta";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -104,8 +105,13 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
         ),
       );
       onAdded?.(ids);
+      toast.success(
+        `${ids.length} ${ids.length === 1 ? "file" : "files"} added`,
+        { description: `Added to “${folderName}”` },
+      );
       onClose();
     } catch {
+      toast.error("Couldn't add some files");
       setError("Failed to add some files");
     } finally {
       setAdding(false);
@@ -115,8 +121,8 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="flex w-full max-w-lg flex-col rounded-2xl border border-[#2a2a2a] bg-[#1a1a1a] shadow-xl max-h-[80vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="flex w-full max-w-lg flex-col rounded-2xl border border-[#2a2a2a] bg-[#1a1a1a] shadow-xl max-h-[85vh]">
         <div className="flex items-center justify-between border-b border-[#2a2a2a] px-5 py-4">
           <div>
             <h2 className="text-sm font-semibold text-[#e7e7e7]">Add to folder</h2>

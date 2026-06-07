@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, X } from "lucide-react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { SaveStatus } from "@/components/editor/save-status";
 import { ProfileDropdown } from "@/components/editor/profile-dropdown";
@@ -43,6 +44,7 @@ export function SheetHeader({ children, menuProps, name, status, onExportWorkboo
     if (!nextName) return;
     onRename(nextName);
     setIsEditingName(false);
+    if (nextName !== name) toast.success("Renamed", { description: nextName });
   };
 
   return (

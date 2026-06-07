@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/context-menu";
 import { FILE_TYPE_LIST, editorHref, timeAgo } from "@/lib/files/file-meta";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 
 function apiUrl(path = "") {
@@ -57,7 +58,7 @@ function CreateFolderDialog({ open, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-md border border-[#2a2a2a] bg-[#1a1a1a] p-6 shadow-xl"
@@ -118,7 +119,7 @@ function RenameFolderDialog({ open, folder, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-md border border-[#2a2a2a] bg-[#1a1a1a] p-6 shadow-xl"
@@ -229,7 +230,9 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const folder = await res.json();
       setFolders((prev) => [folder, ...prev]);
+      toast.success("Folder created", { description: folder.name });
     } catch (err) {
+      toast.error("Couldn't create folder", { description: err.message });
       setError(err.message || "Failed to create folder");
     }
   };
@@ -242,7 +245,9 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
+      toast.success("Folder renamed", { description: name });
     } catch {
+      toast.error("Couldn't rename folder");
       fetchFolders();
     }
   };
@@ -252,7 +257,9 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
     if (activeFolder?.id === folder.id) setActiveFolder(null);
     try {
       await fetch(apiUrl(`/folders/${folder.id}`), { method: "DELETE" });
+      toast.success("Folder deleted", { description: folder.name });
     } catch {
+      toast.error("Couldn't delete folder");
       fetchFolders();
     }
   };
