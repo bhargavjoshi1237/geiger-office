@@ -60,7 +60,7 @@ function NumberFormatPicker({ value, onChange }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         {options.map((option) => (
-          <DropdownMenuItem key={option.id} onSelect={() => onChange(option.id)} className={cn(value === option.id && "bg-[#2a2a2a] text-white")}>
+          <DropdownMenuItem key={option.id} onSelect={() => onChange(option.id)} className={cn(value === option.id && "bg-surface-hover text-white")}>
             {option.label}
           </DropdownMenuItem>
         ))}
@@ -78,14 +78,14 @@ function FontSizePicker({ value, onChange }) {
         <Button
           type="button"
           variant="outline"
-          className="h-8 w-11 shrink-0 rounded-md border-[#474747] bg-[#242424] px-0 text-sm font-normal text-white hover:bg-[#2a2a2a] focus-visible:ring-[#474747]"
+          className="h-8 w-11 shrink-0 rounded-md border-border-strong bg-surface-active px-0 text-sm font-normal text-white hover:bg-surface-hover focus-visible:ring-border-strong"
         >
           {value}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-0 w-18 p-0.5" align="center">
         {sizes.map((size) => (
-          <DropdownMenuItem key={size} onSelect={() => onChange(size)} className={cn("justify-center", value === size && "bg-[#2a2a2a] text-white")}>
+          <DropdownMenuItem key={size} onSelect={() => onChange(size)} className={cn("justify-center", value === size && "bg-surface-hover text-white")}>
             {size}
           </DropdownMenuItem>
         ))}
@@ -184,10 +184,10 @@ export function SheetToolbar({
       </ToolbarGroup>
       <ToolbarDivider />
       <ToolbarGroup>
-        <IconButton label="Cell outline" onClick={() => toggleStyle("outlined")} className={activeStyle.outlined ? "bg-[#333333] text-white" : undefined}>
+        <IconButton label="Cell outline" onClick={() => toggleStyle("outlined")} className={activeStyle.outlined ? "bg-surface-strong text-white" : undefined}>
           <Grid2X2 className="h-4 w-4" />
         </IconButton>
-        <IconButton label={filterEnabled ? "Remove filter" : "Create filter"} onClick={onToggleFilter} className={filterEnabled ? "bg-[#333333] text-white" : undefined}>
+        <IconButton label={filterEnabled ? "Remove filter" : "Create filter"} onClick={onToggleFilter} className={filterEnabled ? "bg-surface-strong text-white" : undefined}>
           <Filter className="h-4 w-4" />
         </IconButton>
         <DropdownMenu>
@@ -204,7 +204,7 @@ export function SheetToolbar({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-        <IconButton label={showFormulas ? "Hide formulas" : "Show formulas"} onClick={onToggleShowFormulas} className={showFormulas ? "bg-[#333333] text-white" : undefined}>
+        <IconButton label={showFormulas ? "Hide formulas" : "Show formulas"} onClick={onToggleShowFormulas} className={showFormulas ? "bg-surface-strong text-white" : undefined}>
           <FileSpreadsheet className="h-4 w-4" />
         </IconButton>
         <IconButton label="Clear formatting" onClick={onClearFormatting}>

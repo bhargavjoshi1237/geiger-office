@@ -34,11 +34,11 @@ export function FileCard({
   const inTrash = file.trashed;
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-colors hover:border-[#474747]">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface-subtle transition-colors hover:border-border-strong">
       <Link
         href={href}
         prefetch={false}
-        className="flex h-28 items-center justify-center border-b border-[#2a2a2a] bg-[#202020]"
+        className="flex h-28 items-center justify-center border-b border-border bg-surface-card"
         aria-label={`Open ${file.name}`}
       >
         <Icon className="h-9 w-9" style={{ color: meta.accent }} strokeWidth={1.5} />
@@ -48,11 +48,11 @@ export function FileCard({
         <Icon className="mt-0.5 h-4 w-4 shrink-0" style={{ color: meta.accent }} />
         <div className="min-w-0 flex-1">
           <Link href={href} prefetch={false} className="block">
-            <h3 className="truncate text-sm font-medium text-[#e7e7e7] hover:text-white">
+            <h3 className="truncate text-sm font-medium text-foreground hover:text-foreground">
               {file.name}
             </h3>
           </Link>
-          <p className="mt-0.5 text-[11px] text-[#737373]">
+          <p className="mt-0.5 text-[11px] text-text-secondary">
             {meta.label} · {timeAgo(file.updated_at || file.created_at)}
           </p>
         </div>
@@ -61,7 +61,7 @@ export function FileCard({
           type="button"
           onClick={() => onToggleStar(file)}
           className={cn(
-            "rounded-md p-1 text-[#737373] transition-colors hover:bg-[#2a2a2a] hover:text-white",
+            "rounded-md p-1 text-text-secondary transition-colors hover:bg-surface-hover hover:text-foreground",
             file.starred && "text-amber-400 hover:text-amber-300",
             !file.starred && "opacity-0 group-hover:opacity-100 focus:opacity-100",
           )}
@@ -74,7 +74,7 @@ export function FileCard({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="rounded-md p-1 text-[#737373] opacity-0 transition-colors hover:bg-[#2a2a2a] hover:text-white focus:opacity-100 group-hover:opacity-100 data-[state=open]:opacity-100"
+              className="rounded-md p-1 text-text-secondary opacity-0 transition-colors hover:bg-surface-hover hover:text-foreground focus:opacity-100 group-hover:opacity-100 data-[state=open]:opacity-100"
               aria-label="More actions"
             >
               <MoreVertical className="h-4 w-4" />

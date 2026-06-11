@@ -16,7 +16,7 @@ export function StarButton({ starred, onToggle, label = "Star", className }) {
       aria-label={starred ? `${label} (starred)` : label}
       title={starred ? "Remove star" : label}
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#2a2a2a] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#474747]",
+        "flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
         className,
       )}
     >

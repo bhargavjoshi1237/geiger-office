@@ -96,14 +96,14 @@ function DocumentEditor({ fileId }) {
 
   if (!file) {
     return (
-      <div className="flex h-[100dvh] items-center justify-center bg-[#161616] px-6 text-center text-sm text-red-300">
+      <div className="flex h-[100dvh] items-center justify-center bg-background px-6 text-center text-sm text-red-300">
         {loadError || "Failed to load document."}
       </div>
     );
   }
 
   return (
-    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-[#161616] text-white">
+    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-background text-white">
       <DocumentHeader
         editor={editor}
         name={file?.name ?? "Untitled document"}
@@ -115,7 +115,7 @@ function DocumentEditor({ fileId }) {
         fileActions={fileActions}
         toolbar={<EditorToolbar mode={mode} formatting={formatting} shareFileId={fileId} shareName={file?.name ?? "Untitled document"} zoom={zoom} onModeChange={setMode} onZoomChange={setZoom} />}
       />
-      <div className="flex min-h-0 flex-1 bg-[#161616]">
+      <div className="flex min-h-0 flex-1 bg-background">
         <DocumentTabsSidebar headings={headings} />
         <DocumentCanvas editor={editor} zoom={zoom} />
       </div>

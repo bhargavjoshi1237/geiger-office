@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function GET(request) {
   try {
     const supabase = await createClient();
@@ -13,11 +16,21 @@ export async function GET(request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data, error } = await supabase
+    const projectId = new URL(request.url).searchParams.get("project_id");
+    if (projectId && projectId !== "personal" && !UUID_PATTERN.test(projectId)) {
+      return NextResponse.json({ error: "Invalid project_id" }, { status: 400 });
+    }
+
+    let query = supabase
       .from("office_folders")
-      .select("id, name, color, created_at, updated_at")
-      .eq("user_id", user.id)
+      .select("id, project_id, name, color, created_at, updated_at")
       .order("updated_at", { ascending: false });
+
+    if (!projectId || projectId === "personal") query = query.eq("user_id", user.id);
+    if (projectId === "personal") query = query.is("project_id", null);
+    else if (projectId) query = query.eq("project_id", projectId);
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("[API] Supabase error (list folders):", error);
@@ -72,10 +85,14 @@ export async function POST(request) {
     const body = await request.json().catch(() => ({}));
     const name = body.name?.trim() || "Untitled folder";
     const color = body.color || "#4285f4";
+    const projectId = body.project_id || null;
+    if (projectId && !UUID_PATTERN.test(projectId)) {
+      return NextResponse.json({ error: "Invalid project_id" }, { status: 400 });
+    }
 
     const { data, error } = await supabase
       .from("office_folders")
-      .insert({ user_id: user.id, name, color })
+      .insert({ user_id: user.id, project_id: projectId, name, color })
       .select()
       .single();
 

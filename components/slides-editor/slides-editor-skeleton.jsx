@@ -7,8 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
  */
 function SlidesEditorSkeleton() {
   return (
-    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-[#161616] text-white">
-      <header className="shrink-0 border-b border-[#333333] bg-[#202020]">
+    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-background text-white">
+      <header className="shrink-0 border-b border-border bg-surface-card">
         <div className="flex h-14 items-center gap-3 px-4">
           <Skeleton className="h-7 w-7 rounded-md" />
           <Skeleton className="h-5 w-48" />
@@ -29,7 +29,7 @@ function SlidesEditorSkeleton() {
 
       <div className="flex min-h-0 flex-1">
         {/* Filmstrip */}
-        <aside className="hidden w-52 shrink-0 flex-col gap-3 border-r border-[#333333] bg-[#1b1b1b] p-3 md:flex">
+        <aside className="hidden w-52 shrink-0 flex-col gap-3 border-r border-border bg-[#1b1b1b] p-3 md:flex">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="flex items-start gap-2">
               <Skeleton className="h-3 w-3" />
@@ -39,7 +39,7 @@ function SlidesEditorSkeleton() {
         </aside>
 
         {/* Canvas stage */}
-        <div className="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-[#161616] p-10">
+        <div className="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-background p-10">
           <div className="aspect-video w-full max-w-3xl rounded-md bg-white/[0.04] p-12">
             <div className="flex h-full flex-col items-center justify-center gap-5">
               <Skeleton className="h-9 w-2/3" />

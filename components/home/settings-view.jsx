@@ -42,8 +42,8 @@ function useNotificationPrefs() {
 
 function ToggleRow({ label, checked, onCheckedChange }) {
   return (
-    <div className="flex items-center justify-between border-t border-[#2a2a2a] py-2.5 text-sm first:border-t-0 first:pt-0">
-      <span className="text-[#a3a3a3]">{label}</span>
+    <div className="flex items-center justify-between border-t border-border py-2.5 text-sm first:border-t-0 first:pt-0">
+      <span className="text-muted-foreground">{label}</span>
       <Switch checked={checked} onCheckedChange={onCheckedChange} />
     </div>
   );
@@ -67,14 +67,14 @@ function NotificationsCard() {
 
 function Card({ title, description, Icon, children }) {
   return (
-    <div className="rounded-2xl border border-[#2a2a2a] bg-[#202020] p-5">
+    <div className="rounded-2xl border border-border bg-surface-card p-5">
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2a2a2a] text-[#a3a3a3]">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-hover text-muted-foreground">
           <Icon className="h-[18px] w-[18px]" />
         </div>
         <div className="min-w-0">
           <h3 className="text-sm font-medium text-white">{title}</h3>
-          <p className="mt-0.5 text-xs text-[#737373]">{description}</p>
+          <p className="mt-0.5 text-xs text-text-secondary">{description}</p>
         </div>
       </div>
       {children ? <div className="mt-4">{children}</div> : null}
@@ -84,9 +84,9 @@ function Card({ title, description, Icon, children }) {
 
 function Row({ label, value }) {
   return (
-    <div className="flex items-center justify-between border-t border-[#2a2a2a] py-2.5 text-sm first:border-t-0 first:pt-0">
-      <span className="text-[#a3a3a3]">{label}</span>
-      <span className="text-[#e7e7e7]">{value}</span>
+    <div className="flex items-center justify-between border-t border-border py-2.5 text-sm first:border-t-0 first:pt-0">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="text-foreground">{value}</span>
     </div>
   );
 }

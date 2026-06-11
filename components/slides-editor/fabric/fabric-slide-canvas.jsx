@@ -134,7 +134,7 @@ export function FabricSlideCanvas({ mode, scale, selectedElementId, slide, onCha
 
   return (
     <div
-      className="relative origin-top overflow-hidden border border-[#333333] shadow-2xl shadow-black/35"
+      className="relative origin-top overflow-hidden border border-border shadow-2xl shadow-black/35"
       style={{
         height: SLIDE_HEIGHT,
         // Collapse the layout box to the scaled size. CSS transforms don't shrink

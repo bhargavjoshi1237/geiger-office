@@ -107,25 +107,25 @@ export function UploadDialog({ open, onOpenChange, onCreate, onCreated }) {
           className={`flex w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed px-6 py-10 text-center transition-colors ${
             dragging
               ? "border-[#5b8def] bg-[#5b8def]/10"
-              : "border-[#3a3a3a] bg-[#1b1b1b] hover:border-[#4a4a4a] hover:bg-[#202020]"
+              : "border-border-strong bg-[#1b1b1b] hover:border-[#4a4a4a] hover:bg-surface-card"
           } ${busy ? "cursor-default opacity-80" : "cursor-pointer"}`}
         >
           {busy ? (
             <>
               <Loader2 className="h-7 w-7 animate-spin text-[#5b8def]" />
-              <div className="text-sm text-[#e7e7e7]">
-                Importing<span className="text-[#a3a3a3]">{busyName ? ` “${busyName}”` : ""}…</span>
+              <div className="text-sm text-foreground">
+                Importing<span className="text-muted-foreground">{busyName ? ` “${busyName}”` : ""}…</span>
               </div>
             </>
           ) : (
             <>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#262626]">
-                <UploadCloud className="h-6 w-6 text-[#a3a3a3]" />
+                <UploadCloud className="h-6 w-6 text-muted-foreground" />
               </div>
-              <div className="text-sm font-medium text-[#e7e7e7]">
+              <div className="text-sm font-medium text-foreground">
                 Drag &amp; drop a file here, or <span className="text-[#5b8def]">browse</span>
               </div>
-              <div className="text-xs text-[#737373]">{UPLOAD_HINT}</div>
+              <div className="text-xs text-text-secondary">{UPLOAD_HINT}</div>
             </>
           )}
         </button>
@@ -143,7 +143,7 @@ export function UploadDialog({ open, onOpenChange, onCreate, onCreated }) {
             {error}
           </p>
         ) : (
-          <p className="mt-3 text-xs text-[#737373]">
+          <p className="mt-3 text-xs text-text-secondary">
             Up to {Math.round(MAX_UPLOAD_BYTES / (1024 * 1024))} MB. Only you can access files you upload.
           </p>
         )}

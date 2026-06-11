@@ -168,7 +168,7 @@ export const SpreadsheetGrid = memo(function SpreadsheetGrid({
   // Radix's onContextMenu prop on ReactGrid returns [] to suppress ReactGrid's own
   // menu; the real menu is the Radix ContextMenu wrapping this grid in the parent.
   return (
-    <div data-sheet-grid className="sheet-reactgrid min-h-0 flex-1 overflow-hidden bg-[#161616]">
+    <div data-sheet-grid className="sheet-reactgrid min-h-0 flex-1 overflow-hidden bg-background">
       <ReactGrid
         columns={gridColumns}
         rows={gridRows}

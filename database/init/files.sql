@@ -13,6 +13,9 @@
 create table if not exists public.office_files (
   id          uuid        primary key default gen_random_uuid(),
 
+  -- Optional Geiger Flow project. NULL keeps standalone/personal Office valid.
+  project_id  uuid        references public.flow_projects(id) on delete set null,
+
   -- Owner (Supabase Auth user shared across the suite)
   user_id     uuid        not null references auth.users(id) on delete cascade,
 
@@ -41,6 +44,8 @@ create index if not exists office_files_user_starred_idx
   on public.office_files (user_id, starred);
 create index if not exists office_files_user_type_idx
   on public.office_files (user_id, type);
+create index if not exists office_files_project_updated_idx
+  on public.office_files (project_id, trashed, updated_at desc);
 
 -- ── Row-Level Security (owner-only) ───────────────────────────────────────────
 alter table public.office_files enable row level security;
@@ -56,7 +61,10 @@ create policy "Users can view own files"
 
 create policy "Users can create own files"
   on public.office_files for insert
-  with check (auth.uid() = user_id);
+  with check (
+    auth.uid() = user_id
+    and (project_id is null or public.flow_is_project_member(project_id))
+  );
 
 create policy "Users can update own files"
   on public.office_files for update
@@ -65,6 +73,18 @@ create policy "Users can update own files"
 create policy "Users can delete own files"
   on public.office_files for delete
   using (auth.uid() = user_id);
+
+drop policy if exists "Project members can view project files" on public.office_files;
+drop policy if exists "Project members can update project files" on public.office_files;
+
+create policy "Project members can view project files"
+  on public.office_files for select
+  using (project_id is not null and public.flow_is_project_member(project_id));
+
+create policy "Project members can update project files"
+  on public.office_files for update
+  using (project_id is not null and public.flow_is_project_member(project_id))
+  with check (project_id is not null and public.flow_is_project_member(project_id));
 
 -- ── Auto-update updated_at on every write ─────────────────────────────────────
 create or replace function public.update_office_files_updated_at()

@@ -48,7 +48,7 @@ export function SheetHeader({ children, menuProps, name, status, onExportWorkboo
   };
 
   return (
-    <header className="shrink-0 border-b border-[#333333] bg-[#202020] shadow-sm shadow-black/20">
+    <header className="shrink-0 border-b border-border bg-surface-card shadow-sm shadow-black/20">
       <div className="mt-2 flex h-14 items-center gap-3 px-4">
         <div className="mr-auto flex min-w-0 items-start gap-3">
           <div className="min-w-0">
@@ -56,7 +56,7 @@ export function SheetHeader({ children, menuProps, name, status, onExportWorkboo
               <Link
                 href="/home"
                 aria-label="Go to home"
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[#2a2a2a]"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-surface-hover"
               >
                 <Image src={`${assetPrefix}/logo1.svg`} alt="Home" width={20} height={20} />
               </Link>
@@ -76,12 +76,12 @@ export function SheetHeader({ children, menuProps, name, status, onExportWorkboo
                     onKeyDown={(event) => {
                       if (event.key === "Escape") cancelEditingName();
                     }}
-                    className="h-8 w-[220px] max-w-[52vw] bg-[#161616] font-semibold text-white"
+                    className="h-8 w-[220px] max-w-[52vw] bg-background font-semibold text-white"
                   />
                   <button
                     type="submit"
                     disabled={!nameDraft.trim()}
-                    className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#d4d4d4] transition-colors hover:bg-[#2a2a2a] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label="Save spreadsheet name"
                     title="Save"
                   >
@@ -90,7 +90,7 @@ export function SheetHeader({ children, menuProps, name, status, onExportWorkboo
                   <button
                     type="button"
                     onClick={cancelEditingName}
-                    className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#2a2a2a] hover:text-white"
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground"
                     aria-label="Cancel renaming spreadsheet"
                     title="Cancel"
                   >
@@ -122,7 +122,7 @@ export function SheetHeader({ children, menuProps, name, status, onExportWorkboo
           <CommandSearch placeholder="Search sheets..." />
           <HelpDropdown appName="Office Sheets" triggerClassName="hidden sm:flex" />
           <NotificationsDropdown />
-          <ProfileDropdown triggerClassName="ml-1 bg-[#242424] hover:bg-[#2a2a2a]" />
+          <ProfileDropdown triggerClassName="ml-1 bg-surface-active hover:bg-surface-hover" />
         </div>
       </div>
       {children}

@@ -59,7 +59,7 @@ export function ProfileDropdown({ triggerClassName, children }) {
             type="button"
             aria-label="Profile"
             className={cn(
-              "flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[#333333] transition-colors hover:border-[#474747]",
+              "flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-border transition-colors hover:border-border-strong",
               triggerClassName
             )}
           >
@@ -71,7 +71,7 @@ export function ProfileDropdown({ triggerClassName, children }) {
                   alt={displayName}
                 />
               )}
-              <AvatarFallback className="border-0 bg-[#474747] text-[10px] font-semibold text-white">
+              <AvatarFallback className="border-0 bg-border-strong text-[10px] font-semibold text-white">
                 {fallbackInitials}
               </AvatarFallback>
             </Avatar>
@@ -82,12 +82,12 @@ export function ProfileDropdown({ triggerClassName, children }) {
       <DropdownMenuContent
         align="end"
         sideOffset={8}
-        className="z-[100] w-[150px] min-w-[150px] max-w-[208px] bg-[#1a1a1a] border-[#242424] shadow-xl"
+        className="z-[100] w-[150px] min-w-[150px] max-w-[208px] bg-surface-subtle border-surface-active shadow-xl"
         onCloseAutoFocus={(event) => event.preventDefault()}
       >
         <DropdownMenuItem
             asChild
-            className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2"
+            className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
           >
             <Link href="/home">
               <HomeIcon className="w-3.5 h-3.5" />
@@ -97,7 +97,7 @@ export function ProfileDropdown({ triggerClassName, children }) {
 
           <DropdownMenuItem
             onSelect={handleSignOut}
-            className="text-[#737373] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2"
+            className="text-text-secondary focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign out</span>

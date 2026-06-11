@@ -573,8 +573,8 @@ function SlidesEditor({ fileId }) {
   }
 
   return (
-    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-[#161616] text-white">
-      <header className="shrink-0 border-b border-[#333333] bg-[#202020] shadow-sm shadow-black/20">
+    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-background text-white">
+      <header className="shrink-0 border-b border-border bg-surface-card shadow-sm shadow-black/20">
         <div className="mt-2 flex h-14 items-center gap-3 px-4">
           <div className="mr-auto flex min-w-0 items-start gap-3">
             <div className="min-w-0">
@@ -582,7 +582,7 @@ function SlidesEditor({ fileId }) {
                 <Link
                   href="/home"
                   aria-label="Go to home"
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[#2a2a2a]"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-surface-hover"
                 >
                   <Image src={`${assetPrefix}/logo1.svg`} alt="Home" width={20} height={20} />
                 </Link>
@@ -603,12 +603,12 @@ function SlidesEditor({ fileId }) {
                       }}
                       aria-label="Presentation name"
                       spellCheck={false}
-                      className="h-8 w-[220px] max-w-[52vw] rounded-md border border-[#474747] bg-[#161616] px-2 text-sm font-semibold text-white outline-none"
+                      className="h-8 w-[220px] max-w-[52vw] rounded-md border border-border-strong bg-background px-2 text-sm font-semibold text-white outline-none"
                     />
                     <button
                       type="submit"
                       disabled={!nameDraft.trim()}
-                      className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#d4d4d4] transition-colors hover:bg-[#2a2a2a] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                       aria-label="Save presentation name"
                       title="Save"
                     >
@@ -617,7 +617,7 @@ function SlidesEditor({ fileId }) {
                     <button
                       type="button"
                       onClick={cancelEditingName}
-                      className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#2a2a2a] hover:text-white"
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground"
                       aria-label="Cancel renaming presentation"
                       title="Cancel"
                     >
@@ -648,15 +648,15 @@ function SlidesEditor({ fileId }) {
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <CommandSearch placeholder="Search slides..." triggerClassName="hidden lg:flex" />
-            <IconButton type="button" variant="outline" onClick={() => setIsPresenting(true)} className="hidden h-9 rounded-md bg-[#202020] px-5 text-[#e5e5e5]  sm:inline-flex">
+            <IconButton type="button" variant="outline" onClick={() => setIsPresenting(true)} className="hidden h-9 rounded-md bg-surface-card px-5 text-[#e5e5e5]  sm:inline-flex">
               <MonitorPlay className="h-4 w-4" />
             </IconButton>
             <IconButton label="Gemini" className="hidden sm:inline-flex">
               <Sparkles className="h-5 w-5" />
             </IconButton>
             <HelpDropdown appName="Office Slides" triggerClassName="hidden sm:flex" />
-            <NotificationsDropdown triggerClassName="h-9 w-9 rounded-md hover:bg-[#242424]" />
-            <ProfileDropdown triggerClassName="h-9 w-9 border-[#333333] bg-[#202020] hover:bg-[#242424]" />
+            <NotificationsDropdown triggerClassName="h-9 w-9 rounded-md hover:bg-surface-active" />
+            <ProfileDropdown triggerClassName="h-9 w-9 border-border bg-surface-card hover:bg-surface-active" />
           </div>
         </div>
 
@@ -697,7 +697,7 @@ function SlidesEditor({ fileId }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="min-w-24" align="start">
               {zoomOptions.map((option) => (
-                <DropdownMenuItem key={option} onSelect={() => setZoom(option)} className={zoom === option ? "bg-[#2a2a2a] text-white" : undefined}>
+                <DropdownMenuItem key={option} onSelect={() => setZoom(option)} className={zoom === option ? "bg-surface-hover text-white" : undefined}>
                   <ZoomIn className="h-4 w-4" />
                   {option}%
                 </DropdownMenuItem>
@@ -705,7 +705,7 @@ function SlidesEditor({ fileId }) {
             </DropdownMenuContent>
           </DropdownMenu>
           <ToolbarDivider />
-          <IconButton label="Select" className="bg-[#2a2a2a] text-white">
+          <IconButton label="Select" className="bg-surface-hover text-white">
             <MousePointer2 className="h-4 w-4" />
           </IconButton>
           <IconButton label="Text box" onClick={addTextBox}>
@@ -767,7 +767,7 @@ function SlidesEditor({ fileId }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               {layouts.map((layout) => (
-                <DropdownMenuItem key={layout.id} onSelect={() => applyLayout(layout.id)} className={activeSlide.layout === layout.id ? "bg-[#2a2a2a] text-white" : undefined}>
+                <DropdownMenuItem key={layout.id} onSelect={() => applyLayout(layout.id)} className={activeSlide.layout === layout.id ? "bg-surface-hover text-white" : undefined}>
                   <LayoutTemplate className="h-4 w-4" />
                   {layout.label}
                 </DropdownMenuItem>
@@ -780,8 +780,8 @@ function SlidesEditor({ fileId }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="start">
               {themeOptions.map((theme) => (
-                <DropdownMenuItem key={theme.id} onSelect={() => applyTheme(theme)} className={activeSlide.themeId === theme.id ? "bg-[#2a2a2a] text-white" : undefined}>
-                  <span className="grid h-5 w-8 grid-cols-2 overflow-hidden rounded border border-[#333333]">
+                <DropdownMenuItem key={theme.id} onSelect={() => applyTheme(theme)} className={activeSlide.themeId === theme.id ? "bg-surface-hover text-white" : undefined}>
+                  <span className="grid h-5 w-8 grid-cols-2 overflow-hidden rounded border border-border">
                     <span style={{ background: theme.background }} />
                     <span style={{ background: theme.accent }} />
                   </span>
@@ -893,9 +893,9 @@ function SlidesEditor({ fileId }) {
       </header>
 
       <div className="flex min-h-0 flex-1">
-        <aside className={cn("hidden shrink-0 border-r border-[#2a2a2a] bg-[#202020] transition-[width] lg:block", isFilmstripOpen ? "w-[232px] px-4 py-5" : "w-14 px-2 py-5")}>
+        <aside className={cn("hidden shrink-0 border-r border-border bg-surface-card transition-[width] lg:block", isFilmstripOpen ? "w-[232px] px-4 py-5" : "w-14 px-2 py-5")}>
           <div className="mb-4 flex items-center justify-between">
-            {isFilmstripOpen ? <span className="text-xs font-medium uppercase tracking-[0.12em] text-[#a3a3a3]">Slides</span> : null}
+            {isFilmstripOpen ? <span className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Slides</span> : null}
             <div className={cn("flex items-center gap-1", !isFilmstripOpen && "w-full justify-center")}>
               {isFilmstripOpen ? (
                 <>
@@ -980,11 +980,11 @@ function SlidesEditor({ fileId }) {
                   }}
                   className="flex w-full flex-col items-center gap-0.5"
                 >
-                  <span className={cn("text-[10px]", slide.id === activeSlide.id ? "text-white" : "text-[#737373]")}>{index + 1}</span>
+                  <span className={cn("text-[10px]", slide.id === activeSlide.id ? "text-white" : "text-text-secondary")}>{index + 1}</span>
                   <span
                     className={cn(
                       "h-[24px] w-10 shrink-0 overflow-hidden rounded-sm border",
-                      slide.id === activeSlide.id ? "border-white ring-1 ring-white" : "border-[#333333]",
+                      slide.id === activeSlide.id ? "border-white ring-1 ring-white" : "border-border",
                     )}
                     style={{ background: slide.background }}
                   />
@@ -994,8 +994,8 @@ function SlidesEditor({ fileId }) {
           )}
         </aside>
 
-        <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#161616]">
-          <div ref={canvasViewportRef} className="relative min-h-0 flex-1 overflow-auto bg-[#161616] scrollbar-subtle">
+        <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-background">
+          <div ref={canvasViewportRef} className="relative min-h-0 flex-1 overflow-auto bg-background scrollbar-subtle">
             <div className="flex min-h-0 flex-col items-center px-3 pb-12 pt-4 md:min-h-[760px] md:pb-24 md:pt-9 lg:min-w-[1180px] lg:px-10">
               <ContextMenu>
                 <ContextMenuTrigger asChild>
@@ -1049,7 +1049,7 @@ function SlidesEditor({ fileId }) {
               </ContextMenu>
 
               <div className="mt-8 flex flex-col items-center gap-3">
-                <Button type="button" variant="ghost" size="sm" onClick={() => addSlide(activeSlide.layout)} className="h-10 rounded-full bg-[#202020] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#2a2a2a]">
+                <Button type="button" variant="ghost" size="sm" onClick={() => addSlide(activeSlide.layout)} className="h-10 rounded-full bg-surface-card px-4 text-sm font-semibold text-white shadow-sm hover:bg-surface-hover">
                   <BadgePlus className="h-4 w-4" />
                   Create a slide
                 </Button>
@@ -1058,11 +1058,11 @@ function SlidesEditor({ fileId }) {
             </div>
           </div>
           {/* Mobile/tablet slide navigation — the filmstrip is hidden below lg. */}
-          <div className="flex shrink-0 items-center justify-center gap-3 border-t border-[#2a2a2a] bg-[#1a1a1a] px-4 py-2 lg:hidden">
+          <div className="flex shrink-0 items-center justify-center gap-3 border-t border-border bg-surface-subtle px-4 py-2 lg:hidden">
             <IconButton label="Previous slide" className="h-8 w-8" disabled={activeIndex <= 0} onClick={() => goToSlide(activeIndex - 1)}>
               <ChevronLeft className="h-4 w-4" />
             </IconButton>
-            <span className="min-w-20 text-center text-xs tabular-nums text-[#a3a3a3]">
+            <span className="min-w-20 text-center text-xs tabular-nums text-muted-foreground">
               Slide {activeIndex + 1} / {slides.length}
             </span>
             <IconButton label="Next slide" className="h-8 w-8" disabled={activeIndex >= slides.length - 1} onClick={() => goToSlide(activeIndex + 1)}>
@@ -1072,7 +1072,7 @@ function SlidesEditor({ fileId }) {
               <Plus className="h-4 w-4" />
             </IconButton>
           </div>
-          <footer className="flex h-11 shrink-0 items-center gap-4 border-t border-[#2a2a2a] bg-[#1a1a1a] px-4 text-sm md:px-6">
+          <footer className="flex h-11 shrink-0 items-center gap-4 border-t border-border bg-surface-subtle px-4 text-sm md:px-6">
             <IconButton label="Grid view" className="hidden h-7 w-7 lg:flex" onClick={() => setGridOpen(true)}>
               <Grid2X2 className="h-4 w-4" />
             </IconButton>
@@ -1084,7 +1084,7 @@ function SlidesEditor({ fileId }) {
               placeholder="Click to add speaker notes"
               value={activeSlide.notes}
               onChange={(event) => updateSlide(activeSlide.id, { notes: event.target.value })}
-              className="h-9 min-h-9 flex-1 resize-none border-0 bg-[#202020] px-4 py-2 text-white placeholder:text-[#737373] focus:border-0"
+              className="h-9 min-h-9 flex-1 resize-none border-0 bg-surface-card px-4 py-2 text-white placeholder:text-text-secondary focus:border-0"
             />
           </footer>
         </main>

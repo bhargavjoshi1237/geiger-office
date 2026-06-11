@@ -10,8 +10,8 @@ const ROWS = 20;
  */
 function SheetEditorSkeleton() {
   return (
-    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-[#161616] text-white">
-      <header className="shrink-0 border-b border-[#333333] bg-[#202020]">
+    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-background text-white">
+      <header className="shrink-0 border-b border-border bg-surface-card">
         <div className="flex h-14 items-center gap-3 px-4">
           <Skeleton className="h-7 w-7 rounded-md" />
           <Skeleton className="h-5 w-44" />
@@ -30,21 +30,21 @@ function SheetEditorSkeleton() {
       </header>
 
       {/* Formula bar */}
-      <div className="flex h-9 shrink-0 items-center gap-2 border-b border-[#333333] bg-[#1b1b1b] px-3">
+      <div className="flex h-9 shrink-0 items-center gap-2 border-b border-border bg-[#1b1b1b] px-3">
         <Skeleton className="h-5 w-16" />
         <Skeleton className="h-5 w-px" />
         <Skeleton className="h-4 w-72" />
       </div>
 
       {/* Grid */}
-      <div className="min-h-0 flex-1 overflow-hidden bg-[#161616] p-px">
+      <div className="min-h-0 flex-1 overflow-hidden bg-background p-px">
         {/* Column header row */}
         <div className="flex">
-          <div className="h-7 w-12 shrink-0 border-b border-r border-[#2c2c2c] bg-[#1f1f1f]" />
+          <div className="h-7 w-12 shrink-0 border-b border-r border-[#2c2c2c] bg-surface-card" />
           {Array.from({ length: COLS }).map((_, c) => (
             <div
               key={c}
-              className="flex h-7 flex-1 items-center justify-center border-b border-r border-[#2c2c2c] bg-[#1f1f1f]"
+              className="flex h-7 flex-1 items-center justify-center border-b border-r border-[#2c2c2c] bg-surface-card"
             >
               <Skeleton className="h-3 w-5" />
             </div>
@@ -53,13 +53,13 @@ function SheetEditorSkeleton() {
         {/* Body rows */}
         {Array.from({ length: ROWS }).map((_, r) => (
           <div key={r} className="flex">
-            <div className="flex h-8 w-12 shrink-0 items-center justify-center border-b border-r border-[#2c2c2c] bg-[#1f1f1f]">
+            <div className="flex h-8 w-12 shrink-0 items-center justify-center border-b border-r border-[#2c2c2c] bg-surface-card">
               <Skeleton className="h-3 w-4" />
             </div>
             {Array.from({ length: COLS }).map((_, c) => (
               <div
                 key={c}
-                className="h-8 flex-1 border-b border-r border-[#242424] bg-[#161616]"
+                className="h-8 flex-1 border-b border-r border-surface-active bg-background"
               />
             ))}
           </div>
@@ -67,7 +67,7 @@ function SheetEditorSkeleton() {
       </div>
 
       {/* Sheet tabs */}
-      <div className="flex h-9 shrink-0 items-center gap-2 border-t border-[#333333] bg-[#1b1b1b] px-3">
+      <div className="flex h-9 shrink-0 items-center gap-2 border-t border-border bg-[#1b1b1b] px-3">
         <Skeleton className="h-5 w-5 rounded-md" />
         <Skeleton className="h-5 w-24 rounded-md" />
         <Skeleton className="h-5 w-20 rounded-md" />

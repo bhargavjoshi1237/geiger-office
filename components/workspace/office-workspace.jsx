@@ -117,26 +117,26 @@ export function OfficeWorkspace() {
   return (
     <AppShell nav={NAV} activeView={view} onViewChange={setView}>
       <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-6 flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">{page.title}</h1>
-            <p className="mt-1 text-sm text-[#a3a3a3]">{page.subtitle}</p>
+            <h1 className="text-2xl font-bold text-foreground md:text-3xl">{page.title}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{page.subtitle}</p>
           </div>
           {isListView ? (
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search files"
-                className="h-9 w-full rounded-md border border-[#2a2a2a] bg-[#202020] pl-8 pr-3 text-sm text-white outline-none transition-colors placeholder:text-[#737373] focus:border-[#474747] sm:w-64"
+                className="h-9 w-full rounded-md border border-border bg-surface-card pl-8 pr-3 text-sm text-white outline-none transition-colors placeholder:text-text-secondary focus:border-border-strong sm:w-64"
               />
             </div>
           ) : null}
         </div>
 
         {showStats ? (
-          <div className="mb-6 border-b border-[#2a2a2a] pb-6">
+          <div className="mb-6 border-b border-border pb-6">
             <StatsRow stats={STATS} loading={false} />
           </div>
         ) : null}
@@ -147,7 +147,7 @@ export function OfficeWorkspace() {
               (t) => (
                 <div
                   key={t}
-                  className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5 text-sm text-[#e7e7e7] transition-colors hover:border-[#3a3a3a]"
+                  className="rounded-xl border border-border bg-surface-subtle p-5 text-sm text-foreground transition-colors hover:border-border-strong"
                 >
                   {t}
                 </div>
@@ -155,7 +155,7 @@ export function OfficeWorkspace() {
             )}
           </div>
         ) : view === "settings" ? (
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-6 text-sm text-[#a3a3a3]">
+          <div className="rounded-xl border border-border bg-surface-subtle p-6 text-sm text-muted-foreground">
             Workspace preferences live here in the full app.
           </div>
         ) : visible.length === 0 ? (

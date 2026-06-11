@@ -16,9 +16,9 @@ function DocumentCanvas({ editor, zoom }) {
   const effectiveMargins = isMobile ? { left: 24, right: 24 } : margins;
 
   return (
-    <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-[#1a1a1a]">
+    <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface-subtle">
       {!isMobile ? <HorizontalRuler margins={margins} onMarginsChange={setMargins} /> : null}
-      <div className="relative min-h-0 flex-1 overflow-auto bg-[#1a1a1a] scrollbar-subtle">
+      <div className="relative min-h-0 flex-1 overflow-auto bg-surface-subtle scrollbar-subtle">
         {!isMobile ? <VerticalRuler /> : null}
         <div
           className="relative mx-auto mt-4 pb-32 pt-2 md:mt-12 md:pt-4"
@@ -28,7 +28,7 @@ function DocumentCanvas({ editor, zoom }) {
           }}
         >
           <div
-            className="document-print-page relative h-[1056px] w-[min(818px,calc(100vw-32px))] origin-top border border-[#474747] bg-[#303030] shadow-2xl shadow-black/35 lg:w-[818px]"
+            className="document-print-page relative h-[1056px] w-[min(818px,calc(100vw-32px))] origin-top border border-border-strong bg-[#303030] shadow-2xl shadow-black/35 lg:w-[818px]"
             style={{ transform: `scale(${zoomScale})`, transformOrigin: "top center" }}
           >
             <EditorContent

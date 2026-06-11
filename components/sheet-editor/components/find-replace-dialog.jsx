@@ -36,7 +36,7 @@ export function FindReplaceDialog({ open, onOpenChange, onReplaceAll }) {
           <DialogTitle>Find and replace</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-3">
-          <label className="flex flex-col gap-1 text-xs text-[#a3a3a3]">
+          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
             Find
             <Input
               autoFocus
@@ -46,19 +46,19 @@ export function FindReplaceDialog({ open, onOpenChange, onReplaceAll }) {
                 setResult(null);
               }}
               placeholder="Text to find"
-              className="border-[#333333] bg-[#202020] text-white"
+              className="border-border bg-surface-card text-white"
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-[#a3a3a3]">
+          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
             Replace with
             <Input
               value={replace}
               onChange={(event) => setReplace(event.target.value)}
               placeholder="Replacement text"
-              className="border-[#333333] bg-[#202020] text-white"
+              className="border-border bg-surface-card text-white"
             />
           </label>
-          <label className="flex items-center gap-2 text-sm text-[#d4d4d4]">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <input
               type="checkbox"
               checked={matchCase}

@@ -66,13 +66,13 @@ function ZoomPicker({ zoom, onZoomChange }) {
               <DropdownMenuItem
                 key={preset}
                 onSelect={() => applyZoom(preset)}
-                className={cn("justify-center px-2 py-1 text-sm", zoom === preset && "bg-[#2a2a2a] text-white")}
+                className={cn("justify-center px-2 py-1 text-sm", zoom === preset && "bg-surface-hover text-white")}
               >
                 {preset}%
               </DropdownMenuItem>
             ))}
           </div>
-          <div className="flex w-6 items-center justify-center border-l border-[#333333] pl-2">
+          <div className="flex w-6 items-center justify-center border-l border-border pl-2">
             <input
               aria-label="Zoom slider"
               type="range"
@@ -102,7 +102,7 @@ function HistoryToolbarGroup({ canRedo, canUndo, isPaintFormatActive, zoom, onPa
       <IconButton label="Print" onClick={onPrint}>
         <Printer className="h-4 w-4" />
       </IconButton>
-      <IconButton label="Paint format" onClick={onPaintFormat} className={isPaintFormatActive ? "bg-[#333333] text-white" : undefined}>
+      <IconButton label="Paint format" onClick={onPaintFormat} className={isPaintFormatActive ? "bg-surface-strong text-white" : undefined}>
         <PaintRoller className="h-4 w-4" />
       </IconButton>
       <ZoomPicker zoom={zoom} onZoomChange={onZoomChange} />
@@ -121,7 +121,7 @@ function ToolbarDropdownSelect({ activeId, disabled, options, triggerClassName, 
           <DropdownMenuItem
             key={option.id}
             onSelect={() => onSelect(option.id)}
-            className={cn("justify-between", activeId === option.id && "bg-[#2a2a2a] text-white")}
+            className={cn("justify-between", activeId === option.id && "bg-surface-hover text-white")}
             style={option.value ? { fontFamily: option.value } : undefined}
           >
             {option.label}
@@ -199,7 +199,7 @@ function FontSizePicker({ activeFontSize, disabled, onFontSizeChange }) {
         <Button
           type="button"
           variant="outline"
-          className="h-8 w-11 shrink-0 rounded-md border-[#474747] bg-[#242424] px-0 text-sm font-normal text-white hover:bg-[#2a2a2a] focus-visible:ring-[#474747]"
+          className="h-8 w-11 shrink-0 rounded-md border-border-strong bg-surface-active px-0 text-sm font-normal text-white hover:bg-surface-hover focus-visible:ring-border-strong"
         >
           {activeFontSize}
         </Button>
@@ -210,13 +210,13 @@ function FontSizePicker({ activeFontSize, disabled, onFontSizeChange }) {
             <DropdownMenuItem
               key={size}
               onSelect={() => applyFontSize(size)}
-              className={cn("justify-center px-1.5 py-1 text-sm", activeFontSize === size && "bg-[#2a2a2a] text-white")}
+              className={cn("justify-center px-1.5 py-1 text-sm", activeFontSize === size && "bg-surface-hover text-white")}
             >
               {size}
             </DropdownMenuItem>
           ))}
         </div>
-        <div className="mt-0.5 border-t border-[#333333] p-1">
+        <div className="mt-0.5 border-t border-border p-1">
           <Input
             aria-label="Font size value"
             inputMode="numeric"
@@ -348,7 +348,7 @@ function AlignmentPicker({ activeAlignment, disabled, onAlignmentChange }) {
           <DropdownMenuItem
             key={id}
             onSelect={() => onAlignmentChange(id)}
-            className={cn(activeAlignment === id && "bg-[#2a2a2a] text-white")}
+            className={cn(activeAlignment === id && "bg-surface-hover text-white")}
           >
             <Icon className="h-4 w-4" />
             {label}
@@ -376,14 +376,14 @@ function ParagraphToolbarGroup({
   return (
     <ToolbarGroup>
       <AlignmentPicker activeAlignment={activeAlignment} disabled={disabled} onAlignmentChange={onAlignmentChange} />
-      <IconButton label="Checklist" disabled={disabled} onClick={onToggleTaskList} className={isTaskListActive ? "bg-[#333333] text-white" : undefined}>
+      <IconButton label="Checklist" disabled={disabled} onClick={onToggleTaskList} className={isTaskListActive ? "bg-surface-strong text-white" : undefined}>
         <ListChecks className="h-4 w-4" />
       </IconButton>
       <IconButton
         label="Bulleted list"
         disabled={disabled}
         onClick={onToggleBulletList}
-        className={isBulletListActive ? "bg-[#333333] text-white" : undefined}
+        className={isBulletListActive ? "bg-surface-strong text-white" : undefined}
       >
         <List className="h-4 w-4" />
       </IconButton>
@@ -391,7 +391,7 @@ function ParagraphToolbarGroup({
         label="Numbered list"
         disabled={disabled}
         onClick={onToggleOrderedList}
-        className={isOrderedListActive ? "bg-[#333333] text-white" : undefined}
+        className={isOrderedListActive ? "bg-surface-strong text-white" : undefined}
       >
         <ListOrdered className="h-4 w-4" />
       </IconButton>
@@ -414,7 +414,7 @@ function ModeToolbarGroup({ mode, onModeChange }) {
   return (
     <ToolbarGroup>
       <div
-        className="flex h-8 items-center gap-0.5 rounded-full border border-[#333333] bg-[#242424] px-1"
+        className="flex h-8 items-center gap-0.5 rounded-full border border-border bg-surface-active px-1"
         role="group"
         aria-label="Document mode"
       >
@@ -425,8 +425,8 @@ function ModeToolbarGroup({ mode, onModeChange }) {
           title="View mode"
           onClick={() => onModeChange("view")}
           className={cn(
-            "flex h-6 w-7 items-center justify-center rounded-full text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white",
-            mode === "view" && "bg-[#333333] text-white",
+            "flex h-6 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-active hover:text-foreground",
+            mode === "view" && "bg-surface-strong text-white",
           )}
         >
           <Eye className="h-4 w-4" />
@@ -438,8 +438,8 @@ function ModeToolbarGroup({ mode, onModeChange }) {
           title="Edit mode"
           onClick={() => onModeChange("edit")}
           className={cn(
-            "flex h-6 w-7 items-center justify-center rounded-full text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white",
-            isEditing && "bg-[#333333] text-white",
+            "flex h-6 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-active hover:text-foreground",
+            isEditing && "bg-surface-strong text-white",
           )}
         >
           <Edit2 className="h-4 w-4" />

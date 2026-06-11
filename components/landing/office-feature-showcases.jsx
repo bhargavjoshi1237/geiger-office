@@ -47,12 +47,12 @@ export default function OfficeFeatureShowcases() {
         return (
         <article
           key={title}
-          className="grid overflow-hidden rounded-2xl border border-zinc-800 bg-[#191919] md:grid-cols-[minmax(280px,0.36fr)_minmax(0,0.64fr)]"
+          className="grid overflow-hidden rounded-2xl border border-border bg-[#191919] md:grid-cols-[minmax(280px,0.36fr)_minmax(0,0.64fr)]"
         >
           <div className={`flex min-w-0 flex-col items-start justify-center p-5 sm:p-7 ${reverse ? "md:order-2" : ""}`}>
-            <Icon className="mb-4 h-5 w-5 text-zinc-300" />
+            <Icon className="mb-4 h-5 w-5 text-muted-foreground" />
             <h2 className="text-2xl font-semibold leading-tight text-white">{title}</h2>
-            <p className="mt-3 max-w-sm text-sm leading-6 text-zinc-400">{description}</p>
+            <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>
             <Link
               href={href}
               prefetch={false}
@@ -64,11 +64,11 @@ export default function OfficeFeatureShowcases() {
           </div>
 
           <div
-            className={`min-h-[360px] min-w-0 border-t border-zinc-800 bg-[#161616] p-2 sm:p-3 md:border-t-0 ${
+            className={`min-h-[360px] min-w-0 border-t border-border bg-background p-2 sm:p-3 md:border-t-0 ${
               reverse ? "md:order-1 md:border-r" : "md:border-l"
             }`}
           >
-            <div className="h-[360px] overflow-hidden rounded-xl border border-zinc-800 bg-[#161616] shadow-2xl md:h-[430px] [&>div]:!h-full">
+            <div className="h-[360px] overflow-hidden rounded-xl border border-border bg-background shadow-2xl md:h-[430px] [&>div]:!h-full">
               <Editor />
             </div>
           </div>

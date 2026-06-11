@@ -50,17 +50,17 @@ function initialFor(email) {
 
 function RoleMenu({ value, onChange, disabled, onRemove }) {
   if (disabled) {
-    return <span className="px-2 text-sm text-[#a3a3a3]">{ROLE_LABEL[value] ?? value}</span>;
+    return <span className="px-2 text-sm text-muted-foreground">{ROLE_LABEL[value] ?? value}</span>;
   }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-sm text-[#d4d4d4] transition-colors hover:bg-[#2a2a2a]"
+          className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-surface-hover"
         >
           {ROLE_LABEL[value] ?? value}
-          <ChevronDown className="h-3.5 w-3.5 text-[#737373]" />
+          <ChevronDown className="h-3.5 w-3.5 text-text-secondary" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-56">
@@ -74,7 +74,7 @@ function RoleMenu({ value, onChange, disabled, onRemove }) {
               {role.label}
               {value === role.value ? <Check className="h-4 w-4" /> : null}
             </span>
-            <span className="text-xs text-[#737373]">{role.hint}</span>
+            <span className="text-xs text-text-secondary">{role.hint}</span>
           </DropdownMenuItem>
         ))}
         {onRemove ? (
@@ -235,7 +235,7 @@ export function ShareDialog({ open, onOpenChange, file }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[min(512px,calc(100vw-32px))] p-0">
-        <div className="border-b border-[#2a2a2a] p-5">
+        <div className="border-b border-border p-5">
           <DialogTitle className="truncate pr-8">
             Share {fileForLink?.name ? `“${fileForLink.name}”` : "file"}
           </DialogTitle>
@@ -247,7 +247,7 @@ export function ShareDialog({ open, onOpenChange, file }) {
         </div>
 
         {loading ? (
-          <div className="flex min-h-[180px] items-center justify-center text-[#737373]">
+          <div className="flex min-h-[180px] items-center justify-center text-text-secondary">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : (
@@ -270,12 +270,12 @@ export function ShareDialog({ open, onOpenChange, file }) {
                     placeholder="Add people by email"
                     type="email"
                     autoComplete="off"
-                    className="h-9 w-full rounded-md border border-[#333333] bg-[#161616] px-3 text-sm text-white outline-none transition-colors placeholder:text-[#737373] focus:border-[#474747]"
+                    className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-white outline-none transition-colors placeholder:text-text-secondary focus:border-border-strong"
                   />
                   {suggestOpen && (searching || suggestions.length > 0) ? (
-                    <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-md border border-[#333333] bg-[#202020] py-1 shadow-xl shadow-black/40">
+                    <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-md border border-border bg-surface-card py-1 shadow-xl shadow-black/40">
                       {suggestions.length === 0 && searching ? (
-                        <div className="flex items-center gap-2 px-3 py-2 text-xs text-[#737373]">
+                        <div className="flex items-center gap-2 px-3 py-2 text-xs text-text-secondary">
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           Searching…
                         </div>
@@ -286,7 +286,7 @@ export function ShareDialog({ open, onOpenChange, file }) {
                           type="button"
                           onMouseDown={(event) => event.preventDefault()}
                           onClick={() => addPerson(u.email, u.id)}
-                          className="flex w-full items-center gap-2.5 px-2.5 py-1.5 text-left transition-colors hover:bg-[#2a2a2a]"
+                          className="flex w-full items-center gap-2.5 px-2.5 py-1.5 text-left transition-colors hover:bg-surface-hover"
                         >
                           <Avatar className="h-7 w-7">
                             {u.avatar_url ? <AvatarImage src={u.avatar_url} alt="" /> : null}
@@ -296,7 +296,7 @@ export function ShareDialog({ open, onOpenChange, file }) {
                           </Avatar>
                           <span className="min-w-0">
                             <span className="block truncate text-sm text-white">{u.name}</span>
-                            <span className="block truncate text-xs text-[#737373]">{u.email}</span>
+                            <span className="block truncate text-xs text-text-secondary">{u.email}</span>
                           </span>
                         </button>
                       ))}
@@ -314,7 +314,7 @@ export function ShareDialog({ open, onOpenChange, file }) {
             {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
 
             <div className="mt-5">
-              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[#737373]">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">
                 People with access
               </p>
               <ul className="flex flex-col">
@@ -329,7 +329,7 @@ export function ShareDialog({ open, onOpenChange, file }) {
                       {isOwner ? `${state?.me?.email ?? "You"} (you)` : "Owner"}
                     </p>
                   </div>
-                  <span className="px-2 text-sm text-[#a3a3a3]">Owner</span>
+                  <span className="px-2 text-sm text-muted-foreground">Owner</span>
                 </li>
 
                 {(state?.shares ?? []).map((share) => (
@@ -349,20 +349,20 @@ export function ShareDialog({ open, onOpenChange, file }) {
                   </li>
                 ))}
                 {isOwner && (state?.shares ?? []).length === 0 ? (
-                  <li className="py-2 text-sm text-[#737373]">No one else has been added yet.</li>
+                  <li className="py-2 text-sm text-text-secondary">No one else has been added yet.</li>
                 ) : null}
               </ul>
             </div>
 
-            <div className="mt-5 border-t border-[#2a2a2a] pt-5">
-              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[#737373]">
+            <div className="mt-5 border-t border-border pt-5">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">
                 General access
               </p>
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                    isLink ? "bg-emerald-500/15 text-emerald-300" : "bg-[#2a2a2a] text-[#a3a3a3]",
+                    isLink ? "bg-emerald-500/15 text-emerald-300" : "bg-surface-hover text-muted-foreground",
                   )}
                 >
                   {isLink ? <Globe className="h-[18px] w-[18px]" /> : <Lock className="h-[18px] w-[18px]" />}
@@ -373,7 +373,7 @@ export function ShareDialog({ open, onOpenChange, file }) {
                     disabled={!isOwner}
                     onChange={(visibility) => updateGeneralAccess({ visibility })}
                   />
-                  <p className="text-xs text-[#737373]">
+                  <p className="text-xs text-text-secondary">
                     {isLink
                       ? "Anyone with the link who is signed in can open this file."
                       : "Only people added above can open this file."}
@@ -391,7 +391,7 @@ export function ShareDialog({ open, onOpenChange, file }) {
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2 border-t border-[#2a2a2a] p-4">
+        <div className="flex items-center justify-between gap-2 border-t border-border p-4">
           <Button variant="outline" size="sm" className="h-9" onClick={copyLink} disabled={!fileForLink}>
             {copied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
             {copied ? "Link copied" : "Copy link"}
@@ -415,10 +415,10 @@ function GeneralAccessMenu({ value, onChange, disabled }) {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="-ml-2 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-sm font-medium text-white transition-colors hover:bg-[#2a2a2a]"
+          className="-ml-2 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-sm font-medium text-white transition-colors hover:bg-surface-hover"
         >
           {label}
-          <ChevronDown className="h-3.5 w-3.5 text-[#737373]" />
+          <ChevronDown className="h-3.5 w-3.5 text-text-secondary" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-56">
@@ -427,14 +427,14 @@ function GeneralAccessMenu({ value, onChange, disabled }) {
             Restricted
             {value === "restricted" ? <Check className="h-4 w-4" /> : null}
           </span>
-          <span className="text-xs text-[#737373]">Only people added can open.</span>
+          <span className="text-xs text-text-secondary">Only people added can open.</span>
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => onChange("link")} className="flex-col items-start gap-0.5">
           <span className="flex w-full items-center justify-between">
             Anyone with the link
             {value === "link" ? <Check className="h-4 w-4" /> : null}
           </span>
-          <span className="text-xs text-[#737373]">Any signed-in person with the link.</span>
+          <span className="text-xs text-text-secondary">Any signed-in person with the link.</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

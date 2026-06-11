@@ -7,8 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
  */
 function DocumentEditorSkeleton() {
   return (
-    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-[#161616] text-white">
-      <header className="shrink-0 border-b border-[#333333] bg-[#202020]">
+    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-background text-white">
+      <header className="shrink-0 border-b border-border bg-surface-card">
         {/* Title row */}
         <div className="flex h-14 items-center gap-3 px-4">
           <Skeleton className="h-7 w-7 rounded-md" />
@@ -34,7 +34,7 @@ function DocumentEditorSkeleton() {
 
       <div className="flex min-h-0 flex-1">
         {/* Headings sidebar */}
-        <aside className="hidden w-64 shrink-0 flex-col gap-3 border-r border-[#333333] bg-[#1b1b1b] p-4 md:flex">
+        <aside className="hidden w-64 shrink-0 flex-col gap-3 border-r border-border bg-[#1b1b1b] p-4 md:flex">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-3 w-40" />
           <Skeleton className="ml-3 h-3 w-32" />
@@ -44,7 +44,7 @@ function DocumentEditorSkeleton() {
         </aside>
 
         {/* Page */}
-        <div className="flex flex-1 justify-center overflow-auto bg-[#161616] py-10">
+        <div className="flex flex-1 justify-center overflow-auto bg-background py-10">
           <div className="flex w-full max-w-[816px] flex-col gap-4 rounded-sm bg-white/[0.04] px-16 py-14">
             <Skeleton className="mb-2 h-8 w-2/3" />
             {Array.from({ length: 14 }).map((_, i) => (

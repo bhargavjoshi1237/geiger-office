@@ -16,14 +16,14 @@ export function SlideThumbnail({ active, dragging, index, slide, onClick, onDrag
       onDrop={onDrop}
       onDragEnd={onDragEnd}
       className={cn(
-        "group flex w-full items-start gap-1 rounded-md p-1 transition-colors hover:bg-[#242424]",
-        active && "bg-[#242424]",
+        "group flex w-full items-start gap-1 rounded-md p-1 transition-colors hover:bg-surface-active",
+        active && "bg-surface-active",
         dragging && "opacity-40",
       )}
     >
       <span className="flex w-5 shrink-0 flex-col items-center justify-between self-stretch py-1">
-        <span className="text-xs text-[#a3a3a3]">{index + 1}</span>
-        <GripVertical className="h-3.5 w-3.5 cursor-grab text-[#737373] opacity-0 transition-opacity group-hover:opacity-100" />
+        <span className="text-xs text-muted-foreground">{index + 1}</span>
+        <GripVertical className="h-3.5 w-3.5 cursor-grab text-text-secondary opacity-0 transition-opacity group-hover:opacity-100" />
       </span>
       <button
         type="button"
@@ -33,7 +33,7 @@ export function SlideThumbnail({ active, dragging, index, slide, onClick, onDrag
       <span
         className={cn(
           "relative h-[88px] w-[156px] shrink-0 overflow-hidden rounded-sm border bg-white shadow-sm",
-          active ? "border-white" : "border-[#333333]",
+          active ? "border-white" : "border-border",
         )}
         style={{ background: slide.background }}
       >

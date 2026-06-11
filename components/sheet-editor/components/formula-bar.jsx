@@ -10,7 +10,7 @@ export function FormulaBar({ activeCell, formulaValue, selectedRange, onFormulaC
   const nameValue = nameDraft ?? rangeLabelOf(selectedRange ?? { start: activeCell, end: activeCell });
 
   return (
-    <div className="flex h-9 shrink-0 items-center border-b border-[#333333] bg-[#1a1a1a] text-sm text-[#a3a3a3]">
+    <div className="flex h-9 shrink-0 items-center border-b border-border bg-surface-subtle text-sm text-muted-foreground">
       <Input
         aria-label="Cell reference"
         value={nameValue}
@@ -24,9 +24,9 @@ export function FormulaBar({ activeCell, formulaValue, selectedRange, onFormulaC
             setNameDraft(null);
           }
         }}
-        className="h-full w-24 shrink-0 rounded-none border-0 border-r border-[#333333] bg-[#1a1a1a] px-3 text-white focus-visible:ring-0"
+        className="h-full w-24 shrink-0 rounded-none border-0 border-r border-border bg-surface-subtle px-3 text-white focus-visible:ring-0"
       />
-      <div className="grid h-full w-12 shrink-0 place-items-center border-r border-[#333333] text-[#a3a3a3]">
+      <div className="grid h-full w-12 shrink-0 place-items-center border-r border-border text-muted-foreground">
         fx
       </div>
       <Input
@@ -35,7 +35,7 @@ export function FormulaBar({ activeCell, formulaValue, selectedRange, onFormulaC
         onChange={(event) => onFormulaChange(event.target.value)}
         onBlur={onFormulaCommit}
         onKeyDown={(event) => event.key === "Enter" && onFormulaCommit()}
-        className="h-full min-w-0 rounded-none border-0 bg-[#1a1a1a] px-3 text-[#a3a3a3] focus-visible:ring-0"
+        className="h-full min-w-0 rounded-none border-0 bg-surface-subtle px-3 text-muted-foreground focus-visible:ring-0"
       />
     </div>
   );

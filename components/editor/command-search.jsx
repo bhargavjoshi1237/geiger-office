@@ -128,20 +128,20 @@ export function CommandSearch({ placeholder = "Search...", triggerClassName }) {
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "group relative flex h-8 w-8 items-center justify-center rounded-md border border-[#333333] bg-[#242424] px-2 text-sm text-[#a3a3a3] shadow-sm transition-colors hover:border-[#474747] hover:bg-[#2a2a2a] hover:text-white sm:w-[240px] sm:justify-start sm:px-2.5",
+          "group relative flex h-8 w-8 items-center justify-center rounded-md border border-border bg-surface-active px-2 text-sm text-muted-foreground shadow-sm transition-colors hover:border-border-strong hover:bg-surface-hover hover:text-foreground sm:w-[240px] sm:justify-start sm:px-2.5",
           triggerClassName,
         )}
       >
-        <Search className="h-4 w-4 text-[#a3a3a3] transition-colors group-hover:text-white sm:mr-2" />
-        <span className="hidden text-[#a3a3a3] transition-colors group-hover:text-white sm:inline-block">
+        <Search className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground sm:mr-2" />
+        <span className="hidden text-muted-foreground transition-colors group-hover:text-foreground sm:inline-block">
           {placeholder}
         </span>
         <div className="absolute right-1.5 top-1.5 hidden items-center gap-1 sm:flex">
           <KbdGroup>
-            <Kbd className="border border-[#333333] bg-[#202020] text-[#a3a3a3] transition-colors group-hover:bg-[#2a2a2a] group-hover:text-white">
+            <Kbd className="border border-border bg-surface-card text-muted-foreground transition-colors group-hover:bg-surface-hover group-hover:text-foreground">
               Ctrl
             </Kbd>
-            <Kbd className="border border-[#333333] bg-[#202020] text-[#a3a3a3] transition-colors group-hover:bg-[#2a2a2a] group-hover:text-white">
+            <Kbd className="border border-border bg-surface-card text-muted-foreground transition-colors group-hover:bg-surface-hover group-hover:text-foreground">
               K
             </Kbd>
           </KbdGroup>
@@ -151,8 +151,8 @@ export function CommandSearch({ placeholder = "Search...", triggerClassName }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-[min(560px,calc(100vw-32px))] p-0">
           <DialogTitle className="sr-only">Search and commands</DialogTitle>
-          <div className="flex items-center gap-2 border-b border-[#333333] px-3.5 py-3">
-            <Search className="h-4 w-4 shrink-0 text-[#737373]" />
+          <div className="flex items-center gap-2 border-b border-border px-3.5 py-3">
+            <Search className="h-4 w-4 shrink-0 text-text-secondary" />
             <input
               autoFocus
               value={query}
@@ -162,16 +162,16 @@ export function CommandSearch({ placeholder = "Search...", triggerClassName }) {
               }}
               onKeyDown={onListKeyDown}
               placeholder="Search files or run a command..."
-              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-[#737373]"
+              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-text-secondary"
             />
           </div>
           <div className="max-h-[320px] overflow-y-auto p-1.5">
             {loading ? (
-              <div className="flex items-center justify-center gap-2 py-8 text-sm text-[#737373]">
+              <div className="flex items-center justify-center gap-2 py-8 text-sm text-text-secondary">
                 <Loader2 className="h-4 w-4 animate-spin" />
               </div>
             ) : items.length === 0 ? (
-              <div className="py-8 text-center text-sm text-[#737373]">No matches.</div>
+              <div className="py-8 text-center text-sm text-text-secondary">No matches.</div>
             ) : (
               items.map((item, index) => {
                 const Icon = item.Icon;
@@ -183,13 +183,13 @@ export function CommandSearch({ placeholder = "Search...", triggerClassName }) {
                     onClick={() => runItem(item)}
                     className={cn(
                       "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm transition-colors",
-                      index === activeIndex ? "bg-[#2a2a2a] text-white" : "text-[#d4d4d4]",
+                      index === activeIndex ? "bg-surface-hover text-white" : "text-muted-foreground",
                     )}
                   >
-                    <Icon className="h-4 w-4 shrink-0 text-[#a3a3a3]" />
+                    <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <span className="min-w-0 flex-1 truncate">{item.label}</span>
                     {item.hint ? (
-                      <span className="shrink-0 text-xs text-[#737373]">{item.hint}</span>
+                      <span className="shrink-0 text-xs text-text-secondary">{item.hint}</span>
                     ) : null}
                   </button>
                 );

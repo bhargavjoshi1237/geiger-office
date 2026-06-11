@@ -32,7 +32,13 @@ function apiUrl(path = "") {
   return `${basePath}/api/files${path}`;
 }
 
-export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded }) {
+function withProject(path, projectId) {
+  if (!projectId || projectId === "all") return path;
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}project_id=${encodeURIComponent(projectId)}`;
+}
+
+export function AddToFolderDialog({ open, projectId, folderId, folderName, onClose, onAdded }) {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -49,7 +55,7 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
     setTypeFilter("");
     setSelected(new Set());
 
-    fetch(apiUrl("?filter=recent"))
+    fetch(apiUrl(withProject("?filter=recent", projectId)))
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -62,7 +68,7 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
       })
       .catch((err) => setError(err.message || "Failed to load files"))
       .finally(() => setLoading(false));
-  }, [open, folderId]);
+  }, [open, folderId, projectId]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -122,51 +128,51 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="flex w-full max-w-lg flex-col rounded-2xl border border-[#2a2a2a] bg-[#1a1a1a] shadow-xl max-h-[85vh]">
-        <div className="flex items-center justify-between border-b border-[#2a2a2a] px-5 py-4">
+      <div className="flex w-full max-w-lg flex-col rounded-2xl border border-border bg-surface-subtle shadow-xl max-h-[85vh]">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div>
-            <h2 className="text-sm font-semibold text-[#e7e7e7]">Add to folder</h2>
-            <p className="mt-0.5 text-xs text-[#737373]">
+            <h2 className="text-sm font-semibold text-foreground">Add to folder</h2>
+            <p className="mt-0.5 text-xs text-text-secondary">
               Select files to add to &ldquo;{folderName}&rdquo;
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-[#737373] transition-colors hover:bg-[#242424] hover:text-white"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-surface-active hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="flex items-center gap-2 border-b border-[#2a2a2a] px-5 py-3">
+        <div className="flex items-center gap-2 border-b border-border px-5 py-3">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search files"
               autoFocus
-              className="h-8 w-full rounded-md border border-[#2a2a2a] bg-[#202020] pl-8 pr-3 text-sm text-white outline-none transition-colors placeholder:text-[#737373] focus:border-[#474747]"
+              className="h-8 w-full rounded-md border border-border bg-surface-card pl-8 pr-3 text-sm text-white outline-none transition-colors placeholder:text-text-secondary focus:border-border-strong"
             />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="h-8 bg-[#202020] border-[#2a2a2a] text-[#ededed] hover:bg-[#1a1a1a] text-xs px-3 rounded-md font-medium"
+                className="h-8 bg-surface-card border-border text-foreground hover:bg-surface-subtle text-xs px-3 rounded-md font-medium"
               >
                 {TYPE_FILTERS.find((t) => t.value === typeFilter)?.label || "All types"}
-                <ChevronDown className="w-3.5 h-3.5 ml-2 text-[#737373]" />
+                <ChevronDown className="w-3.5 h-3.5 ml-2 text-text-secondary" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed]">
+            <DropdownMenuContent className="bg-surface-subtle border-border text-foreground">
               <DropdownMenuRadioGroup value={typeFilter} onValueChange={setTypeFilter}>
                 {TYPE_FILTERS.map((t) => (
                   <DropdownMenuRadioItem
                     key={t.value}
                     value={t.value}
-                    className="text-xs focus:bg-[#2a2a2a] focus:text-[#ededed] cursor-pointer"
+                    className="text-xs focus:bg-surface-hover focus:text-foreground cursor-pointer"
                   >
                     {t.label}
                   </DropdownMenuRadioItem>
@@ -178,15 +184,15 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3">
           {loading ? (
-            <div className="flex items-center justify-center py-10 text-[#737373]">
+            <div className="flex items-center justify-center py-10 text-text-secondary">
               <Loader2 className="h-5 w-5 animate-spin" />
             </div>
           ) : error ? (
             <p className="py-6 text-center text-sm text-red-300">{error}</p>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
-              <FolderPlus className="mb-2 h-8 w-8 text-[#525252]" />
-              <p className="text-sm text-[#a3a3a3]">
+              <FolderPlus className="mb-2 h-8 w-8 text-text-tertiary" />
+              <p className="text-sm text-muted-foreground">
                 {query.trim() || typeFilter ? "No matching files" : "No files available"}
               </p>
             </div>
@@ -195,7 +201,7 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
               <button
                 type="button"
                 onClick={toggleAll}
-                className="mb-2 text-xs text-[#737373] transition-colors hover:text-white"
+                className="mb-2 text-xs text-text-secondary transition-colors hover:text-foreground"
               >
                 {selected.size === filtered.length ? "Deselect all" : "Select all"}
               </button>
@@ -212,8 +218,8 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
                       className={cn(
                         "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors",
                         isSelected
-                          ? "bg-[#2a2a2a] ring-1 ring-inset ring-[#474747]"
-                          : "hover:bg-[#242424]",
+                          ? "bg-surface-hover ring-1 ring-inset ring-border-strong"
+                          : "hover:bg-surface-active",
                       )}
                     >
                       <Checkbox checked={isSelected} />
@@ -221,10 +227,10 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
                         className="h-4 w-4 shrink-0"
                         style={{ color: meta?.accent || "#737373" }}
                       />
-                      <span className="min-w-0 flex-1 truncate text-sm text-[#e7e7e7]">
+                      <span className="min-w-0 flex-1 truncate text-sm text-foreground">
                         {file.name}
                       </span>
-                      <span className="shrink-0 text-xs text-[#525252]">
+                      <span className="shrink-0 text-xs text-text-tertiary">
                         Edited: {timeAgo(file.updated_at).toLowerCase()}
                       </span>
                     </button>
@@ -235,15 +241,15 @@ export function AddToFolderDialog({ open, folderId, folderName, onClose, onAdded
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#2a2a2a] px-5 py-3">
-          <span className="text-xs text-[#737373]">
+        <div className="flex items-center justify-between border-t border-border px-5 py-3">
+          <span className="text-xs text-text-secondary">
             {selected.size} selected
           </span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md px-4 py-2 text-sm text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white"
+              className="rounded-md px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-surface-active hover:text-foreground"
             >
               Cancel
             </button>

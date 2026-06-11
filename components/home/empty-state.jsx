@@ -54,11 +54,11 @@ export function EmptyState({ variant = "recent" }) {
   const { icon: Icon, title, body } = CONFIG[variant] ?? CONFIG.recent;
   return (
     <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[#2a2a2a] bg-[#1a1a1a]">
-        <Icon className="h-6 w-6 text-[#737373]" />
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-surface-subtle">
+        <Icon className="h-6 w-6 text-text-secondary" />
       </div>
-      <h2 className="text-sm font-medium text-[#e7e7e7]">{title}</h2>
-      <p className="mt-1 max-w-xs text-sm text-[#737373]">{body}</p>
+      <h2 className="text-sm font-medium text-foreground">{title}</h2>
+      <p className="mt-1 max-w-xs text-sm text-text-secondary">{body}</p>
     </div>
   );
 }

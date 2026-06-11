@@ -40,20 +40,20 @@ export function DocumentPreview() {
 
   return (
     <div className="flex h-full flex-col bg-[#1b1b1b]">
-      <div className="flex items-center gap-1 border-b border-zinc-800 px-3 py-2">
-        <div className="mr-2 hidden h-7 items-center rounded-md border border-zinc-700 bg-[#222] px-2 text-xs text-zinc-300 sm:flex">
+      <div className="flex items-center gap-1 border-b border-border px-3 py-2">
+        <div className="mr-2 hidden h-7 items-center rounded-md border border-border-strong bg-[#222] px-2 text-xs text-muted-foreground sm:flex">
           Normal text
         </div>
         {TOOLBAR.map(({ id, Icon }) =>
           id === "divider" ? (
-            <span key={id} className="mx-1 h-5 w-px bg-zinc-700" />
+            <span key={id} className="mx-1 h-5 w-px bg-surface-strong" />
           ) : (
             <button
               key={id}
               type="button"
               onClick={() => toggle(id)}
               className={cn(
-                "flex h-7 w-7 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-[#262626] hover:text-zinc-100",
+                "flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[#262626] hover:text-foreground",
                 active[id] && "bg-[#2f2f2f] text-white",
               )}
             >
@@ -63,7 +63,7 @@ export function DocumentPreview() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-[#161616] p-4 scrollbar-subtle">
+      <div className="flex-1 overflow-y-auto bg-background p-4 scrollbar-subtle">
         <div className="mx-auto max-w-xl rounded-sm bg-white px-7 py-6 text-zinc-900 shadow-xl">
           <h1
             contentEditable
@@ -112,13 +112,13 @@ export function SheetPreview() {
   const update = (cell, value) => setData((prev) => ({ ...prev, [cell]: value }));
 
   return (
-    <div className="flex h-full flex-col bg-[#1b1b1b] text-zinc-200">
-      <div className="flex items-center gap-2 border-b border-zinc-800 px-3 py-2">
-        <span className="flex h-6 min-w-[2.5rem] items-center justify-center rounded border border-zinc-700 bg-[#222] px-2 text-xs font-medium text-zinc-300">
+    <div className="flex h-full flex-col bg-[#1b1b1b] text-foreground">
+      <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+        <span className="flex h-6 min-w-[2.5rem] items-center justify-center rounded border border-border-strong bg-[#222] px-2 text-xs font-medium text-muted-foreground">
           {selected}
         </span>
-        <Sigma className="h-3.5 w-3.5 text-zinc-500" />
-        <span className="truncate text-xs text-zinc-400">
+        <Sigma className="h-3.5 w-3.5 text-foreground0" />
+        <span className="truncate text-xs text-muted-foreground">
           {data[selected] || ""}
         </span>
       </div>
@@ -127,11 +127,11 @@ export function SheetPreview() {
         <table className="w-full border-collapse text-xs">
           <thead>
             <tr>
-              <th className="sticky left-0 top-0 z-10 w-9 border border-zinc-800 bg-[#202020]" />
+              <th className="sticky left-0 top-0 z-10 w-9 border border-border bg-surface-card" />
               {COLS.map((c) => (
                 <th
                   key={c}
-                  className="border border-zinc-800 bg-[#202020] px-2 py-1 font-medium text-zinc-400"
+                  className="border border-border bg-surface-card px-2 py-1 font-medium text-muted-foreground"
                 >
                   {c}
                 </th>
@@ -141,7 +141,7 @@ export function SheetPreview() {
           <tbody>
             {[1, 2, 3, 4, 5].map((row) => (
               <tr key={row}>
-                <td className="border border-zinc-800 bg-[#202020] text-center font-medium text-zinc-500">
+                <td className="border border-border bg-surface-card text-center font-medium text-foreground0">
                   {row}
                 </td>
                 {COLS.map((col) => {
@@ -152,16 +152,16 @@ export function SheetPreview() {
                       key={cell}
                       onClick={() => setSelected(cell)}
                       className={cn(
-                        "h-7 cursor-cell border border-zinc-800 px-2 text-left",
-                        row === 1 ? "font-semibold text-zinc-200" : "text-zinc-300",
-                        isSel ? "bg-emerald-500/15 ring-1 ring-inset ring-emerald-400" : "bg-[#161616]",
+                        "h-7 cursor-cell border border-border px-2 text-left",
+                        row === 1 ? "font-semibold text-foreground" : "text-muted-foreground",
+                        isSel ? "bg-emerald-500/15 ring-1 ring-inset ring-emerald-400" : "bg-background",
                       )}
                     >
                       {isSel ? (
                         <input
                           value={data[cell] ?? ""}
                           onChange={(e) => update(cell, e.target.value)}
-                          className="h-full w-full bg-transparent text-zinc-100 outline-none"
+                          className="h-full w-full bg-transparent text-foreground outline-none"
                         />
                       ) : (
                         data[cell] ?? ""
@@ -202,7 +202,7 @@ export function SlidePreview() {
 
   return (
     <div className="flex h-full bg-[#1b1b1b]">
-      <div className="flex w-20 shrink-0 flex-col gap-2 overflow-y-auto border-r border-zinc-800 bg-[#181818] p-2 scrollbar-subtle">
+      <div className="flex w-20 shrink-0 flex-col gap-2 overflow-y-auto border-r border-border bg-surface-card p-2 scrollbar-subtle">
         {SLIDES.map((s, i) => (
           <button
             key={i}
@@ -210,11 +210,11 @@ export function SlidePreview() {
             onClick={() => setCurrent(i)}
             className={cn(
               "flex aspect-video w-full flex-col items-start justify-center gap-0.5 rounded-sm border bg-[#0f0f0f] p-1.5 text-left transition-colors",
-              current === i ? "border-amber-400 ring-1 ring-amber-400/40" : "border-zinc-700 hover:border-zinc-500",
+              current === i ? "border-amber-400 ring-1 ring-amber-400/40" : "border-border-strong hover:border-zinc-500",
             )}
           >
             <span className="h-1 w-6 rounded-full" style={{ backgroundColor: s.accent }} />
-            <span className="line-clamp-2 text-[7px] font-semibold leading-tight text-zinc-300">
+            <span className="line-clamp-2 text-[7px] font-semibold leading-tight text-muted-foreground">
               {s.title}
             </span>
           </button>
@@ -228,7 +228,7 @@ export function SlidePreview() {
             style={{ backgroundColor: slide.accent }}
           />
           <h2 className="text-2xl font-bold text-white">{slide.title}</h2>
-          <p className="mt-2 text-sm text-zinc-400">{slide.subtitle}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{slide.subtitle}</p>
         </div>
       </div>
     </div>

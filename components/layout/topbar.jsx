@@ -5,17 +5,18 @@ import { ProfileDropdown } from "@/components/editor/profile-dropdown";
 import { NotificationsDropdown } from "@/components/editor/notifications-dropdown";
 import { CommandSearch } from "@/components/editor/command-search";
 import { HelpDropdown } from "@/components/editor/help-dropdown";
+import ThemeToggle from "@/components/ui/theme-toggle";
 
 const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export function Topbar({ onMenuClick }) {
   return (
-    <header className="relative z-20 flex h-14 w-full shrink-0 items-center justify-between border-b border-[#2a2a2a] bg-[#161616] px-4 text-white">
+    <header className="relative z-20 flex h-14 w-full shrink-0 items-center justify-between border-b border-topbar-border bg-topbar-bg px-4 text-foreground backdrop-blur-md">
       <div className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={onMenuClick}
-          className="-ml-2 flex h-8 w-8 items-center justify-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white md:hidden"
+          className="-ml-2 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface-active hover:text-foreground md:hidden"
           aria-label="Open navigation"
         >
           <PanelLeft className="h-5 w-5" />
@@ -32,7 +33,7 @@ export function Topbar({ onMenuClick }) {
             }}
           />
         </div>
-        <div className="hidden cursor-pointer items-center pl-2 sm:flex md:border-l md:border-[#333333]">
+        <div className="hidden cursor-pointer items-center pl-2 sm:flex md:border-l md:border-border">
           <span className="ml-1 text-sm font-semibold text-white">Office</span>
         </div>
       </div>
@@ -51,12 +52,13 @@ export function Topbar({ onMenuClick }) {
 
       <div className="flex justify-between gap-4 md:gap-8 sm:mr-2">
         <div className="flex items-center gap-2 sm:gap-3">
-          <CommandSearch triggerClassName="border-[#2a2a2a] bg-[#202020]" />
+          <CommandSearch triggerClassName="border-border bg-surface-card" />
 
           <div className="ml-0 flex items-center gap-0 sm:ml-1 sm:gap-1">
+            <ThemeToggle />
             <HelpDropdown triggerClassName="hidden sm:flex" />
             <NotificationsDropdown />
-            <ProfileDropdown triggerClassName="ml-1 border-[#2a2a2a]" />
+            <ProfileDropdown triggerClassName="ml-1 border-border" />
           </div>
         </div>
       </div>

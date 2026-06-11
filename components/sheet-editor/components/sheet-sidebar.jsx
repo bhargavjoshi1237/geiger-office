@@ -50,14 +50,14 @@ const SHEET_FUNCTIONS = [
 
 function SidebarHeader({ title, icon: Icon, onClose }) {
   return (
-    <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-[#333333] px-3">
+    <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border px-3">
       <div className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white">
         <Icon className="h-4 w-4 shrink-0" />
         <span className="truncate">{title}</span>
       </div>
       <button
         type="button"
-        className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#2a2a2a] hover:text-white"
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground"
         onClick={onClose}
         aria-label="Collapse sidebar"
         title="Collapse sidebar"
@@ -82,16 +82,16 @@ function FunctionLibraryPanel({ activeCell, selectedRange, onInsertFormula }) {
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 p-3">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-[#737373]" />
+          <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-text-secondary" />
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search functions…"
-            className="h-9 border-[#333333] bg-[#202020] pl-8 text-white placeholder:text-[#737373]"
+            className="h-9 border-border bg-surface-card pl-8 text-white placeholder:text-text-secondary"
           />
         </div>
-        <p className="mt-2 text-[11px] text-[#737373]">
-          Inserts into <span className="font-mono text-[#a3a3a3]">{cellLabel}</span> using <span className="font-mono text-[#a3a3a3]">{rangeLabel}</span>
+        <p className="mt-2 text-[11px] text-text-secondary">
+          Inserts into <span className="font-mono text-muted-foreground">{cellLabel}</span> using <span className="font-mono text-muted-foreground">{rangeLabel}</span>
         </p>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3 scrollbar-subtle">
@@ -100,15 +100,15 @@ function FunctionLibraryPanel({ activeCell, selectedRange, onInsertFormula }) {
             key={fn.name}
             type="button"
             onClick={() => onInsertFormula(build(fn.template))}
-            className="group flex w-full flex-col items-start gap-0.5 rounded-md px-2 py-2 text-left transition-colors hover:bg-[#242424]"
+            className="group flex w-full flex-col items-start gap-0.5 rounded-md px-2 py-2 text-left transition-colors hover:bg-surface-active"
             title={`Insert ${fn.template}`}
           >
             <span className="font-mono text-sm font-semibold text-white">{fn.name}</span>
-            <span className="font-mono text-[11px] text-[#737373]">{fn.syntax}</span>
-            <span className="text-xs text-[#a3a3a3]">{fn.desc}</span>
+            <span className="font-mono text-[11px] text-text-secondary">{fn.syntax}</span>
+            <span className="text-xs text-muted-foreground">{fn.desc}</span>
           </button>
         ))}
-        {filtered.length === 0 ? <p className="px-2 py-6 text-center text-xs text-[#737373]">No functions match “{query}”.</p> : null}
+        {filtered.length === 0 ? <p className="px-2 py-6 text-center text-xs text-text-secondary">No functions match “{query}”.</p> : null}
       </div>
     </div>
   );
@@ -199,8 +199,8 @@ function DataToolsPanel({ selectedRange, onTransformRange }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="shrink-0 px-3 py-3 text-[11px] text-[#737373]">
-        Applies to <span className="font-mono text-[#a3a3a3]">{rangeLabel}</span>
+      <div className="shrink-0 px-3 py-3 text-[11px] text-text-secondary">
+        Applies to <span className="font-mono text-muted-foreground">{rangeLabel}</span>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3 scrollbar-subtle">
         {tools.map((tool) => (
@@ -208,14 +208,14 @@ function DataToolsPanel({ selectedRange, onTransformRange }) {
             key={tool.label}
             type="button"
             onClick={() => onTransformRange(tool.run)}
-            className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-[#242424]"
+            className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-surface-active"
           >
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-[#333333] bg-[#202020] text-[#d4d4d4]">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-border bg-surface-card text-muted-foreground">
               <tool.icon className="h-4 w-4" />
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm text-white">{tool.label}</span>
-              <span className="block truncate text-xs text-[#737373]">{tool.desc}</span>
+              <span className="block truncate text-xs text-text-secondary">{tool.desc}</span>
             </span>
           </button>
         ))}
@@ -237,8 +237,8 @@ function NotesPanel({ activeCell, sheet, onSetNote, onJumpToCell }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 space-y-2 p-3">
-        <p className="text-[11px] uppercase tracking-normal text-[#737373]">
-          Note for <span className="font-mono text-[#a3a3a3]">{labelOf(activeCell)}</span>
+        <p className="text-[11px] uppercase tracking-normal text-text-secondary">
+          Note for <span className="font-mono text-muted-foreground">{labelOf(activeCell)}</span>
         </p>
         <textarea
           value={draft}
@@ -246,26 +246,26 @@ function NotesPanel({ activeCell, sheet, onSetNote, onJumpToCell }) {
           onBlur={commit}
           placeholder="Add a note for this cell…"
           rows={3}
-          className="w-full resize-none rounded-md border border-[#333333] bg-[#202020] p-2 text-sm text-white placeholder:text-[#737373] focus:border-[#474747] focus:outline-none"
+          className="w-full resize-none rounded-md border border-border bg-surface-card p-2 text-sm text-white placeholder:text-text-secondary focus:border-border-strong focus:outline-none"
         />
       </div>
-      <div className="border-t border-[#333333] px-3 py-2 text-[11px] uppercase tracking-normal text-[#737373]">
+      <div className="border-t border-border px-3 py-2 text-[11px] uppercase tracking-normal text-text-secondary">
         All notes ({entries.length})
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3 scrollbar-subtle">
         {entries.length === 0 ? (
-          <p className="px-2 py-6 text-center text-xs text-[#737373]">No notes yet. Notes are saved with the file.</p>
+          <p className="px-2 py-6 text-center text-xs text-text-secondary">No notes yet. Notes are saved with the file.</p>
         ) : (
           entries.map(([cellKey, text]) => (
-            <div key={cellKey} className="group flex items-start gap-2 rounded-md px-2 py-2 hover:bg-[#242424]">
+            <div key={cellKey} className="group flex items-start gap-2 rounded-md px-2 py-2 hover:bg-surface-active">
               <button type="button" onClick={() => onJumpToCell(keyToCell(cellKey))} className="min-w-0 flex-1 text-left">
                 <span className="font-mono text-xs font-semibold text-[#8ab4f8]">{labelOf(keyToCell(cellKey))}</span>
-                <span className="mt-0.5 block truncate text-xs text-[#a3a3a3]">{text}</span>
+                <span className="mt-0.5 block truncate text-xs text-muted-foreground">{text}</span>
               </button>
               <button
                 type="button"
                 onClick={() => onSetNote(cellKey, "")}
-                className="shrink-0 rounded p-1 text-[#737373] opacity-0 transition-opacity hover:text-white group-hover:opacity-100"
+                className="shrink-0 rounded p-1 text-text-secondary opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
                 aria-label={`Delete note for ${labelOf(keyToCell(cellKey))}`}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -304,30 +304,30 @@ function NamedRangesPanel({ selectedRange, sheet, onAddNamedRange, onDeleteNamed
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="Name this range"
-            className="h-9 border-[#333333] bg-[#202020] text-white placeholder:text-[#737373]"
+            className="h-9 border-border bg-surface-card text-white placeholder:text-text-secondary"
           />
           <Button type="submit" size="sm" className="h-9 shrink-0 px-3" disabled={!name.trim()}>
             <Plus className="h-4 w-4" />
           </Button>
         </form>
-        <p className="text-[11px] text-[#737373]">
-          Will point to <span className="font-mono text-[#a3a3a3]">{rangeLabel}</span>
+        <p className="text-[11px] text-text-secondary">
+          Will point to <span className="font-mono text-muted-foreground">{rangeLabel}</span>
         </p>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3 scrollbar-subtle">
         {names.length === 0 ? (
-          <p className="px-2 py-6 text-center text-xs text-[#737373]">No named ranges yet.</p>
+          <p className="px-2 py-6 text-center text-xs text-text-secondary">No named ranges yet.</p>
         ) : (
           names.map((entry) => (
-            <div key={entry.id} className="group flex items-center gap-2 rounded-md px-2 py-2 hover:bg-[#242424]">
+            <div key={entry.id} className="group flex items-center gap-2 rounded-md px-2 py-2 hover:bg-surface-active">
               <button type="button" onClick={() => onSelectRange(entry.range)} className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left">
                 <span className="truncate text-sm text-white">{entry.name}</span>
-                <span className="shrink-0 font-mono text-xs text-[#737373]">{rangeLabelOf(entry.range)}</span>
+                <span className="shrink-0 font-mono text-xs text-text-secondary">{rangeLabelOf(entry.range)}</span>
               </button>
               <button
                 type="button"
                 onClick={() => onDeleteNamedRange(entry.id)}
-                className="shrink-0 rounded p-1 text-[#737373] opacity-0 transition-opacity hover:text-white group-hover:opacity-100"
+                className="shrink-0 rounded p-1 text-text-secondary opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
                 aria-label={`Delete ${entry.name}`}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -364,9 +364,9 @@ export function SheetSidebar({
   const noteCount = Object.keys(sheet.notes ?? {}).length;
 
   return (
-    <aside className={cn("hidden shrink-0 border-l border-[#333333] bg-[#1a1a1a] xl:flex", isOpen ? "w-80" : "w-12")}>
+    <aside className={cn("hidden shrink-0 border-l border-border bg-surface-subtle xl:flex", isOpen ? "w-80" : "w-12")}>
       {active ? (
-        <div className="flex min-w-0 flex-1 flex-col border-r border-[#333333]">
+        <div className="flex min-w-0 flex-1 flex-col border-r border-border">
           <SidebarHeader title={active.label} icon={active.icon} onClose={() => setOpenTool(null)} />
           {openTool === "functions" ? <FunctionLibraryPanel activeCell={activeCell} selectedRange={selectedRange} onInsertFormula={onInsertFormula} /> : null}
           {openTool === "data" ? <DataToolsPanel selectedRange={selectedRange} onTransformRange={onTransformRange} /> : null}
@@ -383,8 +383,8 @@ export function SheetSidebar({
               type="button"
               onClick={() => setOpenTool(isActive ? null : tool.id)}
               className={cn(
-                "relative grid h-9 w-9 place-items-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white",
-                isActive && "bg-[#2a2a2a] text-white",
+                "relative grid h-9 w-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-surface-active hover:text-foreground",
+                isActive && "bg-surface-hover text-white",
               )}
               aria-label={tool.label}
               aria-pressed={isActive}

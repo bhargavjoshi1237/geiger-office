@@ -85,19 +85,19 @@ const faqs = [
 
 function FaqItem({ question, answer }) {
   return (
-    <details className="group border-b border-zinc-800 py-4">
-      <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-sm font-medium text-zinc-200 transition-colors hover:text-white">
+    <details className="group border-b border-border py-4">
+      <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-sm font-medium text-foreground transition-colors hover:text-foreground">
         {question}
-        <span className="mt-0.5 text-zinc-500 transition-transform group-open:rotate-45">+</span>
+        <span className="mt-0.5 text-foreground0 transition-transform group-open:rotate-45">+</span>
       </summary>
-      <p className="pt-3 text-sm leading-6 text-zinc-400">{answer}</p>
+      <p className="pt-3 text-sm leading-6 text-muted-foreground">{answer}</p>
     </details>
   );
 }
 
 function Footer() {
   return (
-    <footer className="relative z-30 border-t border-zinc-800/50 bg-zinc-950 px-6 pb-8 pt-16">
+    <footer className="relative z-30 border-t border-border/50 bg-background px-6 pb-8 pt-16">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
           <div className="col-span-2 md:col-span-4 lg:col-span-2">
@@ -109,7 +109,7 @@ function Footer() {
                 Geiger Studios
               </span>
             </div>
-            <p className="max-w-sm text-sm text-zinc-500">
+            <p className="max-w-sm text-sm text-foreground0">
               Built to Manage. Designed to Create.
               <br />
               Turn your ideas into something real with a single suite that combines
@@ -118,25 +118,25 @@ function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-4 font-bold text-zinc-100">Products</h4>
-            <ul className="space-y-3 text-sm text-zinc-400">
+            <h4 className="mb-4 font-bold text-foreground">Products</h4>
+            <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
-                <Link href="/" className="transition-colors hover:text-zinc-100">
+                <Link href="/" className="transition-colors hover:text-foreground">
                   Geiger Office
                 </Link>
               </li>
               <li>
-                <Link href="/document/welcome" prefetch={false} className="transition-colors hover:text-zinc-100">
+                <Link href="/document/welcome" prefetch={false} className="transition-colors hover:text-foreground">
                   Docs
                 </Link>
               </li>
               <li>
-                <Link href="/sheet/welcome" prefetch={false} className="transition-colors hover:text-zinc-100">
+                <Link href="/sheet/welcome" prefetch={false} className="transition-colors hover:text-foreground">
                   Sheets
                 </Link>
               </li>
               <li>
-                <Link href="/slide/welcome" prefetch={false} className="transition-colors hover:text-zinc-100">
+                <Link href="/slide/welcome" prefetch={false} className="transition-colors hover:text-foreground">
                   Slides
                 </Link>
               </li>
@@ -144,20 +144,20 @@ function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-4 font-bold text-zinc-100">Workspace</h4>
-            <ul className="flex flex-col gap-3 text-sm text-zinc-400">
+            <h4 className="mb-4 font-bold text-foreground">Workspace</h4>
+            <ul className="flex flex-col gap-3 text-sm text-muted-foreground">
               <li>
-                <Link href="/home" className="transition-colors hover:text-zinc-100">
+                <Link href="/home" className="transition-colors hover:text-foreground">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/form/welcome" className="transition-colors hover:text-zinc-100">
+                <Link href="/form/welcome" className="transition-colors hover:text-foreground">
                   Forms
                 </Link>
               </li>
               <li>
-                <Link href="#tools" className="transition-colors hover:text-zinc-100">
+                <Link href="#tools" className="transition-colors hover:text-foreground">
                   Playground
                 </Link>
               </li>
@@ -165,20 +165,20 @@ function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-4 font-bold text-zinc-100">Company</h4>
-            <ul className="flex flex-col gap-3 text-sm text-zinc-400">
+            <h4 className="mb-4 font-bold text-foreground">Company</h4>
+            <ul className="flex flex-col gap-3 text-sm text-muted-foreground">
               <li>
-                <Link href="#" className="transition-colors hover:text-zinc-100">
+                <Link href="#" className="transition-colors hover:text-foreground">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="#" className="transition-colors hover:text-zinc-100">
+                <Link href="#" className="transition-colors hover:text-foreground">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="#" className="transition-colors hover:text-zinc-100">
+                <Link href="#" className="transition-colors hover:text-foreground">
                   Legal
                 </Link>
               </li>
@@ -186,20 +186,20 @@ function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-zinc-800/50 pt-8 text-sm text-zinc-500 md:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-border/50 pt-8 text-sm text-foreground0 md:flex-row">
           <p>&copy; {new Date().getFullYear()} Geiger Studios. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="#" className="transition-colors hover:text-zinc-300">
+            <Link href="#" className="transition-colors hover:text-muted-foreground">
               Privacy Policy
             </Link>
-            <Link href="#" className="transition-colors hover:text-zinc-300">
+            <Link href="#" className="transition-colors hover:text-muted-foreground">
               Terms of Service
             </Link>
           </div>
         </div>
       </div>
-      <div className="relative z-0 mt-10 flex justify-center bg-zinc-950">
-        <h1 className="pointer-events-none select-none text-[13vw] font-bold leading-none tracking-tight text-zinc-100/5">
+      <div className="relative z-0 mt-10 flex justify-center bg-background">
+        <h1 className="pointer-events-none select-none text-[13vw] font-bold leading-none tracking-tight text-foreground/5">
           GEIGER STUDIO
         </h1>
       </div>
@@ -209,7 +209,7 @@ function Footer() {
 
 export default function OfficeLandingPage() {
   return (
-    <div className="flex min-h-screen w-full flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-indigo-500/30">
+    <div className="flex min-h-screen w-full flex-col bg-background font-sans text-foreground selection:bg-indigo-500/30">
       <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(to_right,#80808030_1px,transparent_1px),linear-gradient(to_bottom,#80808030_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
       <SiteHeader />
@@ -220,7 +220,7 @@ export default function OfficeLandingPage() {
             <h1 className="mb-4 text-2xl font-semibold text-white sm:text-3xl">
               Create, calculate, present, and collect work in one Office suite.
             </h1>
-            <p className="mb-6 max-w-xl text-sm text-zinc-400 sm:text-base">
+            <p className="mb-6 max-w-xl text-sm text-muted-foreground sm:text-base">
               Geiger Office brings documents, spreadsheets, slides, and forms into a
               focused workspace for practical team workflows.
             </p>
@@ -240,10 +240,10 @@ export default function OfficeLandingPage() {
 
         <section className="mx-auto grid w-full max-w-6xl gap-4 px-4 sm:px-6 md:grid-cols-3">
           {utilityCards.map(({ title, description, icon: Icon }) => (
-            <article key={title} className="rounded-sm border border-zinc-800 bg-[#191919] p-5">
-              <Icon className="mb-3 h-5 w-5 text-zinc-300" />
-              <h2 className="font-medium text-zinc-100">{title}</h2>
-              <p className="mt-2 text-sm text-zinc-400">{description}</p>
+            <article key={title} className="rounded-sm border border-border bg-[#191919] p-5">
+              <Icon className="mb-3 h-5 w-5 text-muted-foreground" />
+              <h2 className="font-medium text-foreground">{title}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{description}</p>
             </article>
           ))}
         </section>
@@ -266,7 +266,7 @@ export default function OfficeLandingPage() {
 
         <section className="relative z-20 overflow-hidden px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
           <div className="container relative z-10 mx-auto flex flex-col items-center text-center">
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-500 sm:text-sm">
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-foreground0 sm:text-sm">
               Open source from day one
             </h3>
             <h2 className="mb-8 bg-gradient-to-b from-white to-zinc-500 bg-clip-text text-3xl font-black tracking-tight text-transparent drop-shadow-lg sm:mb-10 sm:text-5xl lg:text-6xl">

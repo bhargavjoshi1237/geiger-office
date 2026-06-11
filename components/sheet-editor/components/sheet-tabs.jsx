@@ -14,26 +14,26 @@ import { cn } from "@/lib/utils";
 
 export function SheetTabs({ activeSheetId, sheets, onAddSheet, onDeleteSheet, onDuplicateSheet, onRenameSheet, onSelectSheet }) {
   return (
-    <footer className="flex h-10 shrink-0 items-center border-t border-[#333333] bg-[#1a1a1a] text-sm text-[#a3a3a3]">
-      <div className="flex h-full items-center gap-2 border-r border-[#333333] px-4">
+    <footer className="flex h-10 shrink-0 items-center border-t border-border bg-surface-subtle text-sm text-muted-foreground">
+      <div className="flex h-full items-center gap-2 border-r border-border px-4">
         <IconButton label="Add sheet" className="h-7 w-7" onClick={onAddSheet}>
           <Plus className="h-4 w-4" />
         </IconButton>
       </div>
       <div className="flex min-w-0 flex-1 items-center overflow-x-auto scrollbar-hidden">
         {sheets.map((sheet) => (
-          <div key={sheet.id} className={cn("flex h-10 shrink-0 border-r border-[#333333]", activeSheetId === sheet.id && "bg-[#2a2a2a] text-white")}>
+          <div key={sheet.id} className={cn("flex h-10 shrink-0 border-r border-border", activeSheetId === sheet.id && "bg-surface-hover text-white")}>
             <Button
               type="button"
               variant="ghost"
-              className="h-10 rounded-none px-4 font-semibold text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+              className="h-10 rounded-none px-4 font-semibold text-muted-foreground hover:bg-surface-active hover:text-foreground"
               onClick={() => onSelectSheet(sheet.id)}
             >
               {sheet.name}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button type="button" variant="ghost" size="icon" className="h-10 w-8 rounded-none text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+                <Button type="button" variant="ghost" size="icon" className="h-10 w-8 rounded-none text-muted-foreground hover:bg-surface-active hover:text-foreground">
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

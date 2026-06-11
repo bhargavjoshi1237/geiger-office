@@ -152,10 +152,10 @@ function HorizontalRuler({ margins, onMarginsChange }) {
   }
 
   return (
-    <div className="hidden h-7 shrink-0 justify-center border-b border-[#2b2b2b] bg-[#1f1f1f] lg:flex">
+    <div className="hidden h-7 shrink-0 justify-center border-b border-[#2b2b2b] bg-surface-card lg:flex">
       <div className="relative h-full w-[818px]" data-horizontal-ruler>
         <div className="absolute inset-x-0 top-4 h-px bg-[#343434]" />
-        <div className="absolute left-0 top-4 h-2 border-l border-[#333333]" style={{ width: `${leftMargin}px` }} />
+        <div className="absolute left-0 top-4 h-2 border-l border-border" style={{ width: `${leftMargin}px` }} />
         <div className="absolute right-0 top-4 h-2" style={{ width: `${rightMargin}px` }} />
         <div
           className="absolute top-4 h-2 border-x border-white/10"
@@ -207,7 +207,7 @@ function HorizontalRuler({ margins, onMarginsChange }) {
 
 function VerticalRuler() {
   return (
-    <div className="absolute left-0 top-0 hidden h-full w-4 border-r border-[#333333] bg-[#202020] text-[11px] text-[#a3a3a3] lg:block">
+    <div className="absolute left-0 top-0 hidden h-full w-4 border-r border-border bg-surface-card text-[11px] text-muted-foreground lg:block">
       {verticalTicks.map((offset) => (
         <span
           key={offset}

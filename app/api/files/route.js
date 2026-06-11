@@ -9,6 +9,15 @@ const DEFAULT_NAMES = {
   presentation: "Untitled presentation",
 };
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function applyProjectScope(query, projectId, column = "project_id") {
+  if (projectId === "personal") return query.is(column, null);
+  if (projectId) return query.eq(column, projectId);
+  return query;
+}
+
 export async function GET(request) {
   try {
     const supabase = await createClient();
@@ -26,7 +35,12 @@ export async function GET(request) {
     const type = searchParams.get("type");
     const q = searchParams.get("q")?.trim();
     const folderId = searchParams.get("folder_id");
-    const cols = "id, type, name, starred, trashed, thumbnail, created_at, updated_at, user_id, folder_id";
+    const projectId = searchParams.get("project_id");
+    const cols = "id, project_id, type, name, starred, trashed, thumbnail, created_at, updated_at, user_id, folder_id";
+
+    if (projectId && projectId !== "personal" && !UUID_PATTERN.test(projectId)) {
+      return NextResponse.json({ error: "Invalid project_id" }, { status: 400 });
+    }
 
     if (filter === "shared") {
       const email = (user.email ?? "").toLowerCase();
@@ -37,6 +51,7 @@ export async function GET(request) {
         .or(`user_id.eq.${user.id},email.eq.${email}`)
         .order("created_at", { ascending: false });
 
+      query = applyProjectScope(query, projectId, "office_files.project_id");
       if (type && VALID_TYPES.has(type)) query = query.eq("office_files.type", type);
       if (q) query = query.ilike("office_files.name", `%${q}%`);
 
@@ -55,8 +70,12 @@ export async function GET(request) {
     let query = supabase
       .from("office_files")
       .select(cols)
-      .eq("user_id", user.id)
       .order("updated_at", { ascending: false });
+
+    if (!projectId || projectId === "personal") {
+      query = query.eq("user_id", user.id);
+    }
+    query = applyProjectScope(query, projectId);
 
     if (filter === "trash") {
       query = query.eq("trashed", true);
@@ -109,6 +128,7 @@ export async function POST(request) {
     const { type } = body;
     const name = body.name?.trim();
     const folderId = body.folder_id || null;
+    const projectId = body.project_id || null;
 
     if (!type || !VALID_TYPES.has(type)) {
       return NextResponse.json(
@@ -116,11 +136,15 @@ export async function POST(request) {
         { status: 400 },
       );
     }
+    if (projectId && !UUID_PATTERN.test(projectId)) {
+      return NextResponse.json({ error: "Invalid project_id" }, { status: 400 });
+    }
 
     const { data, error } = await supabase
       .from("office_files")
       .insert({
         user_id: user.id,
+        project_id: projectId,
         type,
         name: name || DEFAULT_NAMES[type],
         content: body.content ?? {},

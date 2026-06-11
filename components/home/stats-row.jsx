@@ -51,7 +51,7 @@ export function StatsRow({ stats, loading }) {
       {CARDS.map(({ key, label, Icon, accent, detail }) => (
         <div
           key={key}
-          className="group flex items-center gap-3 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-2.5 transition-colors hover:border-[#3a3a3a]"
+          className="group flex items-center gap-3 rounded-lg border border-border bg-surface-subtle px-3 py-2.5 transition-colors hover:border-border-strong"
         >
           <Icon
             className="h-4 w-4 shrink-0"
@@ -60,9 +60,9 @@ export function StatsRow({ stats, loading }) {
           />
           <div className="flex min-w-0 flex-1 items-center justify-between">
             <div className="min-w-0">
-              <span className="truncate text-sm text-[#e7e7e7]">{label}</span>
+              <span className="truncate text-sm text-foreground">{label}</span>
             </div>
-            <span className="text-base font-semibold tabular-nums text-[#e7e7e7]">
+            <span className="text-base font-semibold tabular-nums text-foreground">
               {loading ? <span className="text-[#3a3a3a]">—</span> : (stats?.[key] ?? 0)}
             </span>
           </div>

@@ -706,14 +706,14 @@ function SheetEditor({ fileId }) {
 
   if (!file) {
     return (
-      <div className="flex h-[100dvh] items-center justify-center bg-[#161616] px-6 text-center text-sm text-red-300">
+      <div className="flex h-[100dvh] items-center justify-center bg-background px-6 text-center text-sm text-red-300">
         {loadError || "Failed to load spreadsheet."}
       </div>
     );
   }
 
   return (
-    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-[#161616] text-white">
+    <div className="flex h-[100dvh] min-w-0 flex-col overflow-hidden bg-background text-white">
       <input ref={importInputRef} type="file" accept=".csv,.xls,.xlsx" className="hidden" onChange={importWorkbook} />
       <FindReplaceDialog open={findReplaceOpen} onOpenChange={setFindReplaceOpen} onReplaceAll={replaceAll} />
       <SheetHeader

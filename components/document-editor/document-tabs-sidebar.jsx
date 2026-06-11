@@ -28,7 +28,7 @@ const tabOptions = [
   { label: "New tab below", icon: Plus },
 ];
 
-const menuItemClassName = "my-0.5 hover:bg-[#2f2f2f] focus:bg-[#333333]";
+const menuItemClassName = "my-0.5 hover:bg-[#2f2f2f] focus:bg-surface-strong";
 
 function TabOptionsDropdown() {
   return (
@@ -73,13 +73,13 @@ function HeadingList({ headings }) {
   }
 
   return (
-    <div className="mt-1 space-y-0.5 border-l border-[#333333] pl-2">
+    <div className="mt-1 space-y-0.5 border-l border-border pl-2">
       {headings.map((heading) => (
         <button
           key={heading.id}
           type="button"
           title={heading.text}
-          className="flex h-7 w-full min-w-0 items-center gap-2 rounded-md px-2 text-left text-xs text-[#a3a3a3] transition-colors hover:bg-[#2a2a2a] hover:text-white"
+          className="flex h-7 w-full min-w-0 items-center gap-2 rounded-md px-2 text-left text-xs text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground"
           style={{ paddingLeft: `${Math.max(8, heading.level * 6)}px` }}
         >
           <Heading className="h-3.5 w-3.5 shrink-0" />
@@ -95,7 +95,7 @@ function DocumentTabsSidebar({ headings = [] }) {
 
   return (
     <Collapsible.Root open={isExpanded} onOpenChange={setIsExpanded} asChild>
-      <Sidebar collapsed={!isExpanded} className="bg-[#202020]" aria-label="Document Tabs">
+      <Sidebar collapsed={!isExpanded} className="bg-surface-card" aria-label="Document Tabs">
         <SidebarHeader className={cn(isExpanded ? "justify-between" : "justify-center px-2")}>
           {isExpanded ? (
             <>
@@ -126,15 +126,15 @@ function DocumentTabsSidebar({ headings = [] }) {
                 <ContextMenuTrigger asChild>
                   <div
                     className={cn(
-                      "group flex items-center rounded-md bg-[#242424] text-white shadow-black/20",
-                      isExpanded && "border border-[#333333]",
+                      "group flex items-center rounded-md bg-surface-active text-white shadow-black/20",
+                      isExpanded && "border border-border",
                     )}
                   >
                     <SidebarMenuButton
                       isActive
                       className={cn(
                         isExpanded ? "min-w-0 flex-1 justify-start pr-1" : "h-10 justify-center px-0",
-                        "rounded-r-none hover:bg-[#2a2a2a]",
+                        "rounded-r-none hover:bg-surface-hover",
                       )}
                       aria-label="Tab 1"
                       title="Tab 1"
@@ -149,7 +149,7 @@ function DocumentTabsSidebar({ headings = [] }) {
                             type="button"
                             aria-label="Tab 1 options"
                             title="Tab 1 options"
-                            className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#333333] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#474747]"
+                            className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface-strong hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
                           >
                             <MoreVertical className="h-4 w-4" />
                           </button>

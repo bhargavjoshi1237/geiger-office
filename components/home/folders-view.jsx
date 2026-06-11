@@ -31,6 +31,12 @@ function apiUrl(path = "") {
   return `${basePath}/api${path}`;
 }
 
+function withProject(path, projectId) {
+  if (!projectId || projectId === "all") return path;
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}project_id=${encodeURIComponent(projectId)}`;
+}
+
 const FOLDER_COLORS = [
   "#4285f4",
   "#0f9d58",
@@ -61,15 +67,15 @@ function CreateFolderDialog({ open, onClose, onSubmit }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-md border border-[#2a2a2a] bg-[#1a1a1a] p-6 shadow-xl"
+        className="w-full max-w-sm rounded-md border border-border bg-surface-subtle p-6 shadow-xl"
       >
-        <h2 className="text-sm font-medium text-[#e7e7e7]">New folder</h2>
+        <h2 className="text-sm font-medium text-foreground">New folder</h2>
         <input
           autoFocus
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Folder name"
-          className="mt-3 h-9 w-full rounded-md border border-[#2a2a2a] bg-[#202020] px-3 text-sm text-white outline-none transition-colors placeholder:text-[#737373] focus:border-[#474747]"
+          className="mt-3 h-9 w-full rounded-md border border-border bg-surface-card px-3 text-sm text-white outline-none transition-colors placeholder:text-text-secondary focus:border-border-strong"
         />
         <div className="mt-3 flex items-center gap-2">
           {FOLDER_COLORS.map((c) => (
@@ -89,7 +95,7 @@ function CreateFolderDialog({ open, onClose, onSubmit }) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-3 py-1.5 text-xs text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white"
+            className="rounded-md px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-surface-active hover:text-foreground"
           >
             Cancel
           </button>
@@ -122,21 +128,21 @@ function RenameFolderDialog({ open, folder, onClose, onSubmit }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-md border border-[#2a2a2a] bg-[#1a1a1a] p-6 shadow-xl"
+        className="w-full max-w-sm rounded-md border border-border bg-surface-subtle p-6 shadow-xl"
       >
-        <h2 className="text-sm font-medium text-[#e7e7e7]">Rename folder</h2>
+        <h2 className="text-sm font-medium text-foreground">Rename folder</h2>
         <input
           autoFocus
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={folder.name}
-          className="mt-3 h-9 w-full rounded-md border border-[#2a2a2a] bg-[#202020] px-3 text-sm text-white outline-none transition-colors placeholder:text-[#737373] focus:border-[#474747]"
+          className="mt-3 h-9 w-full rounded-md border border-border bg-surface-card px-3 text-sm text-white outline-none transition-colors placeholder:text-text-secondary focus:border-border-strong"
         />
         <div className="mt-4 flex justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-3 py-1.5 text-xs text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white"
+            className="rounded-md px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-surface-active hover:text-foreground"
           >
             Cancel
           </button>
@@ -163,7 +169,7 @@ const TYPE_ICONS = {
   presentation: Presentation,
 };
 
-export function FoldersView({ onCreate, creating, createOpen: controlledCreateOpen, onCreateOpenChange, onActiveFolderChange, onAddToFolder }) {
+export function FoldersView({ projectId, onCreate, creating, createOpen: controlledCreateOpen, onCreateOpenChange, onActiveFolderChange, onAddToFolder }) {
   const router = useRouter();
   const [folders, setFolders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -185,7 +191,7 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(apiUrl("/folders"));
+      const res = await fetch(apiUrl(withProject("/folders", projectId)));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setFolders(data.folders ?? []);
@@ -194,7 +200,7 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     fetchFolders();
@@ -203,7 +209,9 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
   const fetchFolderFiles = useCallback(async (folderId) => {
     setFilesLoading(true);
     try {
-      const res = await fetch(apiUrl(`/files?folder_id=${folderId}`));
+      const res = await fetch(
+        apiUrl(withProject(`/files?folder_id=${folderId}`, projectId)),
+      );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setFolderFiles(data.files ?? []);
@@ -212,7 +220,7 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
     } finally {
       setFilesLoading(false);
     }
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     if (activeFolder) {
@@ -225,7 +233,12 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
       const res = await fetch(apiUrl("/folders"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, color }),
+        body: JSON.stringify({
+          name,
+          color,
+          project_id:
+            projectId !== "all" && projectId !== "personal" ? projectId : null,
+        }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const folder = await res.json();
@@ -270,7 +283,7 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
 
   if (loading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center text-[#737373]">
+      <div className="flex min-h-[40vh] items-center justify-center text-text-secondary">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     );
@@ -287,21 +300,21 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
           >
             <ArrowLeft className="h-3.5 w-3.5" />
           </Button>
-          <h2 className="text-sm font-medium text-[#e7e7e7]">
+          <h2 className="text-sm font-medium text-foreground">
             {activeFolder.name}
           </h2>
         </div>
         {filesLoading ? (
-          <div className="flex min-h-[20vh] items-center justify-center text-[#737373]">
+          <div className="flex min-h-[20vh] items-center justify-center text-text-secondary">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : folderFiles.length === 0 ? (
-          <div className="flex min-h-56 flex-col items-center justify-center rounded-md border border-dashed border-[#333333] bg-[#1a1a1a] p-8 text-center">
-            <FolderOpen className="mb-3 h-6 w-6 text-[#525252]" />
-            <p className="text-sm font-medium text-[#e7e7e7]">
+          <div className="flex min-h-56 flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface-subtle p-8 text-center">
+            <FolderOpen className="mb-3 h-6 w-6 text-text-tertiary" />
+            <p className="text-sm font-medium text-foreground">
               This folder is empty
             </p>
-            <p className="mt-1 max-w-md text-xs leading-5 text-[#737373]">
+            <p className="mt-1 max-w-md text-xs leading-5 text-text-secondary">
               Move files here to keep them organized.
             </p>
           </div>
@@ -315,10 +328,10 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
                   key={file.id}
                   type="button"
                   onClick={() => handleOpenFile(file)}
-                  className="flex flex-col gap-3 rounded-md border border-[#2a2a2a] bg-[#1a1a1a] p-4 text-left transition-colors hover:border-[#3a3a3a]"
+                  className="flex flex-col gap-3 rounded-md border border-border bg-surface-subtle p-4 text-left transition-colors hover:border-border-strong"
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-md border border-[#2a2a2a] bg-[#202020]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface-card">
                       <Icon
                         className="h-4 w-4"
                         style={{ color: meta.accent }}
@@ -344,10 +357,10 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
       {error ? <p className="mb-4 text-sm text-red-300">{error}</p> : null}
 
       {folders.length === 0 ? (
-        <div className="flex min-h-56 flex-col items-center justify-center rounded-md border border-dashed border-[#333333] bg-[#1a1a1a] p-8 text-center">
-          <FolderOpen className="mb-3 h-6 w-6 text-[#525252]" />
-          <p className="text-sm font-medium text-[#e7e7e7]">No folders yet</p>
-          <p className="mt-1 max-w-md text-xs leading-5 text-[#737373]">
+        <div className="flex min-h-56 flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface-subtle p-8 text-center">
+          <FolderOpen className="mb-3 h-6 w-6 text-text-tertiary" />
+          <p className="text-sm font-medium text-foreground">No folders yet</p>
+          <p className="mt-1 max-w-md text-xs leading-5 text-text-secondary">
             Create a folder to organize your files.
           </p>
         </div>
@@ -359,11 +372,11 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
                 <button
                   type="button"
                   onClick={() => setActiveFolder(folder)}
-                  className="flex flex-col gap-3 rounded-md border border-[#2a2a2a] bg-[#1a1a1a] p-4 text-left transition-colors hover:border-[#3a3a3a]"
+                  className="flex flex-col gap-3 rounded-md border border-border bg-surface-subtle p-4 text-left transition-colors hover:border-border-strong"
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#2a2a2a]"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
                       style={{
                         backgroundColor: (folder.color || "#4285f4") + "1a",
                       }}
@@ -377,44 +390,44 @@ export function FoldersView({ onCreate, creating, createOpen: controlledCreateOp
                       <h3 className="truncate text-sm font-medium text-white">
                         {folder.name}
                       </h3>
-                      <span className="text-xs text-[#737373]">
+                      <span className="text-xs text-text-secondary">
                         {folder.file_count ?? 0}{" "}
                         {(folder.file_count ?? 0) === 1 ? "file" : "files"}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 border-t border-[#242424] pt-2.5 text-[10px] text-[#525252]">
+                  <div className="flex items-center gap-1 border-t border-surface-active pt-2.5 text-[10px] text-text-tertiary">
                     <Clock3 className="h-3 w-3" />
                     Updated {timeAgo(folder.updated_at)}
                   </div>
                 </button>
               </ContextMenuTrigger>
 
-              <ContextMenuContent className="w-52 bg-[#202020] border-[#333333] shadow-xl">
+              <ContextMenuContent className="w-52 bg-surface-card border-border shadow-xl">
                 <ContextMenuItem
-                  className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2"
+                  className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
                   onSelect={() => setActiveFolder(folder)}
                 >
                   <FolderOpen className="h-3.5 w-3.5" />
                   Open
                 </ContextMenuItem>
                 <ContextMenuItem
-                  className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2"
+                  className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
                   onSelect={() => onAddToFolder?.(folder)}
                 >
                   <FolderPlus className="h-3.5 w-3.5" />
                   Add files
                 </ContextMenuItem>
                 <ContextMenuItem
-                  className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2"
+                  className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
                   onSelect={() => setRenameTarget(folder)}
                 >
                   <Pencil className="h-3.5 w-3.5" />
                   Rename
                 </ContextMenuItem>
                 <ContextMenuItem
-                  className="text-red-400 focus:bg-[#2a2a2a] focus:text-red-300 cursor-pointer gap-2"
+                  className="text-red-400 focus:bg-surface-hover focus:text-red-300 cursor-pointer gap-2"
                   onSelect={() => handleDeleteFolder(folder)}
                 >
                   <Trash2 className="h-3.5 w-3.5" />

@@ -24,7 +24,7 @@ export function SlidesMenuBar({ onAction }) {
               type="button"
               variant="ghost"
               size="sm"
-              className="h-6 rounded px-2 py-2 text-sm font-normal text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white focus-visible:ring-[#474747] data-[state=open]:bg-[#2a2a2a] data-[state=open]:text-white"
+              className="h-6 rounded px-2 py-2 text-sm font-normal text-muted-foreground hover:bg-surface-hover hover:text-foreground focus-visible:ring-border-strong data-[state=open]:bg-surface-hover data-[state=open]:text-foreground"
             >
               {menu.label}
             </Button>

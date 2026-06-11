@@ -48,7 +48,7 @@ function FormattingColorPicker({ activeColor, disabled, icon: Icon, label, optio
   return (
     <DropdownMenu onOpenChange={(open) => open && setHexValue(activeColor ?? "")}>
       <DropdownMenuTrigger asChild disabled={disabled}>
-        <IconButton label={label} disabled={disabled} className={activeColor ? "bg-[#333333] text-white" : undefined}>
+        <IconButton label={label} disabled={disabled} className={activeColor ? "bg-surface-strong text-white" : undefined}>
           <span className="relative flex h-4 w-4 items-center justify-center">
             <Icon className="h-4 w-4" />
             {activeColor ? (

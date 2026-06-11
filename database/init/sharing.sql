@@ -25,6 +25,8 @@ alter table public.office_files
 create table if not exists public.office_file_shares (
   id          uuid        primary key default gen_random_uuid(),
   file_id     uuid        not null references public.office_files(id) on delete cascade,
+  project_id  uuid        references public.flow_projects(id) on delete set null,
+  shared_by   uuid        references auth.users(id) on delete set null,
 
   -- Invitee identity. email is the source of truth (the person may not have an
   -- account yet); user_id is an optional resolved link to an auth user.
@@ -42,6 +44,8 @@ create table if not exists public.office_file_shares (
 create index if not exists office_file_shares_file_idx  on public.office_file_shares (file_id);
 create index if not exists office_file_shares_email_idx on public.office_file_shares (lower(email));
 create index if not exists office_file_shares_user_idx  on public.office_file_shares (user_id);
+create index if not exists office_file_shares_project_idx
+  on public.office_file_shares (project_id, created_at desc);
 
 -- ── Access helpers ────────────────────────────────────────────────────────────
 -- SECURITY DEFINER → these run as the table owner and BYPASS RLS, so the policies
@@ -120,6 +124,11 @@ create policy "Invitee views own share"
     user_id = auth.uid()
     or lower(email) = lower(auth.jwt() ->> 'email')
   );
+
+drop policy if exists "Project members view project shares" on public.office_file_shares;
+create policy "Project members view project shares"
+  on public.office_file_shares for select
+  using (project_id is not null and public.flow_is_project_member(project_id));
 
 -- ── People typeahead for the share dialog ─────────────────────────────────────
 -- Searches auth.users (not client-readable) via a SECURITY DEFINER function and

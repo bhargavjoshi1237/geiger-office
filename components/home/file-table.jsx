@@ -34,7 +34,7 @@ function TypeBadge({ type }) {
   const Icon = meta.icon;
   return (
     <span title={meta.label} className="flex justify-center">
-      <Icon className="h-5 w-5 text-[#737373]" />
+      <Icon className="h-5 w-5 text-text-secondary" />
     </span>
   );
 }
@@ -51,9 +51,9 @@ export function FileTable({
   onShare,
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
       <Table className="table-fixed">
-        <TableHeader className="bg-[#1a1a1a]">
+        <TableHeader className="bg-surface-subtle">
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-[48%] pl-5 sm:w-[56%] md:w-[46%] lg:w-[42%]">Name</TableHead>
             <TableHead className="hidden w-[14%] text-center sm:table-cell md:w-[12%]">Type</TableHead>
@@ -73,10 +73,10 @@ export function FileTable({
                 <TableCell className="pl-5">
                   <Link href={href} prefetch={false} className="flex min-w-0 items-center gap-3">
                     <span className="flex min-w-0 flex-col">
-                      <span className="truncate text-sm font-medium text-[#ededed] group-hover:text-white">
+                      <span className="truncate text-sm font-medium text-foreground group-hover:text-foreground">
                         {file.name}
                       </span>
-                      <span className="text-xs text-[#737373] sm:hidden">
+                      <span className="text-xs text-text-secondary sm:hidden">
                         {meta.label} · {timeAgo(file.updated_at || file.created_at)}
                       </span>
                     </span>
@@ -87,16 +87,16 @@ export function FileTable({
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   {owned ? (
-                    <span className="block truncate text-sm text-[#a3a3a3]">You</span>
+                    <span className="block truncate text-sm text-muted-foreground">You</span>
                   ) : (
-                    <span className="inline-flex min-w-0 max-w-full items-center gap-2 text-sm text-[#a3a3a3]">
+                    <span className="inline-flex min-w-0 max-w-full items-center gap-2 text-sm text-muted-foreground">
                       Shared
-                      <Badge className="bg-[#737373] text-[#737373]">{ROLE_LABEL[file._role] ?? "Viewer"}</Badge>
+                      <Badge className="bg-[#737373] text-text-secondary">{ROLE_LABEL[file._role] ?? "Viewer"}</Badge>
                     </span>
                   )}
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">
-                  <span className="block truncate text-sm text-[#737373]">{timeAgo(file.updated_at || file.created_at)}</span>
+                  <span className="block truncate text-sm text-text-secondary">{timeAgo(file.updated_at || file.created_at)}</span>
                 </TableCell>
                 <TableCell className="pr-5 text-right">
                   <div className="flex items-center justify-end gap-1">
@@ -105,7 +105,7 @@ export function FileTable({
                         type="button"
                         onClick={() => onToggleStar(file)}
                         className={cn(
-                          "rounded-md p-1.5 text-[#737373] transition-colors hover:bg-[#2a2a2a] hover:text-white",
+                          "rounded-md p-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-foreground",
                           file.starred && "text-amber-400 hover:text-amber-300",
                           !file.starred && !owned && "hidden",
                         )}
@@ -120,7 +120,7 @@ export function FileTable({
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className="rounded-md p-1.5 text-[#737373] transition-colors hover:bg-[#2a2a2a] hover:text-white data-[state=open]:bg-[#2a2a2a] data-[state=open]:text-white"
+                          className="rounded-md p-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-foreground data-[state=open]:bg-surface-hover data-[state=open]:text-foreground"
                           aria-label="More actions"
                         >
                           <MoreVertical className="h-4 w-4" />

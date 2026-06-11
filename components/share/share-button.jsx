@@ -6,7 +6,7 @@ import { ShareDialog } from "@/components/share/share-dialog";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_CLASS =
-  "inline-flex h-8 items-center gap-2 rounded-full border border-[#3a3a3a] bg-[#2a2a2a] px-3.5 text-sm font-medium text-white transition-colors hover:bg-[#333333]";
+  "inline-flex h-8 items-center gap-2 rounded-full border border-border-strong bg-surface-hover px-3.5 text-sm font-medium text-white transition-colors hover:bg-surface-strong";
 
 export function ShareButton({ fileId, fileType, name, className, label = "Share", render }) {
   const [open, setOpen] = useState(false);
@@ -32,7 +32,7 @@ export function ViewOnlyBadge({ role, className }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border border-[#3a3a3a] bg-[#242424] px-2 py-0.5 text-xs font-medium text-[#a3a3a3]",
+        "inline-flex items-center rounded-full border border-border-strong bg-surface-active px-2 py-0.5 text-xs font-medium text-muted-foreground",
         className,
       )}
     >

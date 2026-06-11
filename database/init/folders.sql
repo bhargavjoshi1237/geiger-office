@@ -5,6 +5,7 @@
 
 create table if not exists public.office_folders (
   id          uuid        primary key default gen_random_uuid(),
+  project_id  uuid        references public.flow_projects(id) on delete set null,
   user_id     uuid        not null references auth.users(id) on delete cascade,
   name        text        not null default 'Untitled folder',
   color       text        not null default '#4285f4',
@@ -15,6 +16,8 @@ create table if not exists public.office_folders (
 -- ── Indexes ───────────────────────────────────────────────────────────────────
 create index if not exists office_folders_user_idx
   on public.office_folders (user_id, updated_at desc);
+create index if not exists office_folders_project_idx
+  on public.office_folders (project_id, updated_at desc);
 
 -- ── Row-Level Security (owner-only) ───────────────────────────────────────────
 alter table public.office_folders enable row level security;
@@ -30,7 +33,10 @@ create policy "Users can view own folders"
 
 create policy "Users can create own folders"
   on public.office_folders for insert
-  with check (auth.uid() = user_id);
+  with check (
+    auth.uid() = user_id
+    and (project_id is null or public.flow_is_project_member(project_id))
+  );
 
 create policy "Users can update own folders"
   on public.office_folders for update
@@ -39,6 +45,18 @@ create policy "Users can update own folders"
 create policy "Users can delete own folders"
   on public.office_folders for delete
   using (auth.uid() = user_id);
+
+drop policy if exists "Project members can view project folders" on public.office_folders;
+drop policy if exists "Project members can update project folders" on public.office_folders;
+
+create policy "Project members can view project folders"
+  on public.office_folders for select
+  using (project_id is not null and public.flow_is_project_member(project_id));
+
+create policy "Project members can update project folders"
+  on public.office_folders for update
+  using (project_id is not null and public.flow_is_project_member(project_id))
+  with check (project_id is not null and public.flow_is_project_member(project_id));
 
 -- ── Auto-update updated_at on every write ─────────────────────────────────────
 create or replace function public.update_office_folders_updated_at()

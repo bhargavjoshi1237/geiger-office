@@ -9,7 +9,7 @@ function SidebarContent({ nav = [], activeView, onViewChange, onNavigate, showHe
   return (
     <>
       {showHeader ? (
-        <div className="flex h-14 items-center gap-2 border-b border-[#2a2a2a] bg-[#1a1a1a] px-4">
+        <div className="flex h-14 items-center gap-2 border-b border-border bg-surface-subtle px-4">
           <div>
             <p className="text-sm font-semibold text-white">Office</p>
           </div>
@@ -33,7 +33,7 @@ function SidebarContent({ nav = [], activeView, onViewChange, onNavigate, showHe
             <li
               key={id}
               className={cn(
-                "px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-[#737373]",
+                "px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-text-secondary",
                 collapsed && "sr-only",
               )}
             >
@@ -48,11 +48,11 @@ function SidebarContent({ nav = [], activeView, onViewChange, onNavigate, showHe
               onNavigate?.();
             }}
             className={cn(
-              "flex h-9 w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#474747]",
+              "flex h-9 w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-border-strong",
               collapsed && "mx-auto h-8 w-8 justify-center p-0",
               activeView === id
-                ? "bg-[#2a2a2a] font-medium text-white"
-                : "text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white",
+                ? "bg-surface-hover font-medium text-white"
+                : "text-muted-foreground hover:bg-surface-hover hover:text-foreground",
             )}
             title={collapsed ? label : undefined}
           >
@@ -63,8 +63,8 @@ function SidebarContent({ nav = [], activeView, onViewChange, onNavigate, showHe
                 className={cn(
                   "ml-auto shrink-0 rounded px-1.5 py-0.5 text-[10px] tabular-nums",
                   activeView === id
-                    ? "bg-[#3a3a3a] text-[#e7e7e7]"
-                    : "bg-[#242424] text-[#737373]",
+                    ? "bg-[#3a3a3a] text-foreground"
+                    : "bg-surface-active text-text-secondary",
                 )}
               >
                 {count}
@@ -77,12 +77,12 @@ function SidebarContent({ nav = [], activeView, onViewChange, onNavigate, showHe
           </ul>
         </div>
       </nav>
-      <div className="border-t border-[#2a2a2a] p-2">
+      <div className="border-t border-border p-2">
         <button
           type="button"
           onClick={onToggle}
           className={cn(
-            "flex w-full items-center gap-3 rounded-lg p-2 text-[#a3a3a3] transition-all hover:bg-[#2a2a2a] hover:text-white",
+            "flex w-full items-center gap-3 rounded-lg p-2 text-muted-foreground transition-all hover:bg-surface-hover hover:text-foreground",
             collapsed && "mx-auto h-8 w-8 justify-center p-0",
           )}
           aria-label="Collapse sidebar"
@@ -112,7 +112,7 @@ export function AppShell({ nav = [], activeView = "", onViewChange = () => {}, c
   }, []);
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-[#161616] text-white">
+    <div className="flex h-[100dvh] flex-col bg-background text-white">
       <Topbar onMenuClick={() => setMobileOpen(true)} />
 
       {mobileOpen ? (
@@ -123,11 +123,11 @@ export function AppShell({ nav = [], activeView = "", onViewChange = () => {}, c
             onClick={() => setMobileOpen(false)}
             aria-label="Close navigation"
           />
-          <aside className="relative flex h-full w-72 max-w-[85vw] flex-col border-r border-[#2a2a2a] bg-[#1a1a1a] shadow-2xl">
+          <aside className="relative flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-surface-subtle shadow-2xl">
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-md text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white"
+              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface-active hover:text-foreground"
               aria-label="Close navigation"
             >
               <X className="h-4 w-4" />
@@ -147,7 +147,7 @@ export function AppShell({ nav = [], activeView = "", onViewChange = () => {}, c
       <div className="flex min-h-0 flex-1">
         <aside
           className={cn(
-            "hidden shrink-0 border-r border-[#2a2a2a] bg-[#1a1a1a] text-[#a3a3a3] transition-[width] duration-200 ease-linear md:flex md:flex-col",
+            "hidden shrink-0 border-r border-border bg-surface-subtle text-muted-foreground transition-[width] duration-200 ease-linear md:flex md:flex-col",
             collapsed ? "w-12" : "w-64",
           )}
         >
@@ -159,7 +159,7 @@ export function AppShell({ nav = [], activeView = "", onViewChange = () => {}, c
             onToggle={() => setCollapsed((value) => !value)}
           />
         </aside>
-        <main className="flex-1 overflow-y-auto bg-[#161616] p-4 md:p-8 scrollbar-subtle">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-background p-4 md:p-8 scrollbar-subtle">{children}</main>
       </div>
     </div>
   );

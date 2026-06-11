@@ -14,12 +14,12 @@ function Toaster(props) {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:rounded-xl group-[.toaster]:border group-[.toaster]:border-[#2a2a2a] group-[.toaster]:bg-[#202020] group-[.toaster]:text-[#e7e7e7] group-[.toaster]:shadow-xl group-[.toaster]:shadow-black/40",
-          description: "group-[.toast]:text-[#a3a3a3]",
+            "group toast group-[.toaster]:rounded-xl group-[.toaster]:border group-[.toaster]:border-border group-[.toaster]:bg-surface-card group-[.toaster]:text-foreground group-[.toaster]:shadow-xl group-[.toaster]:shadow-black/40",
+          description: "group-[.toast]:text-muted-foreground",
           actionButton:
             "group-[.toast]:bg-white group-[.toast]:text-[#161616] group-[.toast]:rounded-md",
           cancelButton:
-            "group-[.toast]:bg-[#2a2a2a] group-[.toast]:text-[#a3a3a3] group-[.toast]:rounded-md",
+            "group-[.toast]:bg-surface-hover group-[.toast]:text-muted-foreground group-[.toast]:rounded-md",
           error: "group-[.toaster]:!text-red-300",
           success: "group-[.toaster]:!text-emerald-300",
           icon: "group-[.toast]:shrink-0",

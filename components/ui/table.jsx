@@ -9,24 +9,24 @@ const Table = React.forwardRef(({ className, ...props }, ref) => (
 Table.displayName = "Table";
 
 const TableHeader = React.forwardRef(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b bg-[#202020]", className)} {...props} />
+  <thead ref={ref} className={cn("[&_tr]:border-b bg-surface-card", className)} {...props} />
 ));
 TableHeader.displayName = "TableHeader";
 
 const TableBody = React.forwardRef(({ className, ...props }, ref) => (
-  <tbody ref={ref} className={cn("divide-y divide-[#2a2a2a] [&_tr:last-child]:border-0", className)} {...props} />
+  <tbody ref={ref} className={cn("divide-y divide-border [&_tr:last-child]:border-0", className)} {...props} />
 ));
 TableBody.displayName = "TableBody";
 
 const TableRow = React.forwardRef(({ className, ...props }, ref) => (
-  <tr ref={ref} className={cn("border-b border-[#2a2a2a] transition-colors hover:bg-[#242424]", className)} {...props} />
+  <tr ref={ref} className={cn("border-b border-border transition-colors hover:bg-surface-active", className)} {...props} />
 ));
 TableRow.displayName = "TableRow";
 
 const TableHead = React.forwardRef(({ className, ...props }, ref) => (
   <th
     ref={ref}
-    className={cn("h-11 px-4 text-left align-middle text-xs font-semibold uppercase tracking-wider text-[#a3a3a3]", className)}
+    className={cn("h-11 px-4 text-left align-middle text-xs font-semibold uppercase tracking-wider text-muted-foreground", className)}
     {...props}
   />
 ));

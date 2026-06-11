@@ -221,7 +221,7 @@ export function SheetMenuBar({
       {menus.map((menu) => (
         <DropdownMenu key={menu.label}>
           <DropdownMenuTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" className="h-6 rounded px-1.5 text-sm font-normal text-white hover:bg-[#2a2a2a]">
+            <Button type="button" variant="ghost" size="sm" className="h-6 rounded px-1.5 text-sm font-normal text-white hover:bg-surface-hover">
               {menu.label}
             </Button>
           </DropdownMenuTrigger>

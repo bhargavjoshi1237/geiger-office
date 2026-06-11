@@ -7,6 +7,7 @@ import {
   Clock,
   FileText,
   FolderOpen,
+  FolderKanban,
   FolderPlus,
   LayoutTemplate,
   Loader2,
@@ -38,6 +39,18 @@ function apiUrl(path = "") {
   const isProd = process.env.NODE_ENV === "production";
   const basePath = isProd ? process.env.NEXT_PUBLIC_BASE_PATH || "/office" : "";
   return `${basePath}/api/files${path}`;
+}
+
+function appApiUrl(path) {
+  const isProd = process.env.NODE_ENV === "production";
+  const basePath = isProd ? process.env.NEXT_PUBLIC_BASE_PATH || "/office" : "";
+  return `${basePath}/api${path}`;
+}
+
+function projectParam(projectId) {
+  return projectId && projectId !== "all"
+    ? `project_id=${encodeURIComponent(projectId)}`
+    : "";
 }
 
 const NAV = [
@@ -100,12 +113,23 @@ export function HomeView() {
   const [activeFolder, setActiveFolder] = useState(null);
   const [addToFolderOpen, setAddToFolderOpen] = useState(false);
   const [addToFolderTarget, setAddToFolderTarget] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [activeProject, setActiveProject] = useState("all");
 
   const isListView = LIST_VIEWS.has(view);
 
+  useEffect(() => {
+    fetch(appApiUrl("/projects"))
+      .then((res) => (res.ok ? res.json() : { projects: [] }))
+      .then((data) => setProjects(data.projects ?? []))
+      .catch(() => setProjects([]));
+  }, []);
+
   const fetchStats = useCallback(async () => {
+    setStatsLoading(true);
     try {
-      const res = await fetch(apiUrl("/stats"));
+      const scope = projectParam(activeProject);
+      const res = await fetch(apiUrl(`/stats${scope ? `?${scope}` : ""}`));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setStats(data);
@@ -114,7 +138,7 @@ export function HomeView() {
     } finally {
       setStatsLoading(false);
     }
-  }, []);
+  }, [activeProject]);
 
   useEffect(() => {
     fetchStats();
@@ -130,7 +154,10 @@ export function HomeView() {
     try {
       const filter = TYPE_VIEWS.has(view) ? "recent" : view;
       const type = TYPE_VIEWS.has(view) ? `&type=${view}` : "";
-      const res = await fetch(apiUrl(`?filter=${filter}${type}`));
+      const scope = projectParam(activeProject);
+      const res = await fetch(
+        apiUrl(`?filter=${filter}${type}${scope ? `&${scope}` : ""}`),
+      );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setFiles(data.files ?? []);
@@ -141,7 +168,7 @@ export function HomeView() {
     } finally {
       setLoading(false);
     }
-  }, [view]);
+  }, [activeProject, view]);
 
   useEffect(() => {
     fetchFiles();
@@ -169,7 +196,13 @@ export function HomeView() {
       const res = await fetch(apiUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type }),
+        body: JSON.stringify({
+          type,
+          project_id:
+            activeProject !== "all" && activeProject !== "personal"
+              ? activeProject
+              : null,
+        }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const file = await res.json();
@@ -187,7 +220,15 @@ export function HomeView() {
     const res = await fetch(apiUrl(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type, name, content }),
+      body: JSON.stringify({
+        type,
+        name,
+        content,
+        project_id:
+          activeProject !== "all" && activeProject !== "personal"
+            ? activeProject
+            : null,
+      }),
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -264,6 +305,7 @@ export function HomeView() {
           type: file.type,
           name: `${file.name} (copy)`,
           content: full.content ?? {},
+          project_id: full.project_id ?? null,
         }),
       });
       const created = await res.json();
@@ -293,20 +335,40 @@ export function HomeView() {
   return (
     <AppShell nav={navItems} activeView={view} onViewChange={setView}>
       <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-6 flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">{page.title}</h1>
-            <p className="mt-1 text-sm text-[#a3a3a3]">{page.subtitle}</p>
+            <h1 className="text-2xl font-bold text-foreground md:text-3xl">{page.title}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{page.subtitle}</p>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative">
+              <FolderKanban className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+              <select
+                value={activeProject}
+                onChange={(event) => {
+                  setActiveProject(event.target.value);
+                  setActiveFolder(null);
+                }}
+                aria-label="Filter files by project"
+                className="h-9 max-w-48 appearance-none rounded-md border border-border bg-surface-card pl-8 pr-8 text-sm text-muted-foreground outline-none transition-colors hover:border-border-strong focus:border-border-strong"
+              >
+                <option value="all">All files</option>
+                <option value="personal">Personal</option>
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
             {showSearch ? (
               <div className="relative flex-1 sm:flex-none">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search files"
-                  className="h-9 w-full rounded-md border border-[#2a2a2a] bg-[#202020] pl-8 pr-3 text-sm text-white outline-none transition-colors placeholder:text-[#737373] focus:border-[#474747] sm:w-64"
+                  className="h-9 w-full rounded-md border border-border bg-surface-card pl-8 pr-3 text-sm text-white outline-none transition-colors placeholder:text-text-secondary focus:border-border-strong sm:w-64"
                 />
               </div>
             ) : null}
@@ -316,7 +378,7 @@ export function HomeView() {
                 onClick={() => setUploadOpen(true)}
                 aria-label="Upload a file"
                 title="Upload"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#2a2a2a] bg-[#202020] text-[#e7e7e7] transition-colors hover:border-[#474747] hover:bg-[#242424]"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface-card text-foreground transition-colors hover:border-border-strong hover:bg-surface-active"
               >
                 <Upload className="h-4 w-4" />
               </button>
@@ -370,6 +432,8 @@ export function HomeView() {
           <TemplatesView onCreate={handleCreate} creating={creating} />
         ) : view === "folders" ? (
           <FoldersView
+            key={activeProject}
+            projectId={activeProject}
             onCreate={handleCreate}
             creating={creating}
             createOpen={folderCreateOpen}
@@ -383,7 +447,7 @@ export function HomeView() {
         ) : view === "settings" ? (
           <SettingsView email={stats?.email} />
         ) : loading ? (
-          <div className="flex min-h-[40vh] items-center justify-center text-[#737373]">
+          <div className="flex min-h-[40vh] items-center justify-center text-text-secondary">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : error ? (
@@ -392,7 +456,7 @@ export function HomeView() {
             <button
               type="button"
               onClick={fetchFiles}
-              className="rounded-md border border-[#333333] px-3 py-1.5 text-sm text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+              className="rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-surface-active hover:text-foreground"
             >
               Try again
             </button>
@@ -447,6 +511,7 @@ export function HomeView() {
       {addToFolderTarget ? (
         <AddToFolderDialog
           open={addToFolderOpen}
+          projectId={activeProject}
           folderId={addToFolderTarget.id}
           folderName={addToFolderTarget.name}
           onClose={() => {

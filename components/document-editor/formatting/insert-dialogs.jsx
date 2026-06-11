@@ -40,11 +40,11 @@ function LinkDialog({ activeUrl = "", open, onOpenChange, onSubmit }) {
           <DialogDescription>Add a URL to selected text, or enter display text to insert a new link.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">
-          <label className="grid gap-1.5 text-sm text-[#d4d4d4]">
+          <label className="grid gap-1.5 text-sm text-muted-foreground">
             URL
             <Input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com" autoFocus />
           </label>
-          <label className="grid gap-1.5 text-sm text-[#d4d4d4]">
+          <label className="grid gap-1.5 text-sm text-muted-foreground">
             Text
             <Input value={text} onChange={(event) => setText(event.target.value)} placeholder="Optional" />
           </label>
@@ -124,11 +124,11 @@ function ImageDialog({ open, onOpenChange, onSubmit }) {
           <DialogDescription>Paste an image URL or drag a local image into the upload area.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">
-          <label className="grid gap-1.5 text-sm text-[#d4d4d4]">
+          <label className="grid gap-1.5 text-sm text-muted-foreground">
             Image URL
             <Input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com/image.png" autoFocus />
           </label>
-          <label className="grid gap-1.5 text-sm text-[#d4d4d4]">
+          <label className="grid gap-1.5 text-sm text-muted-foreground">
             Alt text
             <Input value={alt} onChange={(event) => setAlt(event.target.value)} placeholder="Optional" />
           </label>
@@ -143,8 +143,8 @@ function ImageDialog({ open, onOpenChange, onSubmit }) {
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
             className={cn(
-              "flex min-h-32 flex-col items-center justify-center gap-2 rounded-md border border-dashed border-[#474747] bg-[#242424] px-4 text-center text-sm text-[#a3a3a3] transition-colors hover:border-[#737373] hover:text-white",
-              dragActive && "border-white bg-[#2a2a2a] text-white",
+              "flex min-h-32 flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border-strong bg-surface-active px-4 text-center text-sm text-muted-foreground transition-colors hover:border-[#737373] hover:text-foreground",
+              dragActive && "border-white bg-surface-hover text-white",
             )}
           >
             <UploadCloud className="h-6 w-6" />

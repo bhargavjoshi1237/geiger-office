@@ -31,7 +31,7 @@ export function SaveStatus({ status, className = "" }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[#a3a3a3] ${className}`}
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-muted-foreground ${className}`}
       aria-live="polite"
     >
       {content}

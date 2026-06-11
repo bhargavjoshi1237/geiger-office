@@ -12,7 +12,7 @@ function Switch({ checked, onCheckedChange, className, ...props }) {
       onClick={() => onCheckedChange?.(!checked)}
       className={cn(
         "relative h-5 w-9 rounded-full border transition-colors",
-        checked ? "border-white bg-white" : "border-[#474747] bg-[#202020]",
+        checked ? "border-white bg-white" : "border-border-strong bg-surface-card",
         className,
       )}
       {...props}

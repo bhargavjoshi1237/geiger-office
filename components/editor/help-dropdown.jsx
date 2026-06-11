@@ -10,7 +10,7 @@ export function HelpDropdown({ triggerClassName }) {
       aria-label="Help"
       onClick={() => { window.location.href = "/doc"; }}
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-full border border-transparent text-[#a3a3a3] transition-colors hover:bg-[#242424] hover:text-white",
+        "flex h-8 w-8 items-center justify-center rounded-full border border-transparent text-muted-foreground transition-colors hover:bg-surface-active hover:text-foreground",
         triggerClassName,
       )}
     >
