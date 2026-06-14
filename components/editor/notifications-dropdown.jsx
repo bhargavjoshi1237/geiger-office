@@ -131,7 +131,11 @@ export function NotificationsDropdown({ triggerClassName, children }) {
             </div>
           ) : (
             filteredNotifications.map((notification) => {
-              const IconComponent = LucideIcons[notification.icon] || Bell;
+              const iconExport = LucideIcons[notification.icon];
+              const IconComponent =
+                iconExport && typeof iconExport.render === "function"
+                  ? iconExport
+                  : Bell;
               const formattedTime = formatRelativeTime(notification.time);
 
               let extraContent = null;
