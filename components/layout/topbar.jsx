@@ -52,12 +52,12 @@ export function Topbar({ onMenuClick }) {
 
       <div className="flex justify-between gap-4 md:gap-8 sm:mr-2">
         <div className="flex items-center gap-2 sm:gap-3">
-          <CommandSearch triggerClassName="border-border bg-surface-card" />
+          <CommandSearch triggerClassName="hidden border-border bg-surface-card sm:flex" />
 
           <div className="ml-0 flex items-center gap-0 sm:ml-1 sm:gap-1">
             <ThemeToggle />
             <HelpDropdown triggerClassName="hidden sm:flex" />
-            <NotificationsDropdown />
+            <NotificationsDropdown triggerClassName="hidden sm:flex" />
             <ProfileDropdown triggerClassName="ml-1 border-border" />
           </div>
         </div>

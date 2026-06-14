@@ -655,7 +655,7 @@ function SlidesEditor({ fileId }) {
               <Sparkles className="h-5 w-5" />
             </IconButton>
             <HelpDropdown appName="Office Slides" triggerClassName="hidden sm:flex" />
-            <NotificationsDropdown triggerClassName="h-9 w-9 rounded-md hover:bg-surface-active" />
+            <NotificationsDropdown triggerClassName="hidden h-9 w-9 rounded-md hover:bg-surface-active sm:flex" />
             <ProfileDropdown triggerClassName="h-9 w-9 border-border bg-surface-card hover:bg-surface-active" />
           </div>
         </div>

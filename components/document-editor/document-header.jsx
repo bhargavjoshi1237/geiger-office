@@ -126,11 +126,11 @@ function DocumentHeader({ editor, toolbar, name = "Untitled document", onRename,
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <CommandSearch placeholder="Search..." />
+          <CommandSearch placeholder="Search..." triggerClassName="hidden sm:flex" />
 
           <div className="ml-0 flex items-center gap-0 sm:ml-1 sm:gap-1">
             <HelpDropdown shortcuts={DOC_SHORTCUTS} appName="Office Docs" triggerClassName="hidden sm:flex" />
-            <NotificationsDropdown />
+            <NotificationsDropdown triggerClassName="hidden sm:flex" />
             <ProfileDropdown triggerClassName="ml-1 bg-surface-active hover:bg-surface-hover" />
           </div>
         </div>

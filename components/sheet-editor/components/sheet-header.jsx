@@ -119,9 +119,9 @@ export function SheetHeader({ children, menuProps, name, status, onExportWorkboo
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <CommandSearch placeholder="Search sheets..." />
+          <CommandSearch placeholder="Search sheets..." triggerClassName="hidden sm:flex" />
           <HelpDropdown appName="Office Sheets" triggerClassName="hidden sm:flex" />
-          <NotificationsDropdown />
+          <NotificationsDropdown triggerClassName="hidden sm:flex" />
           <ProfileDropdown triggerClassName="ml-1 bg-surface-active hover:bg-surface-hover" />
         </div>
       </div>
